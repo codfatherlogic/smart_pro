@@ -1,0 +1,67 @@
+{
+ "workflow": "Smart Project Workflow",
+ "document_type": "Smart Project",
+ "states": [
+  {
+   "state": "Draft",
+   "permissions": {
+    "create": 1,
+    "read": 1,
+    "write": 1,
+    "submit": 1,
+    "cancel": 0,
+    "approve": 0
+   }
+  },
+  {
+   "state": "Active",
+   "permissions": {
+    "create": 0,
+    "read": 1,
+    "write": 0,
+    "submit": 0,
+    "cancel": 1,
+    "approve": 1
+   }
+  },
+  {
+   "state": "Completed",
+   "permissions": {
+    "create": 0,
+    "read": 1,
+    "write": 0,
+    "submit": 0,
+    "cancel": 0,
+    "approve": 0
+   }
+  },
+  {
+   "state": "Cancelled",
+   "permissions": {
+    "create": 0,
+    "read": 1,
+    "write": 0,
+    "submit": 0,
+    "cancel": 0,
+    "approve": 0
+   }
+  }
+ ],
+ "transitions": [
+  {
+   "from": "Draft",
+   "to": "Active",
+   "condition": "True"
+  },
+  {
+   "from": "Active",
+   "to": "Completed",
+   "condition": "True"
+  },
+  {
+   "from": "Active",
+   "to": "Cancelled",
+   "condition": "True"
+  }
+ ]
+}

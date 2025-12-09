@@ -1,0 +1,92 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"xeNttFPpYJ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Smart Pro</span>\",\"col\":12}},{\"id\":\"JLIO4IhPFq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Projects Dashboard\",\"col\":3}},{\"id\":\"9atgBSVeCo\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"oqCArhEIAL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Smart Project\",\"col\":3}},{\"id\":\"7a1gk_nbjb\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Project Assignment\",\"col\":3}},{\"id\":\"R4pHK5KHjk\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Date Request\",\"col\":3}},{\"id\":\"2wqbH1xX33\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Smart Task\",\"col\":3}},{\"id\":\"q4HSgLPX_E\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Smart Timesheet\",\"col\":3}},{\"id\":\"GvlNGnvsFZ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Smart Pro Notification\",\"col\":3}},{\"id\":\"-ZNUDVYdiX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Smart Pro Settings\",\"col\":3}}]",
+ "creation": "2025-12-09 12:40:03.271360",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "crm",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Smart Pro",
+ "links": [],
+ "modified": "2025-12-09 14:37:17.138995",
+ "modified_by": "Administrator",
+ "module": "Smart Pro",
+ "name": "Smart Pro",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 1.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Projects Dashboard",
+   "link_to": "projects_dashboard",
+   "type": "Page"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Smart Project",
+   "link_to": "Smart Project",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Smart Pro Settings",
+   "link_to": "Smart Pro Settings",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Smart Timesheet",
+   "link_to": "Smart Timesheet",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Smart Task",
+   "link_to": "Smart Task",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee Project Assignment",
+   "link_to": "Employee Project Assignment",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee Date Request",
+   "link_to": "Employee Date Request",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Smart Pro Notification",
+   "link_to": "Smart Pro Notification",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Smart Pro"
+}

@@ -1,0 +1,95 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-02T12:19:00.000000",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "title",
+  "body",
+  "data",
+  "status",
+  "created_at"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "body",
+   "fieldtype": "Text",
+   "label": "Body",
+   "reqd": 1
+  },
+  {
+   "fieldname": "data",
+   "fieldtype": "JSON",
+   "label": "Data"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "pending\nread\ndismissed",
+   "default": "pending"
+  },
+  {
+   "fieldname": "created_at",
+   "fieldtype": "Datetime",
+   "label": "Created At",
+   "read_only": 1
+  }
+ ],
+ "idx": 1,
+ "image_field": "",
+ "links": [],
+ "modified": "2025-12-02T12:19:00.000000",
+ "modified_by": "Administrator",
+ "module": "Smart Pro",
+ "name": "Smart Pro Notification",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee",
+   "share": 0,
+   "write": 0
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "created_at",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

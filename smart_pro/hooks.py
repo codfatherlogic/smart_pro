@@ -8,7 +8,7 @@ app_license = "mit"
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["frappe", "erpnext"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -25,8 +25,8 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/smart_pro/css/smart_pro.css"
-# app_include_js = "/assets/smart_pro/js/smart_pro.js"
+app_include_css = "/assets/smart_pro/css/projects_dashboard.css"
+# app_include_js = "/assets/smart_pro/js/projects_dashboard.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/smart_pro/css/smart_pro.css"
@@ -41,6 +41,20 @@ app_license = "mit"
 
 # include js in page
 # page_js = {"page" : "public/js/file.js"}
+
+# Desk Pages
+# ------------------
+desk_pages = [
+    {
+        "module": "Smart Pro",
+        "label": "Projects Dashboard",
+        "icon": "fa fa-project-diagram",
+        "type": "page",
+        "link": "projects_dashboard",
+        "description": "Dashboard for managing projects, tasks, and employee assignments",
+        "roles": ["System Manager", "Project Manager", "Employee"]
+    }
+]
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
@@ -70,6 +84,12 @@ app_license = "mit"
 # automatically create page for each record of this doctype
 # website_generators = ["Web Page"]
 
+# Website Route Rules for PWA
+# ---------------------------
+website_route_rules = [
+    {"from_route": "/smart-pro/<path:app_path>", "to_route": "smart-pro"},
+]
+
 # Jinja
 # ----------
 
@@ -84,6 +104,12 @@ app_license = "mit"
 
 # before_install = "smart_pro.install.before_install"
 # after_install = "smart_pro.install.after_install"
+
+# Fixtures
+# --------
+fixtures = [
+    {"dt": "Role", "filters": [["role_name", "=", "Smart Pro User"]]}
+]
 
 # Uninstallation
 # ------------

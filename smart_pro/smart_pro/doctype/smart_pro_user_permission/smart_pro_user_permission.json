@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "creation": "2025-12-09 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "user_name",
+  "can_view_all_projects",
+  "can_view_all_tasks"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "user.full_name",
+   "fieldname": "user_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "User Name",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "can_view_all_projects",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Can View All Projects"
+  },
+  {
+   "default": "1",
+   "fieldname": "can_view_all_tasks",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Can View All Tasks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-09 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Smart Pro",
+ "name": "Smart Pro User Permission",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

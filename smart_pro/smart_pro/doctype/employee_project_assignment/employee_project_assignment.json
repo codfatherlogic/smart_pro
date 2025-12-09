@@ -1,0 +1,174 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-12-02 12:02:00",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "assignment_details",
+  "employee",
+  "role",
+  "allocation_percentage",
+  "column_break_aqcc",
+  "project",
+  "employee_name",
+  "status",
+  "dates_section",
+  "start_date",
+  "column_break_gkwa",
+  "end_date",
+  "project_scope_section",
+  "project_scope",
+  "more_tab",
+  "naming_series"
+ ],
+ "fields": [
+  {
+   "fieldname": "assignment_details",
+   "fieldtype": "Section Break",
+   "label": "Assignment Details"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Smart Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "role",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Role",
+   "options": "Smart Role",
+   "reqd": 1
+  },
+  {
+   "default": "100",
+   "fieldname": "allocation_percentage",
+   "fieldtype": "Percent",
+   "label": "Allocation Percentage"
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nOn Hold\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "dates_section",
+   "fieldtype": "Section Break",
+   "label": "Dates"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "column_break_aqcc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "more_tab",
+   "fieldtype": "Tab Break",
+   "label": "More"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "EPA.YY.###"
+  },
+  {
+   "fieldname": "column_break_gkwa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project_scope_section",
+   "fieldtype": "Section Break",
+   "label": "Project Scope"
+  },
+  {
+   "description": "Detailed description of the project scope and deliverables for this assignment",
+   "fieldname": "project_scope",
+   "fieldtype": "Text Editor",
+   "label": "Project Scope Details"
+  }
+ ],
+ "idx": 1,
+ "links": [
+  {
+   "group": "Date Requests",
+   "link_doctype": "Employee Date Request",
+   "link_fieldname": "assignment"
+  }
+ ],
+ "modified": "2025-12-09 19:09:47.941196",
+ "modified_by": "Administrator",
+ "module": "Smart Pro",
+ "name": "Employee Project Assignment",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee"
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Smart Pro User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

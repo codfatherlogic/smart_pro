@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Projects Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="page-header mb-4">
+		<h1>Projects Dashboard</h1>
+		<p class="text-muted">Manage your projects, tasks, and employee assignments</p>
+	</div>
+	<div id="projects-dashboard-app" class="projects-dashboard">
+		<div class="text-center p-5">
+			<div class="spinner-border" role="status">
+				<span class="sr-only">Loading...</span>
+			</div>
+			<p class="mt-2">Loading dashboard...</p>
+		</div>
+	</div>
+	<noscript>
+		<div class="alert alert-warning">
+			JavaScript is required to view this dashboard.
+		</div>
+	</noscript>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+frappe.ready(function() {
+	console.log('Frappe ready, initializing dashboard...');
+	
+	// Wait for Vue to be available
+	if (typeof Vue === 'undefined') {
+		console.error('Vue is not available');
+		document.getElementById('projects-dashboard-app').innerHTML = '<div class="alert alert-danger">Vue.js is not loaded. Please refresh the page.</div>';
+		return;
+	}
+	
+	console.log('Vue is available, creating app...');
+	
+	// Initialize dashboard
+	const dashboardApp = new Vue({
+		el: '#projects-dashboard-app',
+		data() {
+			return {
+				projects: [],
+				tasks: [],
+				pendingRequests: [],
+				loading: true,
+				selectedProject: null,
+				projectDetails: null,
+				error: null
+			};
+		},
+		mounted() {
+			this.loadData();
+		},
+		methods: {
+			async loadData() {
+				this.loading = true;
+				this.error = null;
+				
+				try {
+					const [projects, tasks, requests] = await Promise.all([
+						frappe.call('smart_pro.api.projects.get_user_projects'),
+						frappe.call('smart_pro.api.projects.get_user_tasks'),
+						frappe.call('smart_pro.api.projects.get_pending_date_requests')
+					]);
+					
+					this.projects = projects.message || [];
+					this.tasks = tasks.message || [];
+					this.pendingRequests = requests.message || [];
+				} catch (err) {
+					this.error = 'Failed to load data';
+					console.error('Error loading data:', err);
+				} finally {
+					this.loading = false;
+				}
+			},
+			
+			async selectProject(project) {
+				this.selectedProject = project;
+				try {
+					const details = await frappe.call('smart_pro.api.projects.get_project_details', { project_name: project.name });
+					this.projectDetails = details.message;
+				} catch (err) {
+					console.error('Error loading project details:', err);
+				}
+			},
+			
+			formatDate(dateString) {
+				if (!dateString) return '';
+				return frappe.datetime.str_to_user(dateString);
+			},
+			
+			getStatusBadgeClass(status) {
+				const statusMap = {
+					'Active': 'success',
+					'Planning': 'info',
+					'Completed': 'secondary',
+					'Cancelled': 'danger',
+					'On Hold': 'warning',
+					'Open': 'info',
+					'Working': 'warning',
+					'Pending Review': 'warning',
+					'Pending Approval': 'warning',
+					'Approved': 'success',
+					'Rejected': 'danger'
+				};
+				return statusMap[status] || 'secondary';
+			}
+		},
+		template: `
+			<div class="projects-dashboard-container">
+				<div v-if="error" class="alert alert-danger" role="alert">
+					{{ error }}
+				</div>
+				
+				<div v-if="loading" class="text-center p-5">
+					<div class="spinner-border" role="status">
+						<span class="sr-only">Loading...</span>
+					</div>
+					<p class="mt-2">Loading dashboard data...</p>
+				</div>
+				
+				<div v-else class="row">
+					<!-- Left Column: Projects and Tasks -->
+					<div class="col-lg-8">
+						<!-- Projects Section -->
+						<div class="card mb-4">
+							<div class="card-header bg-light">
+								<h5 class="mb-0"><i class="fa fa-project-diagram me-2"></i>My Projects</h5>
+							</div>
+							<div class="card-body">
+								<div v-if="projects.length === 0" class="text-muted text-center py-4">
+									<p>No projects found</p>
+								</div>
+								<div v-else class="list-group list-group-flush">
+									<a href="#" 
+									   v-for="project in projects" 
+									   :key="project.name"
+									   class="list-group-item list-group-item-action py-3"
+									   @click.prevent="selectProject(project)">
+										<div class="d-flex w-100 justify-content-between align-items-start">
+											<div class="flex-grow-1">
+												<h6 class="mb-1">{{ project.title }}</h6>
+												<small class="text-muted d-block">
+													{{ formatDate(project.start_date) }} - {{ formatDate(project.end_date) }}
+												</small>
+												<small v-if="project.budget_amount" class="text-muted d-block">
+													Budget: {{ project.budget_amount }}
+												</small>
+											</div>
+											<span :class="'badge bg-' + getStatusBadgeClass(project.status) + ' ms-2'">
+												{{ project.status }}
+											</span>
+										</div>
+									</a>
+								</div>
+							</div>
+						</div>
+						
+						<!-- Tasks Section -->
+						<div class="card">
+							<div class="card-header bg-light">
+								<h5 class="mb-0"><i class="fa fa-tasks me-2"></i>My Tasks</h5>
+							</div>
+							<div class="card-body">
+								<div v-if="tasks.length === 0" class="text-muted text-center py-4">
+									<p>No tasks assigned</p>
+								</div>
+								<div v-else class="list-group list-group-flush">
+									<div v-for="task in tasks" :key="task.name" class="list-group-item py-3">
+										<div class="d-flex w-100 justify-content-between align-items-start mb-2">
+											<h6 class="mb-0">{{ task.title }}</h6>
+											<span :class="'badge bg-' + getStatusBadgeClass(task.status)">
+												{{ task.status }}
+											</span>
+										</div>
+										<small class="text-muted d-block mb-2">
+											Project: <strong>{{ task.project }}</strong> | Due: {{ formatDate(task.due_date) }}
+										</small>
+										<div class="progress" style="height: 5px;">
+											<div class="progress-bar" :style="{ width: (task.progress || 0) + '%' }"></div>
+										</div>
+										<small class="text-muted d-block mt-1">Progress: {{ task.progress || 0 }}%</small>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Right Column: Project Details -->
+					<div class="col-lg-4">
+						<!-- Project Details Card -->
+						<div v-if="selectedProject && projectDetails" class="card mb-4">
+							<div class="card-header bg-light">
+								<h5 class="mb-0">Project Details</h5>
+							</div>
+							<div class="card-body">
+								<h6 class="mb-3">{{ projectDetails.title }}</h6>
+								<p class="text-muted small mb-3">{{ projectDetails.description }}</p>
+								
+								<div class="mb-3">
+									<strong>Status:</strong>
+									<span :class="'badge bg-' + getStatusBadgeClass(projectDetails.status) + ' ms-2'">
+										{{ projectDetails.status }}
+									</span>
+								</div>
+								
+								<div v-if="projectDetails.project_manager" class="mb-3">
+									<strong>Manager:</strong> {{ projectDetails.project_manager }}
+								</div>
+								
+								<div v-if="projectDetails.budget_amount" class="mb-3">
+									<strong>Budget:</strong> {{ projectDetails.budget_amount }} {{ projectDetails.currency || 'INR' }}
+								</div>
+								
+								<div class="mb-0">
+									<strong>Timeline:</strong>
+									<div class="small text-muted">
+										{{ formatDate(projectDetails.start_date) }} to {{ formatDate(projectDetails.end_date) }}
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<!-- Empty State -->
+						<div v-else class="card mb-4">
+							<div class="card-header bg-light">
+								<h5 class="mb-0">Project Details</h5>
+							</div>
+							<div class="card-body text-muted text-center py-5">
+								<p>Select a project to view details</p>
+							</div>
+						</div>
+						
+						<!-- Pending Approvals -->
+						<div class="card">
+							<div class="card-header bg-light">
+								<h5 class="mb-0">Pending Approvals</h5>
+							</div>
+							<div class="card-body">
+								<div v-if="pendingRequests.length === 0" class="text-muted text-center py-4">
+									<p>No pending requests</p>
+								</div>
+								<div v-else class="list-group list-group-flush">
+									<div v-for="request in pendingRequests" :key="request.name" class="list-group-item py-3">
+										<div class="d-flex w-100 justify-content-between align-items-start mb-2">
+											<h6 class="mb-0">{{ request.employee_name }}</h6>
+											<span class="badge bg-warning">{{ request.request_type }}</span>
+										</div>
+										<small class="text-muted d-block mb-2">
+											{{ formatDate(request.from_date) }} - {{ formatDate(request.to_date) }}
+										</small>
+										<small class="text-muted">{{ request.reason }}</small>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		`
+	});
+});
+</script>
+{% endblock %}

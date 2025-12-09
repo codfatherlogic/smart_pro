@@ -1,0 +1,268 @@
+{
+ "_liked_by": "[\"Administrator\"]",
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-12-02 12:03:00",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "request_details",
+  "employee",
+  "employee_name",
+  "column_break_emp",
+  "request_type",
+  "status",
+  "project_section",
+  "project",
+  "project_title",
+  "column_break_project",
+  "assignment",
+  "dates_section",
+  "from_date",
+  "to_date",
+  "column_break_dates",
+  "total_days",
+  "project_scope_section",
+  "project_scope",
+  "details_section",
+  "reason",
+  "approval_section",
+  "approver",
+  "comments",
+  "auto_create_tasks",
+  "more_tab",
+  "naming_series"
+ ],
+ "fields": [
+  {
+   "fieldname": "request_details",
+   "fieldtype": "Section Break",
+   "label": "Request Details"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_emp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Project Date Update",
+   "fieldname": "request_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Request Type",
+   "options": "Project Date Update\nLeave\nTime Off\nWork From Home\nOvertime\nOther",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nPending Approval\nApproved\nRejected\nCancelled"
+  },
+  {
+   "depends_on": "eval:doc.request_type=='Project Date Update'",
+   "fieldname": "project_section",
+   "fieldtype": "Section Break",
+   "label": "Project Details"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project",
+   "mandatory_depends_on": "eval:doc.request_type=='Project Date Update'",
+   "options": "Smart Project"
+  },
+  {
+   "fetch_from": "project.title",
+   "fieldname": "project_title",
+   "fieldtype": "Data",
+   "label": "Project Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_project",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Auto-linked from Employee Project Assignment",
+   "fieldname": "assignment",
+   "fieldtype": "Link",
+   "label": "Assignment",
+   "options": "Employee Project Assignment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dates_section",
+   "fieldtype": "Section Break",
+   "label": "Dates"
+  },
+  {
+   "description": "Project/Assignment Start Date",
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date",
+   "reqd": 1
+  },
+  {
+   "description": "Project/Assignment End Date",
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_dates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_days",
+   "fieldtype": "Int",
+   "label": "Total Days",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.request_type=='Project Date Update'",
+   "fieldname": "project_scope_section",
+   "fieldtype": "Section Break",
+   "label": "Project Scope"
+  },
+  {
+   "fetch_from": "assignment.project_scope",
+   "fieldname": "project_scope",
+   "fieldtype": "Text Editor",
+   "label": "Project Scope Details",
+   "read_only": 1,
+   "description": "Scope details from the Employee Project Assignment"
+  },
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Text Editor",
+   "label": "Reason / Work Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "approval_section",
+   "fieldtype": "Section Break",
+   "label": "Approval"
+  },
+  {
+   "fieldname": "approver",
+   "fieldtype": "Link",
+   "label": "Approver",
+   "options": "User"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Text Editor",
+   "label": "Approver Comments"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.request_type=='Project Date Update'",
+   "description": "If checked, tasks will be automatically created when this request is approved",
+   "fieldname": "auto_create_tasks",
+   "fieldtype": "Check",
+   "label": "Auto Create Tasks on Approval"
+  },
+  {
+   "fieldname": "more_tab",
+   "fieldtype": "Tab Break",
+   "label": "More"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "EDR.YY.###"
+  }
+ ],
+ "idx": 1,
+ "links": [],
+ "modified": "2025-12-09 18:06:31.251237",
+ "modified_by": "Administrator",
+ "module": "Smart Pro",
+ "name": "Employee Date Request",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee",
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Smart Pro User",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

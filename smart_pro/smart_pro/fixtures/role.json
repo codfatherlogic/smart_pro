@@ -1,0 +1,9 @@
+[
+  {
+    "doctype": "Role",
+    "role_name": "Smart Pro User",
+    "desk_access": 1,
+    "is_custom": 1,
+    "disabled": 0
+  }
+]

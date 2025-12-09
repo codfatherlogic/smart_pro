@@ -1,0 +1,67 @@
+{
+ "workflow": "Employee Date Request Workflow",
+ "document_type": "Employee Date Request",
+ "states": [
+  {
+   "state": "Draft",
+   "permissions": {
+    "create": 1,
+    "read": 1,
+    "write": 1,
+    "submit": 1,
+    "cancel": 1,
+    "approve": 0
+   }
+  },
+  {
+   "state": "Pending Approval",
+   "permissions": {
+    "create": 0,
+    "read": 1,
+    "write": 0,
+    "submit": 0,
+    "cancel": 1,
+    "approve": 1
+   }
+  },
+  {
+   "state": "Approved",
+   "permissions": {
+    "create": 0,
+    "read": 1,
+    "write": 0,
+    "submit": 0,
+    "cancel": 0,
+    "approve": 0
+   }
+  },
+  {
+   "state": "Rejected",
+   "permissions": {
+    "create": 0,
+    "read": 1,
+    "write": 0,
+    "submit": 0,
+    "cancel": 0,
+    "approve": 0
+   }
+  }
+ ],
+ "transitions": [
+  {
+   "from": "Draft",
+   "to": "Pending Approval",
+   "condition": "True"
+  },
+  {
+   "from": "Pending Approval",
+   "to": "Approved",
+   "condition": "True"
+  },
+  {
+   "from": "Pending Approval",
+   "to": "Rejected",
+   "condition": "True"
+  }
+ ]
+}

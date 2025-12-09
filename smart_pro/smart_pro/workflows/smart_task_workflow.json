@@ -1,0 +1,67 @@
+{
+ "workflow": "Smart Task Workflow",
+ "document_type": "Smart Task",
+ "states": [
+  {
+   "state": "Draft",
+   "permissions": {
+    "create": 1,
+    "read": 1,
+    "write": 1,
+    "submit": 1,
+    "cancel": 1,
+    "approve": 0
+   }
+  },
+  {
+   "state": "Open",
+   "permissions": {
+    "create": 0,
+    "read": 1,
+    "write": 0,
+    "submit": 0,
+    "cancel": 1,
+    "approve": 1
+   }
+  },
+  {
+   "state": "Working",
+   "permissions": {
+    "create": 0,
+    "read": 1,
+    "write": 0,
+    "submit": 0,
+    "cancel": 1,
+    "approve": 0
+   }
+  },
+  {
+   "state": "Completed",
+   "permissions": {
+    "create": 0,
+    "read": 1,
+    "write": 0,
+    "submit": 0,
+    "cancel": 0,
+    "approve": 0
+   }
+  }
+ ],
+ "transitions": [
+  {
+   "from": "Draft",
+   "to": "Open",
+   "condition": "True"
+  },
+  {
+   "from": "Open",
+   "to": "Working",
+   "condition": "True"
+  },
+  {
+   "from": "Working",
+   "to": "Completed",
+   "condition": "True"
+  }
+ ]
+}

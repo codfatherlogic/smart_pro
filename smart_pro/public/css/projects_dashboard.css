@@ -1,0 +1,269 @@
+/* Smart Pro Projects Dashboard Styles */
+
+.page-header {
+    padding: 20px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #212529;
+}
+
+.page-header .text-muted {
+    font-size: 0.95rem;
+}
+
+.card {
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem 1.25rem;
+}
+
+.card-header h5 {
+    font-weight: 600;
+    color: #212529;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.list-group-item {
+    border: 1px solid #e9ecef;
+    padding: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.list-group-item.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.375rem 0.75rem;
+}
+
+.badge.bg-green {
+    background-color: #198754 !important;
+}
+
+.badge.bg-blue {
+    background-color: #0d6efd !important;
+}
+
+.badge.bg-gray {
+    background-color: #6c757d !important;
+}
+
+.badge.bg-red {
+    background-color: #dc3545 !important;
+}
+
+.badge.bg-orange {
+    background-color: #fd7e14 !important;
+}
+
+.badge.bg-yellow {
+    background-color: #ffc107 !important;
+    color: #212529;
+}
+
+.progress {
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background-color: #0d6efd;
+    height: 100%;
+    transition: width 0.6s ease;
+}
+
+.spinner-border {
+    color: #0d6efd;
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .col-md-8,
+    .col-md-4 {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Status-specific colors */
+.status-active {
+    color: #198754;
+}
+
+.status-planning {
+    color: #0d6efd;
+}
+
+.status-completed {
+    color: #6c757d;
+}
+
+.status-cancelled {
+    color: #dc3545;
+}
+
+.status-on-hold {
+    color: #fd7e14;
+}
+
+/* Task priority colors */
+.priority-low {
+    border-left: 4px solid #198754;
+}
+
+.priority-medium {
+    border-left: 4px solid #0d6efd;
+}
+
+.priority-high {
+    border-left: 4px solid #fd7e14;
+}
+
+.priority-critical {
+    border-left: 4px solid #dc3545;
+}
+
+/* Animation for loading */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-border {
+    animation: spin 1s linear infinite;
+}
+
+/* Text utilities */
+.text-muted {
+    color: #6c757d !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.ms-2 {
+    margin-left: 0.5rem !important;
+}
+
+.p-5 {
+    padding: 3rem !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+/* Frappe Desk Page Styles */
+.projects-dashboard-container {
+    padding: 15px;
+}
+
+.frappe-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--card-shadow);
+}
+
+.frappe-card-head {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--subtle-fg);
+    display: flex;
+    align-items: center;
+}
+
+.frappe-card-body {
+    padding: 15px;
+}
+
+.frappe-list {
+    margin: -15px;
+}
+
+.frappe-list-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.frappe-list-item:last-child {
+    border-bottom: none;
+}
+
+.frappe-list-item:hover {
+    background-color: var(--subtle-fg);
+}
+
+.frappe-list-item.selected {
+    background-color: var(--highlight-color);
+}
+
+.frappe-list-item-title {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.frappe-list-item-title a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.frappe-list-item-title a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.frappe-list-item-subtitle {
+    font-size: var(--text-sm);
+}

@@ -1,0 +1,125 @@
+{
+ "actions": [],
+ "creation": "2025-12-09 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "branding_section",
+  "app_name",
+  "app_logo",
+  "general_settings_section",
+  "enable_notifications",
+  "enable_offline_mode",
+  "column_break_1",
+  "default_project_status",
+  "default_task_priority",
+  "permissions_section",
+  "users_with_full_access",
+  "roles_section",
+  "roles_with_full_access"
+ ],
+ "fields": [
+  {
+   "fieldname": "branding_section",
+   "fieldtype": "Section Break",
+   "label": "Branding"
+  },
+  {
+   "default": "Smart Pro",
+   "fieldname": "app_name",
+   "fieldtype": "Data",
+   "label": "App Name",
+   "description": "Name displayed in the mobile app header"
+  },
+  {
+   "fieldname": "app_logo",
+   "fieldtype": "Attach Image",
+   "label": "App Logo",
+   "description": "Logo displayed in the mobile app (optional)"
+  },
+  {
+   "fieldname": "general_settings_section",
+   "fieldtype": "Section Break",
+   "label": "General Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_notifications",
+   "fieldtype": "Check",
+   "label": "Enable Notifications"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_offline_mode",
+   "fieldtype": "Check",
+   "label": "Enable Offline Mode"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Planning",
+   "fieldname": "default_project_status",
+   "fieldtype": "Select",
+   "label": "Default Project Status",
+   "options": "Planning\nActive"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "default_task_priority",
+   "fieldtype": "Select",
+   "label": "Default Task Priority",
+   "options": "Low\nMedium\nHigh\nCritical"
+  },
+  {
+   "fieldname": "permissions_section",
+   "fieldtype": "Section Break",
+   "label": "Users with Full Access",
+   "description": "These users can view all projects and tasks regardless of assignment"
+  },
+  {
+   "fieldname": "users_with_full_access",
+   "fieldtype": "Table",
+   "label": "Users",
+   "options": "Smart Pro User Permission"
+  },
+  {
+   "fieldname": "roles_section",
+   "fieldtype": "Section Break",
+   "label": "Roles with Full Access",
+   "description": "Users with these roles can view all projects and tasks"
+  },
+  {
+   "default": "System Manager\nProjects Manager",
+   "fieldname": "roles_with_full_access",
+   "fieldtype": "Small Text",
+   "label": "Roles (one per line)",
+   "description": "Enter role names, one per line. Users with any of these roles will have full access."
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-12-09 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Smart Pro",
+ "name": "Smart Pro Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

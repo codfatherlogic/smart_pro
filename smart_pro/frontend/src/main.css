@@ -1,0 +1,253 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+}
+
+/* Safe area support for notched devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Card styles */
+.app-card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden;
+}
+
+.app-card-header {
+  @apply px-4 py-3 border-b border-gray-100 font-medium text-gray-800;
+}
+
+.app-card-body {
+  @apply p-4;
+}
+
+/* List item styles */
+.app-list-item {
+  @apply flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-b-0;
+}
+
+.app-list-item:active {
+  @apply bg-gray-50;
+}
+
+/* Status badges */
+.status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-badge.active {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-badge.planning {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.status-badge.completed {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.status-badge.on-hold {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-badge.cancelled {
+  @apply bg-red-100 text-red-800;
+}
+
+/* Progress bar */
+.progress-bar {
+  @apply h-1.5 bg-gray-200 rounded-full overflow-hidden;
+}
+
+.progress-bar-fill {
+  @apply h-full bg-primary-500 rounded-full transition-all duration-300;
+}
+
+/* Pull to refresh indicator */
+.pull-indicator {
+  @apply flex items-center justify-center py-4 text-gray-500;
+}
+
+/* Empty state */
+.empty-state {
+  @apply flex flex-col items-center justify-center py-12 text-center;
+}
+
+.empty-state-icon {
+  @apply w-16 h-16 text-gray-300 mb-4;
+}
+
+.empty-state-title {
+  @apply text-lg font-medium text-gray-600 mb-2;
+}
+
+.empty-state-description {
+  @apply text-sm text-gray-500;
+}
+
+/* Skeleton loading */
+.skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Floating action button */
+.fab {
+  @apply fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary-500 text-white shadow-lg flex items-center justify-center;
+  z-index: 100;
+}
+
+.fab:active {
+  @apply bg-primary-600 transform scale-95;
+}
+
+/* Dark mode overrides for custom styles */
+body.dark .app-card,
+body.dark .app-card-header,
+body.dark .app-list-item {
+  @apply bg-gray-800 border-gray-700;
+}
+
+body.dark .app-card-header {
+  @apply text-gray-100 border-gray-700;
+}
+
+body.dark .app-list-item:active {
+  @apply bg-gray-700;
+}
+
+body.dark .text-gray-800 {
+  @apply text-gray-100;
+}
+
+body.dark .text-gray-600 {
+  @apply text-gray-300;
+}
+
+body.dark .text-gray-500 {
+  @apply text-gray-400;
+}
+
+body.dark .bg-white {
+  background-color: #1e1e1e;
+}
+
+body.dark .bg-gray-50 {
+  background-color: #262626;
+}
+
+body.dark .bg-gray-100 {
+  background-color: #2a2a2a;
+}
+
+body.dark .border-gray-100 {
+  border-color: #3d3d3d;
+}
+
+body.dark .border-gray-200 {
+  border-color: #4a4a4a;
+}
+
+body.dark .skeleton {
+  @apply bg-gray-700;
+}
+
+body.dark .progress-bar {
+  @apply bg-gray-700;
+}
+
+body.dark .empty-state-title {
+  @apply text-gray-300;
+}
+
+body.dark .empty-state-description {
+  @apply text-gray-400;
+}
+
+/* Dark mode status badges */
+body.dark .status-badge.active {
+  @apply bg-green-900 text-green-300;
+}
+
+body.dark .status-badge.planning {
+  @apply bg-blue-900 text-blue-300;
+}
+
+body.dark .status-badge.completed {
+  @apply bg-gray-700 text-gray-300;
+}
+
+body.dark .status-badge.on-hold {
+  @apply bg-yellow-900 text-yellow-300;
+}
+
+body.dark .status-badge.cancelled {
+  @apply bg-red-900 text-red-300;
+}
+
+/* Dark mode scrollbar */
+body.dark ::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+body.dark ::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* System dark mode fallback */
+@media (prefers-color-scheme: dark) {
+  body:not(.light) .app-card,
+  body:not(.light) .app-card-header,
+  body:not(.light) .app-list-item {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  body:not(.light) .app-card-header {
+    @apply text-gray-100;
+  }
+
+  body:not(.light) .skeleton {
+    @apply bg-gray-700;
+  }
+
+  body:not(.light) .progress-bar {
+    @apply bg-gray-700;
+  }
+}
