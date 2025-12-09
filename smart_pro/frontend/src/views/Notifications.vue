@@ -136,14 +136,59 @@ const markingAll = ref(false)
 async function loadData() {
   loading.value = true
   try {
-    const result = await call("frappe.client.get_list", {
-      doctype: "Notification Log",
-      fields: ["name", "subject", "email_content", "type", "document_type", "document_name", "read", "creation"],
+    // Fetch from Smart Pro Notification (custom notifications)
+    const smartProNotifications = await call("frappe.client.get_list", {
+      doctype: "Smart Pro Notification",
+      fields: ["name", "title", "body", "data", "status", "created_at"],
       filters: {},
-      order_by: "creation desc",
+      order_by: "created_at desc",
       limit_page_length: 50
     })
-    notifications.value = result || []
+
+    // Transform Smart Pro Notifications to common format
+    const transformedNotifications = (smartProNotifications || []).map(n => {
+      let parsedData = {}
+      try {
+        parsedData = n.data ? JSON.parse(n.data) : {}
+      } catch (e) {
+        console.error("Error parsing notification data:", e)
+      }
+      return {
+        name: n.name,
+        subject: n.title,
+        email_content: n.body,
+        type: parsedData.type || "Info",
+        document_type: parsedData.doctype,
+        document_name: parsedData.name,
+        read: n.status === "read" ? 1 : 0,
+        creation: n.created_at,
+        source: "smart_pro"
+      }
+    })
+
+    // Also fetch from Frappe Notification Log
+    let frappeNotifications = []
+    try {
+      const frappeResult = await call("frappe.client.get_list", {
+        doctype: "Notification Log",
+        fields: ["name", "subject", "email_content", "type", "document_type", "document_name", "read", "creation"],
+        filters: {},
+        order_by: "creation desc",
+        limit_page_length: 50
+      })
+      frappeNotifications = (frappeResult || []).map(n => ({
+        ...n,
+        source: "frappe"
+      }))
+    } catch (e) {
+      console.log("Frappe Notification Log not accessible:", e)
+    }
+
+    // Merge and sort by creation date
+    const allNotifications = [...transformedNotifications, ...frappeNotifications]
+    allNotifications.sort((a, b) => new Date(b.creation) - new Date(a.creation))
+
+    notifications.value = allNotifications.slice(0, 50)
   } catch (err) {
     console.error("Error loading notifications:", err)
   } finally {
@@ -158,15 +203,24 @@ function handleRefresh(event) {
 }
 
 async function handleNotificationClick(notification) {
-  // Mark as read
+  // Mark as read based on source
   if (!notification.read) {
     try {
-      await call("frappe.client.set_value", {
-        doctype: "Notification Log",
-        name: notification.name,
-        fieldname: "read",
-        value: 1
-      })
+      if (notification.source === "smart_pro") {
+        await call("frappe.client.set_value", {
+          doctype: "Smart Pro Notification",
+          name: notification.name,
+          fieldname: "status",
+          value: "read"
+        })
+      } else {
+        await call("frappe.client.set_value", {
+          doctype: "Notification Log",
+          name: notification.name,
+          fieldname: "read",
+          value: 1
+        })
+      }
       notification.read = 1
     } catch (err) {
       console.error("Error marking notification as read:", err)
@@ -193,14 +247,23 @@ async function markAllAsRead() {
   try {
     const unreadNotifications = notifications.value.filter(n => !n.read)
     await Promise.all(
-      unreadNotifications.map(n =>
-        call("frappe.client.set_value", {
-          doctype: "Notification Log",
-          name: n.name,
-          fieldname: "read",
-          value: 1
-        })
-      )
+      unreadNotifications.map(n => {
+        if (n.source === "smart_pro") {
+          return call("frappe.client.set_value", {
+            doctype: "Smart Pro Notification",
+            name: n.name,
+            fieldname: "status",
+            value: "read"
+          })
+        } else {
+          return call("frappe.client.set_value", {
+            doctype: "Notification Log",
+            name: n.name,
+            fieldname: "read",
+            value: 1
+          })
+        }
+      })
     )
 
     // Update local state

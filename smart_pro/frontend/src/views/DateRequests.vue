@@ -83,10 +83,24 @@
             {{ stripHtml(request.reason) }}
           </div>
 
-          <!-- Project Scope -->
-          <div v-if="request.project_scope" class="mb-2 p-2 bg-blue-50 rounded text-sm">
-            <div class="text-xs text-blue-600 font-semibold mb-1">Project Scope:</div>
-            <div class="text-gray-700 line-clamp-3" v-html="request.project_scope" />
+          <!-- Project Scope (Expandable) -->
+          <div v-if="request.project_scope" class="mb-2 bg-blue-50 rounded text-sm overflow-hidden">
+            <div
+              class="flex items-center justify-between p-2 cursor-pointer"
+              @click="toggleScope(request.name)"
+            >
+              <div class="text-xs text-blue-600 font-semibold">Project Scope:</div>
+              <ion-icon
+                :icon="expandedScopes[request.name] ? chevronUpOutline : chevronDownOutline"
+                class="text-blue-600"
+              />
+            </div>
+            <div
+              class="scope-content px-2 pb-2"
+              :class="{ 'expanded': expandedScopes[request.name] }"
+            >
+              <div class="text-gray-700 whitespace-pre-wrap" v-html="request.project_scope" />
+            </div>
           </div>
 
           <div v-if="request.approver" class="text-xs text-gray-500">
@@ -356,7 +370,7 @@ import {
   IonSegmentButton,
   toastController,
 } from "@ionic/vue"
-import { addOutline, calendarOutline, personOutline, checkmarkCircleOutline, createOutline, checkmarkOutline, closeOutline } from "ionicons/icons"
+import { addOutline, calendarOutline, personOutline, checkmarkCircleOutline, createOutline, checkmarkOutline, closeOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons"
 import { call } from "frappe-ui"
 
 const $dayjs = inject("$dayjs")
@@ -372,6 +386,11 @@ const filter = ref("all")
 const dateRequests = ref([])
 const assignedProjects = ref([])
 const currentUser = ref("")
+const expandedScopes = ref({})
+
+function toggleScope(requestName) {
+  expandedScopes.value[requestName] = !expandedScopes.value[requestName]
+}
 
 const filteredRequests = computed(() => {
   if (filter.value === "all") return dateRequests.value
@@ -709,6 +728,25 @@ onMounted(() => {
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Expandable Scope Styles */
+.scope-content {
+  max-height: 60px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.scope-content.expanded {
+  max-height: 1000px;
+  transition: max-height 0.5s ease-in;
+}
+
+.scope-content:not(.expanded) > div {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

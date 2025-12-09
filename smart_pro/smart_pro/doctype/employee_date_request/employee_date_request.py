@@ -59,13 +59,49 @@ class EmployeeDateRequest(Document):
         if self.status == "Draft":
             self.db_set("status", "Pending Approval")
 
+    def after_insert(self):
+        """Send notification to approver when request is created"""
+        self.send_request_notification()
+
     def on_update(self):
         """Handle status changes"""
         if self.has_value_changed("status"):
             if self.status == "Approved":
                 self.on_approval()
+                self.send_status_notification("approved")
             elif self.status == "Rejected":
                 self.on_rejection()
+                self.send_status_notification("rejected")
+
+    def send_request_notification(self):
+        """Send notification to approver for new request"""
+        from smart_pro.smart_pro.notifications import PushNotificationManager
+        try:
+            PushNotificationManager.send_date_request_notification(self)
+        except Exception as e:
+            frappe.log_error(str(e), "Date Request Notification Error")
+
+    def send_status_notification(self, status):
+        """Send notification to employee when request status changes"""
+        try:
+            if self.employee:
+                user_id = frappe.db.get_value("Employee", self.employee, "user_id")
+                if user_id:
+                    from smart_pro.smart_pro.notifications import PushNotificationManager
+                    title = f"Date Request {status.title()}"
+                    body = f"Your {self.request_type} request ({self.from_date} to {self.to_date}) has been {status}"
+                    PushNotificationManager._send_notification(
+                        user_id,
+                        title,
+                        body,
+                        {
+                            "type": f"date_request_{status}",
+                            "doctype": "Employee Date Request",
+                            "name": self.name
+                        }
+                    )
+        except Exception as e:
+            frappe.log_error(str(e), "Date Request Status Notification Error")
 
     def on_approval(self):
         """Actions when request is approved"""

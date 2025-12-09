@@ -23,9 +23,33 @@ class SmartTask(Document):
         if self.progress and (self.progress < 0 or self.progress > 100):
             frappe.throw("Progress must be between 0 and 100")
 
+    def after_insert(self):
+        # Send notification for new task assignment
+        self.send_assignment_notification()
+
     def on_update(self):
         # Auto-update status based on progress
         if self.progress == 100 and self.status != "Completed":
             self.status = "Completed"
         elif self.progress > 0 and self.status == "Open":
             self.status = "Working"
+
+        # Send notification for task updates
+        if self.has_value_changed("status") or self.has_value_changed("assigned_to"):
+            self.send_update_notification()
+
+    def send_assignment_notification(self):
+        """Send notification when task is assigned"""
+        from smart_pro.smart_pro.notifications import PushNotificationManager
+        try:
+            PushNotificationManager.send_task_assignment_notification(self)
+        except Exception as e:
+            frappe.log_error(str(e), "Task Assignment Notification Error")
+
+    def send_update_notification(self):
+        """Send notification when task is updated"""
+        from smart_pro.smart_pro.notifications import PushNotificationManager
+        try:
+            PushNotificationManager.send_task_update_notification(self)
+        except Exception as e:
+            frappe.log_error(str(e), "Task Update Notification Error")
