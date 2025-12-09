@@ -151,79 +151,36 @@ class EmployeeDateRequest(Document):
             })
 
     def create_project_tasks(self):
-        """Auto-create tasks for the project based on duration"""
+        """Auto-create a single task for the project"""
         if not self.project or not self.employee:
             return
 
         # Get employee's user_id
         user_id = frappe.db.get_value("Employee", self.employee, "user_id")
         if not user_id:
-            frappe.msgprint("Employee does not have a linked user. Tasks will be created without assignment.")
+            frappe.msgprint("Employee does not have a linked user. Task will be created without assignment.")
 
-        total_days = self.total_days or 1
         project_title = self.project_title or frappe.db.get_value("Smart Project", self.project, "title")
 
-        # Create default tasks based on project duration
-        tasks_to_create = []
+        # Check if task already exists for this project
+        existing_task = frappe.db.exists("Smart Task", {
+            "project": self.project,
+            "title": project_title
+        })
 
-        if total_days <= 7:
-            # Short project - create 2-3 tasks
-            tasks_to_create = [
-                {"title": f"{project_title} - Planning & Setup", "days_offset": 0, "days_duration": max(1, total_days // 3)},
-                {"title": f"{project_title} - Implementation", "days_offset": max(1, total_days // 3), "days_duration": max(1, total_days // 2)},
-                {"title": f"{project_title} - Review & Completion", "days_offset": max(2, total_days - 2), "days_duration": min(2, total_days)}
-            ]
-        elif total_days <= 30:
-            # Medium project - create 4-5 tasks
-            week_duration = 7
-            tasks_to_create = [
-                {"title": f"{project_title} - Week 1: Planning", "days_offset": 0, "days_duration": week_duration},
-                {"title": f"{project_title} - Week 2: Development", "days_offset": 7, "days_duration": week_duration},
-                {"title": f"{project_title} - Week 3: Testing", "days_offset": 14, "days_duration": week_duration},
-                {"title": f"{project_title} - Week 4: Deployment", "days_offset": 21, "days_duration": min(week_duration, total_days - 21)}
-            ]
-        else:
-            # Long project - create monthly tasks
-            months = (total_days // 30) + 1
-            for i in range(min(months, 6)):  # Max 6 tasks
-                tasks_to_create.append({
-                    "title": f"{project_title} - Phase {i + 1}",
-                    "days_offset": i * 30,
-                    "days_duration": min(30, total_days - (i * 30))
-                })
-
-        # Create the tasks
-        for task_data in tasks_to_create:
-            start_date = add_days(self.from_date, task_data["days_offset"])
-            due_date = add_days(start_date, task_data["days_duration"] - 1)
-
-            # Don't create task if start date is beyond project end
-            if getdate(start_date) > getdate(self.to_date):
-                continue
-
-            # Ensure due date doesn't exceed project end date
-            if getdate(due_date) > getdate(self.to_date):
-                due_date = self.to_date
-
-            # Check if similar task already exists
-            existing_task = frappe.db.exists("Smart Task", {
+        if not existing_task:
+            task = frappe.get_doc({
+                "doctype": "Smart Task",
+                "title": project_title,
                 "project": self.project,
-                "title": task_data["title"]
+                "assigned_to": user_id,
+                "status": "Open",
+                "priority": "Medium",
+                "start_date": self.from_date,
+                "due_date": self.to_date,
+                "progress": 0,
+                "description": f"Task for {project_title}",
+                "project_scope": self.project_scope
             })
-
-            if not existing_task:
-                task = frappe.get_doc({
-                    "doctype": "Smart Task",
-                    "title": task_data["title"],
-                    "project": self.project,
-                    "assigned_to": user_id,
-                    "status": "Open",
-                    "priority": "Medium",
-                    "start_date": start_date,
-                    "due_date": due_date,
-                    "progress": 0,
-                    "description": f"Auto-created task for {project_title}",
-                    "project_scope": self.project_scope  # Forward project scope to task
-                })
-                task.insert(ignore_permissions=True)
-                frappe.msgprint(f"Created task: {task.title}")
+            task.insert(ignore_permissions=True)
+            frappe.msgprint(f"Created task: {task.title}")
