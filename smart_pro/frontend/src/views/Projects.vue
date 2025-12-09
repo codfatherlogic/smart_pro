@@ -19,6 +19,25 @@
           :debounce="300"
         />
       </ion-toolbar>
+      <ion-toolbar>
+        <ion-segment v-model="statusFilter" scrollable>
+          <ion-segment-button value="all">
+            <ion-label>All</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="active">
+            <ion-label>Active</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="planning">
+            <ion-label>Planning</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="completed">
+            <ion-label>Completed</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="on-hold">
+            <ion-label>On Hold</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true">
@@ -58,10 +77,10 @@
           No projects found
         </div>
         <div class="empty-state-description">
-          {{ searchQuery ? "Try a different search term" : "Create your first project" }}
+          {{ getEmptyMessage }}
         </div>
         <ion-button
-          v-if="!searchQuery"
+          v-if="!searchQuery && statusFilter === 'all'"
           class="mt-4"
           @click="createProject"
         >
@@ -132,6 +151,9 @@ import {
   IonIcon,
   IonFab,
   IonFabButton,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
 } from "@ionic/vue"
 import { addOutline, folderOutline } from "ionicons/icons"
 import { createResource } from "frappe-ui"
@@ -141,6 +163,7 @@ const $dayjs = inject("$dayjs")
 
 const loading = ref(true)
 const searchQuery = ref("")
+const statusFilter = ref("all")
 const projects = ref([])
 
 const projectsResource = createResource({
@@ -149,13 +172,49 @@ const projectsResource = createResource({
 })
 
 const filteredProjects = computed(() => {
-  if (!searchQuery.value) return projects.value
-  const query = searchQuery.value.toLowerCase()
-  return projects.value.filter(
-    (p) =>
-      (p.title || p.name).toLowerCase().includes(query) ||
-      (p.status || "").toLowerCase().includes(query)
-  )
+  let result = projects.value
+
+  // Apply status filter
+  if (statusFilter.value !== "all") {
+    const statusMap = {
+      "active": "Active",
+      "planning": "Planning",
+      "completed": "Completed",
+      "on-hold": "On Hold",
+      "cancelled": "Cancelled"
+    }
+    const targetStatus = statusMap[statusFilter.value]
+    result = result.filter(p => p.status === targetStatus)
+  }
+
+  // Apply search filter
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    result = result.filter(
+      (p) =>
+        (p.title || p.name).toLowerCase().includes(query) ||
+        (p.status || "").toLowerCase().includes(query)
+    )
+  }
+
+  return result
+})
+
+const getEmptyMessage = computed(() => {
+  if (searchQuery.value) {
+    return "Try a different search term"
+  }
+  if (statusFilter.value !== "all") {
+    const filterLabels = {
+      "active": "active",
+      "planning": "planning",
+      "completed": "completed",
+      "on-hold": "on hold",
+      "cancelled": "cancelled"
+    }
+    return `No ${filterLabels[statusFilter.value]} projects`
+  }
+  return "Create your first project"
 })
 
 async function loadData() {

@@ -30,6 +30,11 @@ def user_has_full_access(user=None):
 	if user == "Administrator":
 		return True
 
+	# System Manager always has full access
+	user_roles = frappe.get_roles(user)
+	if "System Manager" in user_roles:
+		return True
+
 	settings = get_settings()
 
 	# Check if user is in the users_with_full_access table
@@ -40,7 +45,6 @@ def user_has_full_access(user=None):
 	# Check if user has any of the roles with full access
 	if settings.roles_with_full_access:
 		roles_with_access = [r.strip() for r in settings.roles_with_full_access.split("\n") if r.strip()]
-		user_roles = frappe.get_roles(user)
 
 		for role in roles_with_access:
 			if role in user_roles:
@@ -58,6 +62,11 @@ def user_can_view_all_tasks(user=None):
 	if user == "Administrator":
 		return True
 
+	# System Manager always has full access
+	user_roles = frappe.get_roles(user)
+	if "System Manager" in user_roles:
+		return True
+
 	settings = get_settings()
 
 	# Check if user is in the users_with_full_access table with task permission
@@ -68,7 +77,6 @@ def user_can_view_all_tasks(user=None):
 	# Check if user has any of the roles with full access
 	if settings.roles_with_full_access:
 		roles_with_access = [r.strip() for r in settings.roles_with_full_access.split("\n") if r.strip()]
-		user_roles = frappe.get_roles(user)
 
 		for role in roles_with_access:
 			if role in user_roles:
