@@ -437,13 +437,24 @@ const tasksResource = createResource({
   auto: false,
 })
 
-async function loadData() {
-  loading.value = true
+// Cache timestamp to avoid unnecessary reloads
+let lastLoadTime = 0
+const CACHE_TTL = 30000 // 30 seconds
+
+async function loadData(forceRefresh = false) {
+  const now = Date.now()
+
+  // Skip reload if data is fresh (unless forced)
+  if (!forceRefresh && lastLoadTime && (now - lastLoadTime) < CACHE_TTL && tasks.value.length > 0) {
+    return
+  }
+
+  loading.value = tasks.value.length === 0 // Only show loading on first load
   error.value = ""
   try {
     await tasksResource.fetch()
     tasks.value = tasksResource.data || []
-    console.log("Tasks loaded via createResource:", tasks.value.length, "tasks")
+    lastLoadTime = now
   } catch (err) {
     console.error("Error loading tasks:", err)
     error.value = err.messages?.[0] || err.message || "Failed to load tasks"
@@ -453,7 +464,7 @@ async function loadData() {
 }
 
 function handleRefresh(event) {
-  loadData().finally(() => {
+  loadData(true).finally(() => {
     event.target.complete()
   })
 }

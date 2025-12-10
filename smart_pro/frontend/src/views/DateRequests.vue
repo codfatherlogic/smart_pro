@@ -6,11 +6,6 @@
           <ion-back-button default-href="/smart-pro/home" text="" />
         </ion-buttons>
         <ion-title>Date Requests</ion-title>
-        <ion-buttons slot="end">
-          <ion-button @click="openAddModal">
-            <ion-icon :icon="addOutline" />
-          </ion-button>
-        </ion-buttons>
       </ion-toolbar>
       <ion-toolbar>
         <ion-segment v-model="filter" scrollable>
@@ -214,130 +209,6 @@
       </ion-content>
     </ion-modal>
 
-    <!-- Add Date Request Modal -->
-    <ion-modal :is-open="showAddModal" @did-dismiss="showAddModal = false">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>New Date Request</ion-title>
-          <ion-buttons slot="end">
-            <ion-button @click="showAddModal = false">Close</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding">
-        <form @submit.prevent="submitRequest">
-          <!-- Request Type -->
-          <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Request Type *
-            </ion-label>
-            <ion-select
-              v-model="newRequest.request_type"
-              interface="action-sheet"
-              fill="outline"
-            >
-              <ion-select-option value="Project Date Update">Project Date Update</ion-select-option>
-              <ion-select-option value="Leave">Leave</ion-select-option>
-              <ion-select-option value="Time Off">Time Off</ion-select-option>
-              <ion-select-option value="Work From Home">Work From Home</ion-select-option>
-              <ion-select-option value="Overtime">Overtime</ion-select-option>
-              <ion-select-option value="Other">Other</ion-select-option>
-            </ion-select>
-          </div>
-
-          <!-- Project Selection (for Project Date Update) -->
-          <div v-if="newRequest.request_type === 'Project Date Update'" class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Project *
-            </ion-label>
-            <ion-select
-              v-model="newRequest.project"
-              placeholder="Select a project"
-              interface="action-sheet"
-              fill="outline"
-            >
-              <ion-select-option v-for="proj in assignedProjects" :key="proj.project" :value="proj.project">
-                {{ proj.title }}
-              </ion-select-option>
-            </ion-select>
-            <div v-if="assignedProjects.length === 0" class="mt-1 text-xs text-orange-600">
-              No projects assigned to you yet.
-            </div>
-          </div>
-
-          <!-- From Date -->
-          <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              From Date *
-            </ion-label>
-            <ion-input
-              v-model="newRequest.from_date"
-              type="date"
-              fill="outline"
-              required
-            />
-          </div>
-
-          <!-- To Date -->
-          <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              To Date *
-            </ion-label>
-            <ion-input
-              v-model="newRequest.to_date"
-              type="date"
-              fill="outline"
-              required
-            />
-          </div>
-
-          <!-- Calculated Days -->
-          <div v-if="calculatedDays > 0" class="mb-4 p-3 bg-blue-50 rounded-lg">
-            <span class="text-blue-800 font-medium">Total: {{ calculatedDays }} days</span>
-          </div>
-
-          <!-- Reason/Description -->
-          <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Reason / Work Description *
-            </ion-label>
-            <ion-textarea
-              v-model="newRequest.reason"
-              placeholder="Describe the reason for this request or work plan..."
-              fill="outline"
-              :rows="4"
-              required
-            />
-          </div>
-
-          <!-- Auto Create Tasks (for Project Date Update) -->
-          <div v-if="newRequest.request_type === 'Project Date Update'" class="mb-4">
-            <ion-item lines="none">
-              <ion-checkbox v-model="newRequest.auto_create_tasks" slot="start" />
-              <ion-label>Auto-create tasks on approval</ion-label>
-            </ion-item>
-            <div class="text-xs text-gray-500 ml-8">
-              Tasks will be automatically created and assigned to you when approved
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <ion-button
-            expand="block"
-            type="submit"
-            :disabled="submitting"
-            class="mt-6"
-          >
-            <ion-spinner v-if="submitting" name="crescent" class="mr-2" />
-            {{ submitting ? "Submitting..." : "Submit Request" }}
-          </ion-button>
-
-          <div v-if="error" class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
-            {{ error }}
-          </div>
-        </form>
-      </ion-content>
-    </ion-modal>
   </ion-page>
 </template>
 
@@ -360,30 +231,22 @@ import {
   IonTextarea,
   IonLabel,
   IonSpinner,
-  IonSelect,
-  IonSelectOption,
-  IonItem,
-  IonCheckbox,
   IonSegment,
   IonSegmentButton,
   toastController,
   onIonViewWillEnter,
 } from "@ionic/vue"
-import { addOutline, calendarOutline, personOutline, checkmarkCircleOutline, createOutline, checkmarkOutline, closeOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons"
+import { calendarOutline, personOutline, checkmarkCircleOutline, createOutline, checkmarkOutline, closeOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons"
 import { call } from "frappe-ui"
 
 const $dayjs = inject("$dayjs")
 
 const loading = ref(true)
-const showAddModal = ref(false)
 const showEditModal = ref(false)
-const submitting = ref(false)
 const updating = ref(false)
-const error = ref("")
 const editError = ref("")
 const filter = ref("all")
 const dateRequests = ref([])
-const assignedProjects = ref([])
 const currentUser = ref("")
 const expandedScopes = ref({})
 
@@ -405,28 +268,11 @@ const filteredRequests = computed(() => {
   return dateRequests.value
 })
 
-const newRequest = ref({
-  request_type: "Project Date Update",
-  project: "",
-  from_date: "",
-  to_date: "",
-  reason: "",
-  auto_create_tasks: true,
-})
-
 const editRequest = ref({
   name: "",
   from_date: "",
   to_date: "",
   reason: "",
-})
-
-const calculatedDays = computed(() => {
-  if (!newRequest.value.from_date || !newRequest.value.to_date) return 0
-  const from = $dayjs(newRequest.value.from_date)
-  const to = $dayjs(newRequest.value.to_date)
-  if (to.isBefore(from)) return 0
-  return to.diff(from, "day") + 1
 })
 
 const editCalculatedDays = computed(() => {
@@ -437,89 +283,36 @@ const editCalculatedDays = computed(() => {
   return to.diff(from, "day") + 1
 })
 
-async function loadData() {
-  loading.value = true
+// Cache timestamp to avoid unnecessary reloads
+let lastLoadTime = 0
+const CACHE_TTL = 30000 // 30 seconds
+
+async function loadData(forceRefresh = false) {
+  const now = Date.now()
+
+  // Skip reload if data is fresh (unless forced)
+  if (!forceRefresh && lastLoadTime && (now - lastLoadTime) < CACHE_TTL && dateRequests.value.length > 0) {
+    return
+  }
+
+  loading.value = dateRequests.value.length === 0 // Only show loading on first load
   try {
-    const [requestsResult, projectsResult, userResult] = await Promise.all([
+    const [requestsResult, userResult] = await Promise.all([
       call("smart_pro.smart_pro.api.projects.get_my_date_requests"),
-      call("smart_pro.smart_pro.api.projects.get_employee_assigned_projects"),
       call("frappe.auth.get_logged_user"),
     ])
     dateRequests.value = requestsResult || []
-    assignedProjects.value = projectsResult || []
     currentUser.value = userResult || ""
+    lastLoadTime = now
   } catch (err) {
     console.error("Error loading data:", err)
-    error.value = err.messages?.[0] || err.message || "Failed to load data"
   } finally {
     loading.value = false
   }
 }
 
-function openAddModal() {
-  newRequest.value = {
-    request_type: "Project Date Update",
-    project: "",
-    from_date: $dayjs().format("YYYY-MM-DD"),
-    to_date: $dayjs().add(7, "day").format("YYYY-MM-DD"),
-    reason: "",
-    auto_create_tasks: true,
-  }
-  error.value = ""
-  showAddModal.value = true
-}
-
-async function submitRequest() {
-  // Validation
-  if (!newRequest.value.from_date || !newRequest.value.to_date || !newRequest.value.reason) {
-    error.value = "From date, to date, and reason are required"
-    return
-  }
-
-  if (newRequest.value.request_type === "Project Date Update" && !newRequest.value.project) {
-    error.value = "Please select a project"
-    return
-  }
-
-  const from = $dayjs(newRequest.value.from_date)
-  const to = $dayjs(newRequest.value.to_date)
-  if (to.isBefore(from)) {
-    error.value = "To date cannot be before from date"
-    return
-  }
-
-  submitting.value = true
-  error.value = ""
-
-  try {
-    await call("smart_pro.smart_pro.api.projects.create_date_request", {
-      project: newRequest.value.project || null,
-      from_date: newRequest.value.from_date,
-      to_date: newRequest.value.to_date,
-      reason: newRequest.value.reason,
-      request_type: newRequest.value.request_type,
-      auto_create_tasks: newRequest.value.auto_create_tasks ? 1 : 0,
-    })
-
-    const toast = await toastController.create({
-      message: "Date request submitted successfully!",
-      duration: 2000,
-      color: "success",
-    })
-    await toast.present()
-
-    showAddModal.value = false
-    await loadData()
-  } catch (err) {
-    console.error("Error submitting request:", err)
-    error.value = err.messages?.[0] || err.message || "Failed to submit request"
-  } finally {
-    submitting.value = false
-  }
-}
-
 function handleRefresh(event) {
-  loadData().finally(() => {
+  loadData(true).finally(() => {
     event.target.complete()
   })
 }

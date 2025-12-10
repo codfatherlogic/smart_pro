@@ -229,8 +229,19 @@ const tasksResource = createResource({
   auto: false,
 })
 
-async function loadData() {
-  loading.value = true
+// Cache timestamp to avoid unnecessary reloads
+let lastLoadTime = 0
+const CACHE_TTL = 30000 // 30 seconds
+
+async function loadData(forceRefresh = false) {
+  const now = Date.now()
+
+  // Skip reload if data is fresh (unless forced)
+  if (!forceRefresh && lastLoadTime && (now - lastLoadTime) < CACHE_TTL && projects.value.length > 0) {
+    return
+  }
+
+  loading.value = projects.value.length === 0 // Only show loading on first load
   try {
     await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
     projects.value = projectsResource.data || []
@@ -239,6 +250,7 @@ async function loadData() {
       projects: projects.value.filter((p) => p.status === "Active").length,
       tasks: tasks.value.filter((t) => t.status !== "Completed").length,
     }
+    lastLoadTime = now
   } catch (error) {
     console.error("Error loading data:", error)
   } finally {
@@ -247,7 +259,7 @@ async function loadData() {
 }
 
 function handleRefresh(event) {
-  loadData().finally(() => {
+  loadData(true).finally(() => {
     event.target.complete()
   })
 }

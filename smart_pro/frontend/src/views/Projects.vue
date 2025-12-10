@@ -119,16 +119,6 @@
         </div>
       </div>
 
-      <!-- FAB -->
-      <ion-fab
-        slot="fixed"
-        vertical="bottom"
-        horizontal="end"
-      >
-        <ion-fab-button @click="createProject">
-          <ion-icon :icon="addOutline" />
-        </ion-fab-button>
-      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
@@ -145,18 +135,15 @@ import {
   IonSearchbar,
   IonRefresher,
   IonRefresherContent,
-  IonButton,
   IonButtons,
   IonBackButton,
   IonIcon,
-  IonFab,
-  IonFabButton,
   IonSegment,
   IonSegmentButton,
   IonLabel,
   onIonViewWillEnter,
 } from "@ionic/vue"
-import { addOutline, folderOutline } from "ionicons/icons"
+import { folderOutline } from "ionicons/icons"
 import { createResource } from "frappe-ui"
 
 const router = useRouter()
@@ -218,11 +205,23 @@ const getEmptyMessage = computed(() => {
   return "Create your first project"
 })
 
-async function loadData() {
-  loading.value = true
+// Cache timestamp to avoid unnecessary reloads
+let lastLoadTime = 0
+const CACHE_TTL = 30000 // 30 seconds
+
+async function loadData(forceRefresh = false) {
+  const now = Date.now()
+
+  // Skip reload if data is fresh (unless forced)
+  if (!forceRefresh && lastLoadTime && (now - lastLoadTime) < CACHE_TTL && projects.value.length > 0) {
+    return
+  }
+
+  loading.value = projects.value.length === 0 // Only show loading on first load
   try {
     await projectsResource.fetch()
     projects.value = projectsResource.data || []
+    lastLoadTime = now
   } catch (error) {
     console.error("Error loading projects:", error)
   } finally {
@@ -231,7 +230,7 @@ async function loadData() {
 }
 
 function handleRefresh(event) {
-  loadData().finally(() => {
+  loadData(true).finally(() => {
     event.target.complete()
   })
 }
@@ -261,10 +260,6 @@ function getStatusClass(status) {
 
 function goToProject(id) {
   router.push(`/smart-pro/project/${encodeURIComponent(id)}`)
-}
-
-function createProject() {
-  router.push("/smart-pro/project/new")
 }
 
 onMounted(() => {
