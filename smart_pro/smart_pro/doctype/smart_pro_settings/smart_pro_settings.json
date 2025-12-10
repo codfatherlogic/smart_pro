@@ -14,6 +14,12 @@
   "column_break_1",
   "default_project_status",
   "default_task_priority",
+  "ai_settings_section",
+  "enable_ai_features",
+  "ai_provider",
+  "column_break_ai",
+  "deepseek_api_key",
+  "ai_prompt_template",
   "permissions_section",
   "users_with_full_access",
   "roles_section",
@@ -80,6 +86,46 @@
    "fieldtype": "Select",
    "label": "Default Task Priority",
    "options": "Low\nMedium\nHigh\nCritical"
+  },
+  {
+   "fieldname": "ai_settings_section",
+   "fieldtype": "Section Break",
+   "label": "AI Settings",
+   "description": "Configure AI-powered features like auto-generating project descriptions"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_ai_features",
+   "fieldtype": "Check",
+   "label": "Enable AI Features",
+   "description": "Enable AI-powered description generation for projects"
+  },
+  {
+   "default": "DeepSeek",
+   "depends_on": "eval:doc.enable_ai_features",
+   "fieldname": "ai_provider",
+   "fieldtype": "Select",
+   "label": "AI Provider",
+   "options": "DeepSeek\nOpenAI"
+  },
+  {
+   "fieldname": "column_break_ai",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.enable_ai_features",
+   "fieldname": "deepseek_api_key",
+   "fieldtype": "Password",
+   "label": "API Key",
+   "description": "Enter your DeepSeek or OpenAI API key"
+  },
+  {
+   "depends_on": "eval:doc.enable_ai_features",
+   "fieldname": "ai_prompt_template",
+   "fieldtype": "Small Text",
+   "label": "AI Prompt Template",
+   "default": "Generate a professional project description for a project titled '{title}'. The description should be 2-3 paragraphs covering the project objectives, key deliverables, and expected outcomes. Keep it concise and business-focused.",
+   "description": "Template for generating project descriptions. Use {title} as placeholder for project title."
   },
   {
    "fieldname": "permissions_section",

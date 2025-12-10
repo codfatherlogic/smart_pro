@@ -1083,3 +1083,145 @@ def get_social_login_providers(redirect_to=None):
             "providers": [],
             "message": str(e)
         }
+
+
+# ==================== AI FEATURES ====================
+
+@frappe.whitelist()
+def generate_project_description(title):
+    """Generate a project description using AI (DeepSeek or OpenAI)
+
+    Args:
+        title: The project title to generate description for
+    """
+    import requests
+    from frappe.utils.password import get_decrypted_password
+
+    try:
+        # Get AI settings
+        settings = frappe.get_single("Smart Pro Settings")
+
+        if not settings.enable_ai_features:
+            return {
+                "success": False,
+                "message": "AI features are not enabled. Please enable them in Smart Pro Settings."
+            }
+
+        # Get API key
+        api_key = get_decrypted_password("Smart Pro Settings", "Smart Pro Settings", "deepseek_api_key")
+
+        if not api_key:
+            return {
+                "success": False,
+                "message": "API key is not configured. Please add your API key in Smart Pro Settings."
+            }
+
+        # Get prompt template
+        prompt_template = settings.ai_prompt_template or "Generate a professional project description for a project titled '{title}'. The description should be 2-3 paragraphs covering the project objectives, key deliverables, and expected outcomes. Keep it concise and business-focused."
+
+        prompt = prompt_template.replace("{title}", title)
+
+        # Determine which provider to use
+        provider = settings.ai_provider or "DeepSeek"
+
+        if provider == "DeepSeek":
+            response = _call_deepseek_api(api_key, prompt)
+        else:
+            response = _call_openai_api(api_key, prompt)
+
+        return response
+
+    except Exception as e:
+        frappe.logger().error(f"Error generating AI description: {str(e)}")
+        return {
+            "success": False,
+            "message": str(e)
+        }
+
+
+def _call_deepseek_api(api_key, prompt):
+    """Call DeepSeek API to generate text"""
+    import requests
+
+    url = "https://api.deepseek.com/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "deepseek-chat",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a professional business analyst helping to write clear, concise project descriptions. Write in a professional tone suitable for business documentation."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "temperature": 0.7,
+        "max_tokens": 1000
+    }
+
+    response = requests.post(url, headers=headers, json=payload, timeout=30)
+
+    if response.status_code == 200:
+        data = response.json()
+        description = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        return {
+            "success": True,
+            "description": description.strip()
+        }
+    else:
+        error_msg = response.json().get("error", {}).get("message", response.text)
+        return {
+            "success": False,
+            "message": f"DeepSeek API error: {error_msg}"
+        }
+
+
+def _call_openai_api(api_key, prompt):
+    """Call OpenAI API to generate text"""
+    import requests
+
+    url = "https://api.openai.com/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a professional business analyst helping to write clear, concise project descriptions. Write in a professional tone suitable for business documentation."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "temperature": 0.7,
+        "max_tokens": 1000
+    }
+
+    response = requests.post(url, headers=headers, json=payload, timeout=30)
+
+    if response.status_code == 200:
+        data = response.json()
+        description = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        return {
+            "success": True,
+            "description": description.strip()
+        }
+    else:
+        error_msg = response.json().get("error", {}).get("message", response.text)
+        return {
+            "success": False,
+            "message": f"OpenAI API error: {error_msg}"
+        }
