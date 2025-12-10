@@ -201,24 +201,13 @@ function handleRefresh(event) {
 }
 
 async function handleNotificationClick(notification) {
-  // Mark as read based on source
+  // Mark as read using custom API
   if (!notification.read) {
     try {
-      if (notification.source === "smart_pro") {
-        await call("frappe.client.set_value", {
-          doctype: "Smart Pro Notification",
-          name: notification.name,
-          fieldname: "status",
-          value: "read"
-        })
-      } else {
-        await call("frappe.client.set_value", {
-          doctype: "Notification Log",
-          name: notification.name,
-          fieldname: "read",
-          value: 1
-        })
-      }
+      await call("smart_pro.smart_pro.api.projects.mark_notification_as_read", {
+        notification_name: notification.name,
+        source: notification.source || "smart_pro"
+      })
       notification.read = 1
     } catch (err) {
       console.error("Error marking notification as read:", err)
@@ -243,26 +232,8 @@ async function handleNotificationClick(notification) {
 async function markAllAsRead() {
   markingAll.value = true
   try {
-    const unreadNotifications = notifications.value.filter(n => !n.read)
-    await Promise.all(
-      unreadNotifications.map(n => {
-        if (n.source === "smart_pro") {
-          return call("frappe.client.set_value", {
-            doctype: "Smart Pro Notification",
-            name: n.name,
-            fieldname: "status",
-            value: "read"
-          })
-        } else {
-          return call("frappe.client.set_value", {
-            doctype: "Notification Log",
-            name: n.name,
-            fieldname: "read",
-            value: 1
-          })
-        }
-      })
-    )
+    // Use custom API to mark all as read
+    await call("smart_pro.smart_pro.api.projects.mark_all_notifications_as_read")
 
     // Update local state
     notifications.value.forEach(n => {
@@ -341,7 +312,7 @@ onIonViewWillEnter(() => {
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem;
-  background: white;
+  background: var(--ion-card-background, white);
   border-radius: 0.75rem;
   margin-bottom: 0.75rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
@@ -354,8 +325,30 @@ onIonViewWillEnter(() => {
 }
 
 .notification-card.unread {
-  background: linear-gradient(135deg, #eff6ff 0%, #fff 100%);
+  background: linear-gradient(135deg, var(--ion-color-primary-tint, #eff6ff) 0%, var(--ion-card-background, #fff) 100%);
   border-left: 3px solid var(--ion-color-primary);
+}
+
+/* Dark mode support */
+body.dark .notification-card {
+  background: var(--ion-card-background, #1e1e1e);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+body.dark .notification-card.unread {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, var(--ion-card-background, #1e1e1e) 100%);
+}
+
+body.dark .notification-subject {
+  color: #f1f5f9;
+}
+
+body.dark .notification-message {
+  color: #94a3b8;
+}
+
+body.dark .notification-time {
+  color: #64748b;
 }
 
 .notification-icon {
@@ -385,21 +378,21 @@ onIonViewWillEnter(() => {
 
 .notification-subject {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--ion-text-color, #1e293b);
   font-size: 0.9375rem;
   margin-bottom: 0.25rem;
 }
 
 .notification-message {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--ion-color-medium, #64748b);
   margin-bottom: 0.5rem;
   line-height: 1.4;
 }
 
 .notification-time {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--ion-color-medium-shade, #94a3b8);
 }
 
 .notification-actions {
@@ -442,15 +435,23 @@ onIonViewWillEnter(() => {
 }
 
 .app-card {
-  background-color: white;
+  background-color: var(--ion-card-background, white);
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
+body.dark .app-card {
+  background-color: var(--ion-card-background, #1e1e1e);
+}
+
 .skeleton {
-  background-color: #e5e7eb;
+  background-color: var(--ion-color-light, #e5e7eb);
   border-radius: 0.25rem;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+body.dark .skeleton {
+  background-color: #374151;
 }
 
 @keyframes pulse {

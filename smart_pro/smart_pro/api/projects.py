@@ -849,3 +849,52 @@ def get_connections_dashboard():
             "approvedTimesheets": 0,
             "notifications": 0,
         }
+
+
+# ==================== NOTIFICATIONS ====================
+
+@frappe.whitelist()
+def mark_notification_as_read(notification_name, source="smart_pro"):
+    """Mark a notification as read"""
+    try:
+        if source == "smart_pro":
+            if frappe.db.exists("Smart Pro Notification", notification_name):
+                frappe.db.set_value("Smart Pro Notification", notification_name, "status", "read")
+                frappe.db.commit()
+                return {"success": True}
+        else:
+            if frappe.db.exists("Notification Log", notification_name):
+                frappe.db.set_value("Notification Log", notification_name, "read", 1)
+                frappe.db.commit()
+                return {"success": True}
+        return {"success": False, "message": "Notification not found"}
+    except Exception as e:
+        frappe.logger().error(f"Error marking notification as read: {str(e)}")
+        return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def mark_all_notifications_as_read():
+    """Mark all notifications as read for current user"""
+    user = frappe.session.user
+
+    try:
+        # Mark Smart Pro Notifications as read
+        frappe.db.sql("""
+            UPDATE `tabSmart Pro Notification`
+            SET status = 'read'
+            WHERE user = %s AND status != 'read'
+        """, (user,))
+
+        # Mark Frappe Notification Log as read
+        frappe.db.sql("""
+            UPDATE `tabNotification Log`
+            SET `read` = 1
+            WHERE for_user = %s AND `read` = 0
+        """, (user,))
+
+        frappe.db.commit()
+        return {"success": True}
+    except Exception as e:
+        frappe.logger().error(f"Error marking all notifications as read: {str(e)}")
+        return {"success": False, "message": str(e)}
