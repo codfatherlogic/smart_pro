@@ -993,8 +993,15 @@ def mark_all_notifications_as_read():
 # ==================== SOCIAL LOGIN ====================
 
 @frappe.whitelist(allow_guest=True)
-def get_social_login_providers():
-    """Get all enabled social login providers for the login page"""
+def get_social_login_providers(redirect_to=None):
+    """Get all enabled social login providers for the login page with proper OAuth authorize URLs
+
+    Args:
+        redirect_to: Optional URL to redirect to after successful login
+    """
+    from frappe.utils.oauth import get_oauth2_authorize_url, get_oauth_keys
+    from frappe.utils.password import get_decrypted_password
+
     try:
         providers = []
 
@@ -1002,66 +1009,68 @@ def get_social_login_providers():
         social_login_keys = frappe.get_all(
             "Social Login Key",
             filters={"enable_social_login": 1},
-            fields=["name", "provider_name", "icon", "client_id"]
+            fields=["name", "provider_name", "icon", "client_id", "base_url"]
         )
 
-        # Map provider names to their login URLs and icons
+        # Map provider names to their icons and colors
         provider_config = {
             "google": {
                 "label": "Google",
                 "icon": "logo-google",
-                "color": "#DB4437",
-                "url": "/api/method/frappe.integrations.oauth2_logins.login_via_google"
+                "color": "#DB4437"
             },
             "github": {
                 "label": "GitHub",
                 "icon": "logo-github",
-                "color": "#333333",
-                "url": "/api/method/frappe.integrations.oauth2_logins.login_via_github"
+                "color": "#333333"
             },
             "facebook": {
                 "label": "Facebook",
                 "icon": "logo-facebook",
-                "color": "#4267B2",
-                "url": "/api/method/frappe.integrations.oauth2_logins.login_via_facebook"
+                "color": "#4267B2"
             },
             "office_365": {
                 "label": "Microsoft",
                 "icon": "logo-microsoft",
-                "color": "#00A4EF",
-                "url": "/api/method/frappe.integrations.oauth2_logins.login_via_office365"
+                "color": "#00A4EF"
             },
             "frappe": {
                 "label": "Frappe",
                 "icon": "globe-outline",
-                "color": "#0089FF",
-                "url": "/api/method/frappe.integrations.oauth2_logins.login_via_frappe"
+                "color": "#0089FF"
             }
         }
 
         for key in social_login_keys:
-            provider_name = key.provider_name.lower().replace(" ", "_")
-            config = provider_config.get(provider_name)
+            # Check if client secret is configured
+            client_secret = get_decrypted_password(
+                "Social Login Key", key.name, "client_secret", raise_exception=False
+            )
+            if not client_secret:
+                continue
 
-            if config:
+            # Check if OAuth keys are properly configured
+            if not (key.client_id and key.base_url and get_oauth_keys(key.name)):
+                continue
+
+            provider_name = key.provider_name.lower().replace(" ", "_")
+            config = provider_config.get(provider_name, {})
+
+            try:
+                # Generate the proper OAuth authorize URL
+                auth_url = get_oauth2_authorize_url(key.name, redirect_to)
+
                 providers.append({
                     "name": key.name,
                     "provider": provider_name,
-                    "label": config["label"],
-                    "icon": key.icon or config["icon"],
-                    "color": config["color"],
-                    "url": config["url"]
+                    "label": config.get("label", key.provider_name),
+                    "icon": key.icon or config.get("icon", "globe-outline"),
+                    "color": config.get("color", "#6B7280"),
+                    "url": auth_url
                 })
-            else:
-                # Custom provider
-                providers.append({
-                    "name": key.name,
-                    "provider": provider_name,
-                    "label": key.provider_name,
-                    "icon": key.icon or "globe-outline",
-                    "color": "#6B7280",
-                    "url": f"/api/method/frappe.integrations.oauth2_logins.custom/{provider_name}"
-                })
+            except Exception as auth_err:
+                frappe.logger().warning(f"Could not generate OAuth URL for {key.name}: {str(auth_err)}")
+                continue
 
         return {
             "success": True,

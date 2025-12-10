@@ -174,7 +174,11 @@ function getProviderIcon(iconName) {
 async function loadSocialProviders() {
   loadingProviders.value = true
   try {
-    const result = await call("smart_pro.smart_pro.api.projects.get_social_login_providers")
+    // Pass the redirect URL so OAuth returns to our app after login
+    const redirectTo = window.location.origin + "/smart-pro/home"
+    const result = await call("smart_pro.smart_pro.api.projects.get_social_login_providers", {
+      redirect_to: redirectTo
+    })
     if (result && result.success) {
       socialProviders.value = result.providers || []
     }
@@ -208,11 +212,8 @@ async function handleLogin() {
 }
 
 function handleSocialLogin(provider) {
-  // Redirect to the OAuth provider URL
-  // Add redirect parameter to come back to our app after login
-  const currentUrl = window.location.origin + "/smart-pro/home"
-  const loginUrl = `${provider.url}?redirect_to=${encodeURIComponent(currentUrl)}`
-  window.location.href = loginUrl
+  // Redirect to the OAuth authorize URL (already contains all necessary parameters)
+  window.location.href = provider.url
 }
 
 function initDarkMode() {
