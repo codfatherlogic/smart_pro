@@ -1225,3 +1225,71 @@ def _call_openai_api(api_key, prompt):
             "success": False,
             "message": f"OpenAI API error: {error_msg}"
         }
+
+
+@frappe.whitelist()
+def generate_project_scope(project_title, employee_name=None, role=None):
+    """Generate project scope details using AI (DeepSeek or OpenAI)
+
+    Args:
+        project_title: The project title
+        employee_name: The employee name (optional)
+        role: The role assigned (optional)
+    """
+    import requests
+    from frappe.utils.password import get_decrypted_password
+
+    try:
+        # Get AI settings
+        settings = frappe.get_single("Smart Pro Settings")
+
+        if not settings.enable_ai_features:
+            return {
+                "success": False,
+                "message": "AI features are not enabled. Please enable them in Smart Pro Settings."
+            }
+
+        # Get API key
+        api_key = get_decrypted_password("Smart Pro Settings", "Smart Pro Settings", "deepseek_api_key")
+
+        if not api_key:
+            return {
+                "success": False,
+                "message": "API key is not configured. Please add your API key in Smart Pro Settings."
+            }
+
+        # Build prompt for project scope
+        prompt = f"Generate a detailed project scope for an employee assignment on the project '{project_title}'."
+
+        if employee_name:
+            prompt += f" The employee assigned is {employee_name}."
+
+        if role:
+            prompt += f" Their role is {role}."
+
+        prompt += """
+
+Please include:
+1. Key Responsibilities - Main duties and tasks for this assignment
+2. Deliverables - Specific outputs expected from this assignment
+3. Success Criteria - How success will be measured
+4. Dependencies - Any dependencies or prerequisites
+
+Keep it concise, professional, and actionable. Format with clear headings."""
+
+        # Determine which provider to use
+        provider = settings.ai_provider or "DeepSeek"
+
+        if provider == "DeepSeek":
+            response = _call_deepseek_api(api_key, prompt)
+        else:
+            response = _call_openai_api(api_key, prompt)
+
+        return response
+
+    except Exception as e:
+        frappe.logger().error(f"Error generating AI project scope: {str(e)}")
+        return {
+            "success": False,
+            "message": str(e)
+        }
