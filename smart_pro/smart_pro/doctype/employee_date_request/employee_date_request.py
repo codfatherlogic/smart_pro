@@ -49,20 +49,37 @@ class EmployeeDateRequest(Document):
                 self.project_scope = scope
 
     def set_default_approver(self):
-        """Set default approver as project manager, but not if the employee IS the project manager"""
-        if not self.approver and self.project:
-            project_manager = frappe.db.get_value("Smart Project", self.project, "project_manager")
-
+        """Set default approver from Employee Project Assignment, fallback to project manager"""
+        if not self.approver and self.project and self.employee:
             # Get the user_id of the employee making the request
-            employee_user = None
-            if self.employee:
-                employee_user = frappe.db.get_value("Employee", self.employee, "user_id")
+            employee_user = frappe.db.get_value("Employee", self.employee, "user_id")
 
-            # If the employee is NOT the project manager, set project manager as approver
-            if project_manager and project_manager != employee_user:
-                self.approver = project_manager
-            # If the employee IS the project manager, they can self-approve (no approver needed)
-            # The approval logic will allow project managers to approve their own requests
+            # First, try to get approver from the Employee Project Assignment
+            assignment_approver = None
+            if self.assignment:
+                assignment_approver = frappe.db.get_value("Employee Project Assignment", self.assignment, "approver")
+            else:
+                # Try to find the assignment if not already linked
+                assignment_data = frappe.db.get_value(
+                    "Employee Project Assignment",
+                    {"employee": self.employee, "project": self.project, "status": "Active"},
+                    ["name", "approver"],
+                    as_dict=True
+                )
+                if assignment_data:
+                    assignment_approver = assignment_data.get("approver")
+
+            if assignment_approver and assignment_approver != employee_user:
+                # Use the approver from the assignment
+                self.approver = assignment_approver
+            else:
+                # Fallback to project manager
+                project_manager = frappe.db.get_value("Smart Project", self.project, "project_manager")
+
+                # If the employee is NOT the project manager, set project manager as approver
+                if project_manager and project_manager != employee_user:
+                    self.approver = project_manager
+                # If the employee IS the project manager, they can self-approve (no approver needed)
 
     def on_submit(self):
         if self.status == "Draft":

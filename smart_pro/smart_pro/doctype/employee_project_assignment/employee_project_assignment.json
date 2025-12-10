@@ -16,6 +16,8 @@
   "project",
   "employee_name",
   "status",
+  "approval_section",
+  "approver",
   "dates_section",
   "start_date",
   "column_break_gkwa",
@@ -109,6 +111,18 @@
   {
    "fieldname": "column_break_gkwa",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approval_section",
+   "fieldtype": "Section Break",
+   "label": "Approval"
+  },
+  {
+   "description": "User who will approve date requests for this assignment. If not set, project manager will be used.",
+   "fieldname": "approver",
+   "fieldtype": "Link",
+   "label": "Approver",
+   "options": "User"
   },
   {
    "fieldname": "project_scope_section",
