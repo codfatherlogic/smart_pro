@@ -9,6 +9,7 @@
   "app_logo",
   "general_settings_section",
   "enable_notifications",
+  "enable_email_notifications",
   "enable_offline_mode",
   "column_break_1",
   "default_project_status",
@@ -46,7 +47,15 @@
    "default": "1",
    "fieldname": "enable_notifications",
    "fieldtype": "Check",
-   "label": "Enable Notifications"
+   "label": "Enable Push Notifications",
+   "description": "Enable in-app push notifications for tasks, projects, and approvals"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_email_notifications",
+   "fieldtype": "Check",
+   "label": "Enable Email Notifications",
+   "description": "Send beautiful email notifications for important updates (task assignments, approvals, etc.)"
   },
   {
    "default": "1",
