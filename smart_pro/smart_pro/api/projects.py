@@ -3,20 +3,33 @@ from frappe.utils import now_datetime
 from smart_pro.smart_pro.doctype.smart_pro_settings.smart_pro_settings import user_has_full_access, user_can_view_all_tasks
 
 @frappe.whitelist()
-def get_user_projects():
-    """Get only projects assigned to the current user via Employee Project Assignment"""
+def get_user_projects(include_completed=False):
+    """Get only projects assigned to the current user via Employee Project Assignment
+
+    Args:
+        include_completed: If False (default), exclude completed projects for better performance
+    """
     user = frappe.session.user
+    # Convert string "true"/"false" to boolean
+    if isinstance(include_completed, str):
+        include_completed = include_completed.lower() == "true"
 
     try:
+        # Base filter to exclude completed projects (unless explicitly requested)
+        base_filters = {}
+        if not include_completed:
+            base_filters["status"] = ["!=", "Completed"]
+
         # Check if user has full access via Smart Pro Settings
         if user_has_full_access(user):
-            # Return all projects
+            # Return all non-completed projects
             projects = frappe.get_list(
                 "Smart Project",
+                filters=base_filters,
                 fields=["name", "title", "status", "start_date", "end_date", "budget_amount", "project_manager"],
                 order_by="modified desc"
             )
-            frappe.logger().info(f"get_user_projects: User {user} has full access, returning all {len(projects)} projects")
+            frappe.logger().info(f"get_user_projects: User {user} has full access, returning {len(projects)} projects (completed excluded: {not include_completed})")
         else:
             # Get employee record for current user
             employee = frappe.db.get_value("Employee", {"user_id": user}, "name")
@@ -39,36 +52,61 @@ def get_user_projects():
                 frappe.logger().info(f"get_user_projects: Employee {employee} has no active assignments")
                 return []
 
+            # Combine filters
+            project_filters = {"name": ["in", assignments]}
+            if not include_completed:
+                project_filters["status"] = ["!=", "Completed"]
+
             projects = frappe.get_list(
                 "Smart Project",
-                filters={
-                    "name": ["in", assignments]
-                },
+                filters=project_filters,
                 fields=["name", "title", "status", "start_date", "end_date", "budget_amount", "project_manager"],
                 order_by="modified desc"
             )
 
-            frappe.logger().info(f"get_user_projects: Found {len(projects)} assigned projects for employee {employee}")
+            frappe.logger().info(f"get_user_projects: Found {len(projects)} assigned projects for employee {employee} (completed excluded: {not include_completed})")
         return projects
     except Exception as e:
         frappe.logger().error(f"Error getting user projects: {str(e)}")
         frappe.throw(f"Error loading projects: {str(e)}")
 
 @frappe.whitelist()
-def get_user_tasks():
-    """Get only tasks from projects assigned to the current user via Employee Project Assignment"""
+def get_user_tasks(include_from_completed_projects=False):
+    """Get only tasks from projects assigned to the current user via Employee Project Assignment
+
+    Args:
+        include_from_completed_projects: If False (default), exclude tasks from completed projects for better performance
+    """
     user = frappe.session.user
+    # Convert string "true"/"false" to boolean
+    if isinstance(include_from_completed_projects, str):
+        include_from_completed_projects = include_from_completed_projects.lower() == "true"
 
     try:
+        # Get list of completed projects to exclude their tasks
+        completed_projects = []
+        if not include_from_completed_projects:
+            completed_projects = frappe.get_list(
+                "Smart Project",
+                filters={"status": "Completed"},
+                pluck="name"
+            )
+
         # Check if user has full access via Smart Pro Settings
         if user_can_view_all_tasks(user):
-            # Return all tasks
+            # Build filters
+            task_filters = {}
+            if completed_projects:
+                task_filters["project"] = ["not in", completed_projects]
+
+            # Return all tasks (excluding from completed projects)
             tasks = frappe.get_list(
                 "Smart Task",
+                filters=task_filters if task_filters else None,
                 fields=["name", "title", "project", "status", "priority", "due_date", "progress", "assigned_to", "project_scope"],
                 order_by="due_date asc"
             )
-            frappe.logger().info(f"get_user_tasks: User {user} has full access, returning all {len(tasks)} tasks")
+            frappe.logger().info(f"get_user_tasks: User {user} has full access, returning {len(tasks)} tasks (from completed projects excluded: {not include_from_completed_projects})")
         else:
             # Get employee record for current user
             employee = frappe.db.get_value("Employee", {"user_id": user}, "name")
@@ -91,7 +129,15 @@ def get_user_tasks():
                 frappe.logger().info(f"get_user_tasks: Employee {employee} has no active assignments")
                 return []
 
-            # Get tasks ONLY from assigned projects
+            # Filter out completed projects from assignments
+            if completed_projects:
+                assignments = [p for p in assignments if p not in completed_projects]
+
+            if not assignments:
+                frappe.logger().info(f"get_user_tasks: All assigned projects are completed for employee {employee}")
+                return []
+
+            # Get tasks ONLY from assigned non-completed projects
             tasks = frappe.get_list(
                 "Smart Task",
                 filters={
@@ -101,7 +147,7 @@ def get_user_tasks():
                 order_by="due_date asc"
             )
 
-            frappe.logger().info(f"get_user_tasks: Found {len(tasks)} tasks from {len(assignments)} assigned projects for employee {employee}")
+            frappe.logger().info(f"get_user_tasks: Found {len(tasks)} tasks from {len(assignments)} assigned non-completed projects for employee {employee}")
         return tasks
     except Exception as e:
         frappe.logger().error(f"Error getting user tasks: {str(e)}")

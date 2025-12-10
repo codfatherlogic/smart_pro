@@ -6,11 +6,6 @@
           <ion-back-button default-href="/smart-pro/home" text="" />
         </ion-buttons>
         <ion-title>Projects</ion-title>
-        <ion-buttons slot="end">
-          <ion-button @click="createProject">
-            <ion-icon :icon="addOutline" />
-          </ion-button>
-        </ion-buttons>
       </ion-toolbar>
       <ion-toolbar>
         <ion-searchbar
@@ -79,13 +74,6 @@
         <div class="empty-state-description">
           {{ getEmptyMessage }}
         </div>
-        <ion-button
-          v-if="!searchQuery && statusFilter === 'all'"
-          class="mt-4"
-          @click="createProject"
-        >
-          Create Project
-        </ion-button>
       </div>
 
       <!-- Projects List -->
@@ -124,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject } from "vue"
+import { ref, computed, onMounted, inject, watch } from "vue"
 import { useRouter } from "vue-router"
 import {
   IonPage,
@@ -153,21 +141,29 @@ const loading = ref(true)
 const searchQuery = ref("")
 const statusFilter = ref("active")
 const projects = ref([])
+const completedProjects = ref([])
+let completedLoaded = false
 
 const projectsResource = createResource({
   url: "smart_pro.smart_pro.api.projects.get_user_projects",
   auto: false,
 })
 
-const filteredProjects = computed(() => {
-  let result = projects.value
+// Separate resource for completed projects (only loaded when needed)
+const completedProjectsResource = createResource({
+  url: "smart_pro.smart_pro.api.projects.get_user_projects",
+  auto: false,
+})
 
-  // Apply status filter
-  if (statusFilter.value !== "all") {
+const filteredProjects = computed(() => {
+  // For completed filter, use completedProjects; otherwise use regular projects
+  let result = statusFilter.value === "completed" ? completedProjects.value : projects.value
+
+  // Apply status filter (except for completed which is already filtered)
+  if (statusFilter.value !== "all" && statusFilter.value !== "completed") {
     const statusMap = {
       "active": "Active",
       "planning": "Planning",
-      "completed": "Completed",
       "on-hold": "On Hold",
       "cancelled": "Cancelled"
     }
@@ -219,6 +215,7 @@ async function loadData(forceRefresh = false) {
 
   loading.value = projects.value.length === 0 // Only show loading on first load
   try {
+    // Load active projects (excludes completed by default)
     await projectsResource.fetch()
     projects.value = projectsResource.data || []
     lastLoadTime = now
@@ -229,9 +226,45 @@ async function loadData(forceRefresh = false) {
   }
 }
 
+// Load completed projects only when user clicks on Completed tab
+async function loadCompletedProjects() {
+  if (completedLoaded) return
+
+  loading.value = true
+  try {
+    await completedProjectsResource.fetch({ include_completed: "true" })
+    const allProjects = completedProjectsResource.data || []
+    // Filter to only show completed projects
+    completedProjects.value = allProjects.filter(p => p.status === "Completed")
+    completedLoaded = true
+  } catch (error) {
+    console.error("Error loading completed projects:", error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Watch for filter changes to load completed projects when needed
+watch(statusFilter, (newValue) => {
+  if (newValue === "completed" && !completedLoaded) {
+    loadCompletedProjects()
+  }
+})
+
 function handleRefresh(event) {
+  // Reset completed cache on refresh
+  completedLoaded = false
+  completedProjects.value = []
+
   loadData(true).finally(() => {
-    event.target.complete()
+    // If on completed tab, reload completed projects too
+    if (statusFilter.value === "completed") {
+      loadCompletedProjects().finally(() => {
+        event.target.complete()
+      })
+    } else {
+      event.target.complete()
+    }
   })
 }
 
