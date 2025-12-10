@@ -22,16 +22,8 @@ frappe.ui.form.on("Employee Project Assignment", {
 					indicator: 'blue'
 				});
 
-				// Get role name if available
-				let role_name = null;
-				if (frm.doc.role) {
-					frappe.db.get_value('Smart Role', frm.doc.role, 'role_name', function(role_r) {
-						role_name = role_r ? role_r.role_name : null;
-						generate_scope(frm, r.title, frm.doc.employee_name, role_name);
-					});
-				} else {
-					generate_scope(frm, r.title, frm.doc.employee_name, null);
-				}
+				// Role name is the same as role field value (Smart Role uses name as the role)
+				generate_scope(frm, r.title, frm.doc.employee_name, frm.doc.role);
 			});
 		}, __('AI'));
 	}
