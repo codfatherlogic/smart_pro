@@ -238,54 +238,6 @@ Simple role definitions for project assignments.
 
 ---
 
-## API Endpoints
-
-### Projects
-```python
-smart_pro.smart_pro.api.projects.get_user_projects(include_completed=False)
-smart_pro.smart_pro.api.projects.get_user_tasks(include_from_completed_projects=False)
-smart_pro.smart_pro.api.projects.get_my_date_requests(include_from_completed_projects=False)
-smart_pro.smart_pro.api.projects.get_my_timesheets(from_date, to_date, include_from_completed_projects=False)
-```
-
-### AI Generation
-```python
-smart_pro.smart_pro.api.projects.generate_project_description(title)
-smart_pro.smart_pro.api.projects.generate_project_scope(project_title, employee_name, role)
-```
-
-### Social Login
-```python
-smart_pro.smart_pro.api.projects.get_social_login_providers(redirect_to)
-```
-
----
-
-## CI/CD
-
-### GitHub Actions Workflows
-
-**CI (ci.yml)** - Runs on push to `develop` branch:
-- Sets up Python 3.10, Node 18, MariaDB
-- Installs Frappe and Smart Pro
-- Runs unit tests
-
-**Linters (linter.yml)** - Runs on pull requests:
-- Pre-commit hooks (ruff, eslint, prettier)
-- Semgrep security rules
-- pip-audit vulnerability check
-
----
-
-## Version History
-
-| Version | Changes |
-|---------|---------|
-| 1.0.0 | Initial release with full feature set |
-| 0.0.1 | Development version |
-
----
-
 ## Contributing
 
 1. Install pre-commit hooks:
