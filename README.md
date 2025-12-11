@@ -246,11 +246,8 @@ cd apps/smart_pro
 pre-commit install
 ```
 
-2. Code formatting tools:
-- **Python**: ruff
-- **JavaScript**: eslint, prettier
 
-3. Run tests:
+2. Run tests:
 ```bash
 bench --site your-site run-tests --app smart_pro
 ```
