@@ -4,11 +4,14 @@ name: CI
 on:
   push:
     branches:
+      - main
       - develop
+    tags:
+      - 'v*'
   pull_request:
 
 concurrency:
-  group: develop-smart_pro-${{ github.event.number }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
