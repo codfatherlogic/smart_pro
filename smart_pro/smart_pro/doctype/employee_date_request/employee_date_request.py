@@ -190,15 +190,21 @@ class EmployeeDateRequest(Document):
             return
 
         try:
-            # Get employee's user_id
-            user_id = frappe.db.get_value("Employee", self.employee, "user_id")
-            if not user_id:
-                frappe.msgprint("Employee does not have a linked user. Task will be created without assignment.")
-
             project_title = self.project_title or frappe.db.get_value("Smart Project", self.project, "title")
 
             # Create unique task title using date request name
             task_title = f"{project_title} - {self.name}"
+
+            # Check if task already exists for this date request (prevent duplicates)
+            existing_task = frappe.db.exists("Smart Task", {"title": task_title})
+            if existing_task:
+                frappe.msgprint(f"Task already exists: {task_title}")
+                return
+
+            # Get employee's user_id
+            user_id = frappe.db.get_value("Employee", self.employee, "user_id")
+            if not user_id:
+                frappe.msgprint("Employee does not have a linked user. Task will be created without assignment.")
 
             task = frappe.get_doc({
                 "doctype": "Smart Task",
