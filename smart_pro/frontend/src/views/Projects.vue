@@ -6,6 +6,12 @@
           <ion-back-button default-href="/smart-pro/home" text="" />
         </ion-buttons>
         <ion-title>Projects</ion-title>
+        <!-- Add button for full access users only -->
+        <ion-buttons v-if="hasFullAccess" slot="end">
+          <ion-button @click="goToCreateProject">
+            <ion-icon :icon="addOutline" />
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
       <ion-toolbar>
         <ion-searchbar
@@ -124,6 +130,7 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonButtons,
+  IonButton,
   IonBackButton,
   IonIcon,
   IonSegment,
@@ -131,7 +138,7 @@ import {
   IonLabel,
   onIonViewWillEnter,
 } from "@ionic/vue"
-import { folderOutline } from "ionicons/icons"
+import { folderOutline, addOutline } from "ionicons/icons"
 import { createResource, call } from "frappe-ui"
 import { usePermissions } from "@/composables/usePermissions"
 
@@ -283,6 +290,10 @@ function handleRefresh(event) {
       event.target.complete()
     }
   })
+}
+
+function goToCreateProject() {
+  router.push("/smart-pro/project/new")
 }
 
 function formatDate(dateStr) {

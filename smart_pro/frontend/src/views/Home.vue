@@ -207,9 +207,11 @@ import {
 } from "@ionic/vue"
 import { gitNetworkOutline, chevronForwardOutline, notificationsOutline, moonOutline, sunnyOutline } from "ionicons/icons"
 import { createResource, call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const router = useRouter()
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const projects = ref([])
@@ -243,9 +245,33 @@ async function loadData(forceRefresh = false) {
 
   loading.value = projects.value.length === 0 // Only show loading on first load
   try {
-    await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
-    projects.value = projectsResource.data || []
-    tasks.value = tasksResource.data || []
+    // Fetch permissions first
+    await fetchPermissions()
+    console.log("Home.vue - hasFullAccess:", hasFullAccess.value)
+
+    // For full access users, get all data; otherwise get user's data
+    if (hasFullAccess.value) {
+      try {
+        const [allProjects, allTasks] = await Promise.all([
+          call("smart_pro.smart_pro.api.projects.get_all_projects"),
+          call("smart_pro.smart_pro.api.projects.get_all_tasks"),
+        ])
+        projects.value = allProjects || []
+        tasks.value = allTasks || []
+        console.log("Home.vue - Loaded all projects:", projects.value.length)
+      } catch (fullAccessError) {
+        console.error("Error loading all data (falling back to user data):", fullAccessError)
+        // Fallback to user-specific data if full access fails
+        await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
+        projects.value = projectsResource.data || []
+        tasks.value = tasksResource.data || []
+      }
+    } else {
+      await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
+      projects.value = projectsResource.data || []
+      tasks.value = tasksResource.data || []
+      console.log("Home.vue - Loaded user projects:", projects.value.length)
+    }
     stats.value = {
       projects: projects.value.filter((p) => p.status === "Active").length,
       tasks: tasks.value.filter((t) => t.status !== "Completed").length,

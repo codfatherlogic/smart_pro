@@ -105,22 +105,25 @@
               <span>{{ task.progress || 0 }}%</span>
             </div>
             <div
-              class="progress-bar"
-              @click.stop="openProgressModal(task)"
+              :class="['progress-bar', { 'progress-bar-readonly': hasFullAccess }]"
+              @click.stop="!hasFullAccess && openProgressModal(task)"
             >
               <div
                 class="progress-bar-fill"
                 :style="{ width: (task.progress || 0) + '%' }"
               />
             </div>
-            <div class="text-xs text-gray-500 mt-1 text-center">
+            <div
+              v-if="!hasFullAccess"
+              class="text-xs text-gray-500 mt-1 text-center"
+            >
               Tap progress bar to update
             </div>
           </div>
 
-          <!-- Log Hours Button (hidden for completed tasks) -->
+          <!-- Log Hours Button (hidden for completed tasks and full access users - read-only mode) -->
           <div
-            v-if="task.status !== 'Completed'"
+            v-if="task.status !== 'Completed' && !hasFullAccess"
             class="mt-3 pt-3 border-t border-gray-100"
           >
             <ion-button
@@ -132,6 +135,15 @@
               <ion-icon :icon="timeOutline" slot="start" />
               Log Hours
             </ion-button>
+          </div>
+          <!-- Read-only indicator for full access users -->
+          <div
+            v-if="task.status !== 'Completed' && hasFullAccess"
+            class="mt-3 pt-3 border-t border-gray-100"
+          >
+            <div class="text-xs text-gray-500 italic text-center">
+              View only mode - Full access users cannot log hours
+            </div>
           </div>
         </div>
       </div>
@@ -692,6 +704,14 @@ onIonViewWillEnter(() => {
 
 .progress-bar:hover {
   background-color: #d1d5db;
+}
+
+.progress-bar-readonly {
+  cursor: default;
+}
+
+.progress-bar-readonly:hover {
+  background-color: #e5e7eb;
 }
 
 .progress-bar-fill {

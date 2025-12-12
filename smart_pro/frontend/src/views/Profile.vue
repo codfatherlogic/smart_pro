@@ -152,8 +152,10 @@ import {
   chevronForwardOutline,
 } from "ionicons/icons"
 import { createResource, call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const router = useRouter()
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const userName = ref("")
 const userEmail = ref("")
@@ -199,11 +201,36 @@ async function loadUserData() {
       userName.value = userDoc?.full_name || userEmail.value
     }
 
-    // Load stats
-    await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
+    // Fetch permissions first
+    await fetchPermissions()
+    console.log("Profile.vue - hasFullAccess:", hasFullAccess.value)
 
-    const projects = projectsResource.data || []
-    const tasks = tasksResource.data || []
+    // Load stats - for full access users, get all data
+    let projects = []
+    let tasks = []
+
+    if (hasFullAccess.value) {
+      try {
+        const [allProjects, allTasks] = await Promise.all([
+          call("smart_pro.smart_pro.api.projects.get_all_projects"),
+          call("smart_pro.smart_pro.api.projects.get_all_tasks"),
+        ])
+        projects = allProjects || []
+        tasks = allTasks || []
+        console.log("Profile.vue - Loaded all projects:", projects.length)
+      } catch (fullAccessError) {
+        console.error("Error loading all data (falling back to user data):", fullAccessError)
+        // Fallback to user-specific data if full access fails
+        await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
+        projects = projectsResource.data || []
+        tasks = tasksResource.data || []
+      }
+    } else {
+      await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
+      projects = projectsResource.data || []
+      tasks = tasksResource.data || []
+      console.log("Profile.vue - Loaded user projects:", projects.length)
+    }
 
     stats.value = {
       projects: projects.length,

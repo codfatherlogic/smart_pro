@@ -729,17 +729,7 @@ def create_timesheet(task, date, hours_worked, description, activity_type="Devel
         # Get task details
         task_doc = frappe.get_doc("Smart Task", task)
 
-        # Check if timesheet already exists for this task and date
-        existing = frappe.db.exists("Smart Timesheet", {
-            "employee": employee,
-            "task": task,
-            "date": date
-        })
-
-        if existing:
-            frappe.throw(f"Timesheet already exists for this task on {date}")
-
-        # Create timesheet
+        # Create timesheet (multiple timesheets allowed for same task on same day)
         doc = frappe.get_doc({
             "doctype": "Smart Timesheet",
             "employee": employee,

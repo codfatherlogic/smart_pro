@@ -237,6 +237,7 @@ import {
   IonSegment,
   IonSegmentButton,
   toastController,
+  alertController,
   onIonViewWillEnter,
 } from "@ionic/vue"
 import { calendarOutline, personOutline, checkmarkCircleOutline, createOutline, checkmarkOutline, closeOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons"
@@ -404,6 +405,26 @@ async function updateRequest() {
 }
 
 async function approveRequest(request) {
+  const alert = await alertController.create({
+    header: "Approve Request",
+    message: "Are you sure you want to approve this date request?",
+    buttons: [
+      {
+        text: "Cancel",
+        role: "cancel",
+      },
+      {
+        text: "Approve",
+        handler: async () => {
+          await performApproveRequest(request)
+        },
+      },
+    ],
+  })
+  await alert.present()
+}
+
+async function performApproveRequest(request) {
   try {
     await call("smart_pro.smart_pro.api.projects.approve_date_request", {
       request_id: request.name,
@@ -430,6 +451,27 @@ async function approveRequest(request) {
 }
 
 async function rejectRequest(request) {
+  const alert = await alertController.create({
+    header: "Reject Request",
+    message: "Are you sure you want to reject this date request?",
+    buttons: [
+      {
+        text: "Cancel",
+        role: "cancel",
+      },
+      {
+        text: "Reject",
+        cssClass: "alert-button-danger",
+        handler: async () => {
+          await performRejectRequest(request)
+        },
+      },
+    ],
+  })
+  await alert.present()
+}
+
+async function performRejectRequest(request) {
   try {
     await call("smart_pro.smart_pro.api.projects.approve_date_request", {
       request_id: request.name,
