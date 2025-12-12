@@ -174,23 +174,14 @@ fixtures = [
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"smart_pro.tasks.all"
-# 	],
-# 	"daily": [
-# 		"smart_pro.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"smart_pro.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"smart_pro.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"smart_pro.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"smart_pro.smart_pro.tasks.daily"
+	],
+	"weekly": [
+		"smart_pro.smart_pro.tasks.weekly"
+	],
+}
 
 # Testing
 # -------
