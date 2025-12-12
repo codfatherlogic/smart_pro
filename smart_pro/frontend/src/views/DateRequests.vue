@@ -235,8 +235,10 @@ import {
 } from "@ionic/vue"
 import { calendarOutline, personOutline, checkmarkCircleOutline, createOutline, checkmarkOutline, closeOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons"
 import { call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const showEditModal = ref(false)
@@ -294,10 +296,18 @@ async function loadData(forceRefresh = false) {
 
   loading.value = dateRequests.value.length === 0 // Only show loading on first load
   try {
-    const [requestsResult, userResult] = await Promise.all([
-      call("smart_pro.smart_pro.api.projects.get_my_date_requests"),
-      call("frappe.auth.get_logged_user"),
-    ])
+    // Fetch permissions first
+    await fetchPermissions()
+
+    // For full access users, get all date requests; otherwise get user's requests
+    let requestsResult
+    if (hasFullAccess.value) {
+      requestsResult = await call("smart_pro.smart_pro.api.projects.get_all_date_requests")
+    } else {
+      requestsResult = await call("smart_pro.smart_pro.api.projects.get_my_date_requests")
+    }
+
+    const userResult = await call("frappe.auth.get_logged_user")
     dateRequests.value = requestsResult || []
     currentUser.value = userResult || ""
     lastLoadTime = now

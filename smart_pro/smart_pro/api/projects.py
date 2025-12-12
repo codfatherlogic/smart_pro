@@ -1343,34 +1343,47 @@ def get_all_timesheets_for_approval():
     """Get all submitted timesheets for project managers to approve
 
     Only returns timesheets from projects where the current user is the project manager
+    Or all submitted timesheets if user has full access
     """
     user = frappe.session.user
 
     try:
-        # Get projects where current user is project manager
-        managed_projects = frappe.get_list(
-            "Smart Project",
-            filters={"project_manager": user},
-            pluck="name"
-        )
+        # If user has full access, return all submitted timesheets
+        if user_has_full_access(user):
+            timesheets = frappe.get_list(
+                "Smart Timesheet",
+                filters={"status": "Submitted"},
+                fields=["name", "employee", "employee_name", "project", "task", "task_title",
+                        "date", "hours_worked", "activity_type", "description", "status"],
+                order_by="date desc"
+            )
+        else:
+            # Get projects where current user is project manager
+            managed_projects = frappe.get_list(
+                "Smart Project",
+                filters={"project_manager": user},
+                pluck="name"
+            )
 
-        if not managed_projects:
-            return []
+            if not managed_projects:
+                return []
 
-        # Get submitted timesheets from managed projects
-        timesheets = frappe.get_list(
-            "Smart Timesheet",
-            filters={
-                "project": ["in", managed_projects],
-                "status": "Submitted"
-            },
-            fields=["name", "employee", "employee_name", "project", "task", "date", "hours", "description", "status"],
-            order_by="date desc"
-        )
+            # Get submitted timesheets from managed projects
+            timesheets = frappe.get_list(
+                "Smart Timesheet",
+                filters={
+                    "project": ["in", managed_projects],
+                    "status": "Submitted"
+                },
+                fields=["name", "employee", "employee_name", "project", "task", "task_title",
+                        "date", "hours_worked", "activity_type", "description", "status"],
+                order_by="date desc"
+            )
 
         # Add project title to each timesheet
         for ts in timesheets:
-            ts["project_title"] = frappe.db.get_value("Smart Project", ts["project"], "title")
+            if ts.get("project"):
+                ts["project_title"] = frappe.db.get_value("Smart Project", ts["project"], "title")
 
         return timesheets
     except Exception as e:
@@ -1465,6 +1478,52 @@ def reject_timesheet(timesheet_name, reason=None):
 
 
 @frappe.whitelist()
+def get_all_projects():
+    """Get all projects for users with full access (read-only view)"""
+    user = frappe.session.user
+
+    if not user_has_full_access(user):
+        frappe.throw("You do not have permission to view all projects")
+
+    try:
+        projects = frappe.get_list(
+            "Smart Project",
+            fields=["name", "title", "status", "start_date", "end_date",
+                    "budget_amount", "project_manager", "department"],
+            order_by="modified desc",
+            limit=200
+        )
+
+        return projects
+    except Exception as e:
+        frappe.logger().error(f"Error getting all projects: {str(e)}")
+        return []
+
+
+@frappe.whitelist()
+def get_all_tasks():
+    """Get all tasks for users with full access (read-only view)"""
+    user = frappe.session.user
+
+    if not user_has_full_access(user):
+        frappe.throw("You do not have permission to view all tasks")
+
+    try:
+        tasks = frappe.get_list(
+            "Smart Task",
+            fields=["name", "title", "project", "status", "priority",
+                    "due_date", "progress", "assigned_to"],
+            order_by="due_date asc",
+            limit=200
+        )
+
+        return tasks
+    except Exception as e:
+        frappe.logger().error(f"Error getting all tasks: {str(e)}")
+        return []
+
+
+@frappe.whitelist()
 def get_all_date_requests():
     """Get all date requests for users with full access (read-only view)"""
     user = frappe.session.user
@@ -1503,8 +1562,8 @@ def get_all_timesheets():
     try:
         timesheets = frappe.get_list(
             "Smart Timesheet",
-            fields=["name", "employee", "employee_name", "project", "task",
-                    "date", "hours", "description", "status"],
+            fields=["name", "employee", "employee_name", "project", "task", "task_title",
+                    "date", "hours_worked", "activity_type", "description", "status"],
             order_by="date desc",
             limit=100
         )

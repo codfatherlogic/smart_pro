@@ -277,8 +277,10 @@ import {
 } from "@ionic/vue"
 import { addOutline, timeOutline, calendarOutline, folderOutline } from "ionicons/icons"
 import { call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const showAddModal = ref(false)
@@ -316,8 +318,18 @@ const newEntry = ref({
 async function loadData() {
   loading.value = true
   try {
-    const [timesheetsResult, tasksResult, summaryResult] = await Promise.all([
-      call("smart_pro.smart_pro.api.projects.get_my_timesheets"),
+    // Fetch permissions first
+    await fetchPermissions()
+
+    // For full access users, get all timesheets; otherwise get user's timesheets
+    let timesheetsResult
+    if (hasFullAccess.value) {
+      timesheetsResult = await call("smart_pro.smart_pro.api.projects.get_all_timesheets")
+    } else {
+      timesheetsResult = await call("smart_pro.smart_pro.api.projects.get_my_timesheets")
+    }
+
+    const [tasksResult, summaryResult] = await Promise.all([
       call("smart_pro.smart_pro.api.projects.get_user_tasks"),
       call("smart_pro.smart_pro.api.projects.get_today_summary"),
     ])

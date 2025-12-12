@@ -132,10 +132,12 @@ import {
   onIonViewWillEnter,
 } from "@ionic/vue"
 import { folderOutline } from "ionicons/icons"
-import { createResource } from "frappe-ui"
+import { createResource, call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const router = useRouter()
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const searchQuery = ref("")
@@ -215,9 +217,18 @@ async function loadData(forceRefresh = false) {
 
   loading.value = projects.value.length === 0 // Only show loading on first load
   try {
-    // Load active projects (excludes completed by default)
-    await projectsResource.fetch()
-    projects.value = projectsResource.data || []
+    // Fetch permissions first
+    await fetchPermissions()
+
+    // For full access users, get all projects; otherwise get user's projects
+    if (hasFullAccess.value) {
+      const result = await call("smart_pro.smart_pro.api.projects.get_all_projects")
+      projects.value = (result || []).filter(p => p.status !== "Completed")
+    } else {
+      // Load active projects (excludes completed by default)
+      await projectsResource.fetch()
+      projects.value = projectsResource.data || []
+    }
     lastLoadTime = now
   } catch (error) {
     console.error("Error loading projects:", error)
@@ -232,10 +243,16 @@ async function loadCompletedProjects() {
 
   loading.value = true
   try {
-    await completedProjectsResource.fetch({ include_completed: "true" })
-    const allProjects = completedProjectsResource.data || []
-    // Filter to only show completed projects
-    completedProjects.value = allProjects.filter(p => p.status === "Completed")
+    // For full access users, get all completed projects
+    if (hasFullAccess.value) {
+      const result = await call("smart_pro.smart_pro.api.projects.get_all_projects")
+      completedProjects.value = (result || []).filter(p => p.status === "Completed")
+    } else {
+      await completedProjectsResource.fetch({ include_completed: "true" })
+      const allProjects = completedProjectsResource.data || []
+      // Filter to only show completed projects
+      completedProjects.value = allProjects.filter(p => p.status === "Completed")
+    }
     completedLoaded = true
   } catch (error) {
     console.error("Error loading completed projects:", error)

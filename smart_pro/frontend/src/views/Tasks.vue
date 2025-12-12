@@ -391,9 +391,11 @@ import {
 } from "@ionic/vue"
 import { checkmarkCircleOutline, timeOutline } from "ionicons/icons"
 import { createResource, call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const router = useRouter()
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const filter = ref("open")
@@ -452,8 +454,17 @@ async function loadData(forceRefresh = false) {
   loading.value = tasks.value.length === 0 // Only show loading on first load
   error.value = ""
   try {
-    await tasksResource.fetch()
-    tasks.value = tasksResource.data || []
+    // Fetch permissions first
+    await fetchPermissions()
+
+    // For full access users, get all tasks; otherwise get user's tasks
+    if (hasFullAccess.value) {
+      const result = await call("smart_pro.smart_pro.api.projects.get_all_tasks")
+      tasks.value = result || []
+    } else {
+      await tasksResource.fetch()
+      tasks.value = tasksResource.data || []
+    }
     lastLoadTime = now
   } catch (err) {
     console.error("Error loading tasks:", err)
