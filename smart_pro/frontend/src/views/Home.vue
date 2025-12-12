@@ -127,6 +127,85 @@
           </div>
         </div>
 
+        <!-- Insights Dashboard (Full Access Users Only) -->
+        <div
+          v-if="hasFullAccess"
+          class="app-card mb-6"
+        >
+          <div class="app-card-header flex items-center">
+            <ion-icon :icon="analyticsOutline" class="text-lg text-blue-600 mr-2" />
+            <span>Insights Dashboard</span>
+          </div>
+          <div class="p-4">
+            <!-- Project Status Overview -->
+            <div class="mb-4">
+              <div class="text-sm font-medium text-gray-700 mb-2">Project Status</div>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="bg-green-50 rounded-lg p-3 text-center">
+                  <div class="text-xl font-bold text-green-600">{{ insights.activeProjects }}</div>
+                  <div class="text-xs text-green-700">Active</div>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-3 text-center">
+                  <div class="text-xl font-bold text-blue-600">{{ insights.planningProjects }}</div>
+                  <div class="text-xs text-blue-700">Planning</div>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-3 text-center">
+                  <div class="text-xl font-bold text-yellow-600">{{ insights.onHoldProjects }}</div>
+                  <div class="text-xs text-yellow-700">On Hold</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center">
+                  <div class="text-xl font-bold text-gray-600">{{ insights.completedProjects }}</div>
+                  <div class="text-xs text-gray-700">Completed</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Task Overview -->
+            <div class="mb-4">
+              <div class="text-sm font-medium text-gray-700 mb-2">Task Overview</div>
+              <div class="grid grid-cols-3 gap-2">
+                <div class="bg-blue-50 rounded-lg p-3 text-center">
+                  <div class="text-xl font-bold text-blue-600">{{ insights.openTasks }}</div>
+                  <div class="text-xs text-blue-700">Open</div>
+                </div>
+                <div class="bg-orange-50 rounded-lg p-3 text-center">
+                  <div class="text-xl font-bold text-orange-600">{{ insights.workingTasks }}</div>
+                  <div class="text-xs text-orange-700">Working</div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-3 text-center">
+                  <div class="text-xl font-bold text-green-600">{{ insights.completedTasks }}</div>
+                  <div class="text-xs text-green-700">Done</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Team & Assignments -->
+            <div>
+              <div class="text-sm font-medium text-gray-700 mb-2">Summary</div>
+              <div class="space-y-2">
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span class="text-sm text-gray-600">Total Projects</span>
+                  <span class="font-semibold text-gray-800">{{ insights.totalProjects }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span class="text-sm text-gray-600">Total Tasks</span>
+                  <span class="font-semibold text-gray-800">{{ insights.totalTasks }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span class="text-sm text-gray-600">Completion Rate</span>
+                  <span class="font-semibold text-green-600">{{ insights.completionRate }}%</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-sm text-gray-600">Overdue Tasks</span>
+                  <span :class="['font-semibold', insights.overdueTasks > 0 ? 'text-red-600' : 'text-gray-800']">
+                    {{ insights.overdueTasks }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- My Tasks -->
         <div class="app-card">
           <div class="app-card-header flex justify-between items-center">
@@ -205,7 +284,7 @@ import {
   IonButtons,
   IonIcon,
 } from "@ionic/vue"
-import { gitNetworkOutline, chevronForwardOutline, notificationsOutline, moonOutline, sunnyOutline } from "ionicons/icons"
+import { gitNetworkOutline, chevronForwardOutline, notificationsOutline, moonOutline, sunnyOutline, analyticsOutline } from "ionicons/icons"
 import { createResource, call } from "frappe-ui"
 import { usePermissions } from "@/composables/usePermissions"
 
@@ -217,6 +296,19 @@ const loading = ref(true)
 const projects = ref([])
 const tasks = ref([])
 const stats = ref({ projects: 0, tasks: 0 })
+const insights = ref({
+  totalProjects: 0,
+  activeProjects: 0,
+  planningProjects: 0,
+  onHoldProjects: 0,
+  completedProjects: 0,
+  totalTasks: 0,
+  openTasks: 0,
+  workingTasks: 0,
+  completedTasks: 0,
+  overdueTasks: 0,
+  completionRate: 0,
+})
 const notificationCount = ref(0)
 const appName = ref("Smart Pro")
 const isDarkMode = ref(false)
@@ -276,6 +368,28 @@ async function loadData(forceRefresh = false) {
       projects: projects.value.filter((p) => p.status === "Active").length,
       tasks: tasks.value.filter((t) => t.status !== "Completed").length,
     }
+
+    // Calculate insights for full access users
+    if (hasFullAccess.value) {
+      const today = $dayjs().format("YYYY-MM-DD")
+      const completedTasksCount = tasks.value.filter((t) => t.status === "Completed").length
+      const totalTasksCount = tasks.value.length
+
+      insights.value = {
+        totalProjects: projects.value.length,
+        activeProjects: projects.value.filter((p) => p.status === "Active").length,
+        planningProjects: projects.value.filter((p) => p.status === "Planning").length,
+        onHoldProjects: projects.value.filter((p) => p.status === "On Hold").length,
+        completedProjects: projects.value.filter((p) => p.status === "Completed").length,
+        totalTasks: totalTasksCount,
+        openTasks: tasks.value.filter((t) => t.status === "Open").length,
+        workingTasks: tasks.value.filter((t) => t.status === "Working" || t.status === "Pending Review").length,
+        completedTasks: completedTasksCount,
+        overdueTasks: tasks.value.filter((t) => t.due_date && t.due_date < today && t.status !== "Completed").length,
+        completionRate: totalTasksCount > 0 ? Math.round((completedTasksCount / totalTasksCount) * 100) : 0,
+      }
+    }
+
     lastLoadTime = now
   } catch (error) {
     console.error("Error loading data:", error)
