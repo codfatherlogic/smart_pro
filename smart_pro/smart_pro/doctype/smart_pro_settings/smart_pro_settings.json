@@ -14,6 +14,10 @@
   "column_break_1",
   "default_project_status",
   "default_task_priority",
+  "email_notification_settings_section",
+  "project_reminder_days",
+  "column_break_email",
+  "task_reminder_days",
   "ai_settings_section",
   "enable_ai_features",
   "ai_provider",
@@ -86,6 +90,31 @@
    "fieldtype": "Select",
    "label": "Default Task Priority",
    "options": "Low\nMedium\nHigh\nCritical"
+  },
+  {
+   "fieldname": "email_notification_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Email Notification Settings",
+   "depends_on": "eval:doc.enable_email_notifications",
+   "description": "Configure when to send email reminders for projects and tasks"
+  },
+  {
+   "default": "3",
+   "fieldname": "project_reminder_days",
+   "fieldtype": "Int",
+   "label": "Project Reminder Days",
+   "description": "Send reminder to project manager this many days before project end date"
+  },
+  {
+   "fieldname": "column_break_email",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "2",
+   "fieldname": "task_reminder_days",
+   "fieldtype": "Int",
+   "label": "Task Reminder Days",
+   "description": "Send reminder to assigned employee this many days before task due date"
   },
   {
    "fieldname": "ai_settings_section",

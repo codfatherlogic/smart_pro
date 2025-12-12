@@ -6,7 +6,8 @@
           <ion-back-button default-href="/smart-pro/home" text="" />
         </ion-buttons>
         <ion-title>Timesheet</ion-title>
-        <ion-buttons slot="end">
+        <!-- Add button hidden for full access users - read-only mode -->
+        <ion-buttons v-if="!hasFullAccess" slot="end">
           <ion-button @click="openAddModal">
             <ion-icon :icon="addOutline" />
           </ion-button>
@@ -67,9 +68,13 @@
         <div class="empty-state-description">
           {{ filter === "draft" ? "No draft timesheets" : filter === "submitted" ? "No submitted timesheets" : filter === "approved" ? "No approved timesheets" : "Log your work hours from your assigned tasks" }}
         </div>
-        <ion-button class="mt-4" @click="openAddModal">
+        <!-- Log Hours button hidden for full access users -->
+        <ion-button v-if="!hasFullAccess" class="mt-4" @click="openAddModal">
           Log Hours
         </ion-button>
+        <div v-if="hasFullAccess" class="mt-4 text-sm text-gray-500 italic">
+          View only mode
+        </div>
       </div>
 
       <!-- Time Sheets List -->
@@ -104,8 +109,8 @@
             {{ stripHtml(entry.description) }}
           </div>
 
-          <!-- Submit Button for Draft entries -->
-          <div v-if="entry.status === 'Draft'" class="mt-3 pt-3 border-t border-gray-100">
+          <!-- Submit Button for Draft entries (hidden for full access users - read-only mode) -->
+          <div v-if="entry.status === 'Draft' && !hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
             <ion-button
               size="small"
               expand="block"
@@ -115,6 +120,40 @@
               <ion-spinner v-if="submittingId === entry.name" name="crescent" class="mr-2" />
               {{ submittingId === entry.name ? 'Submitting...' : 'Submit for Approval' }}
             </ion-button>
+          </div>
+          <!-- Read-only indicator for full access users viewing draft entries -->
+          <div v-if="entry.status === 'Draft' && hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
+            <div class="text-xs text-gray-500 italic text-center">
+              View only mode - Full access users cannot submit timesheets
+            </div>
+          </div>
+
+          <!-- Approve/Reject Buttons for Submitted entries (for full access users) -->
+          <div v-if="entry.status === 'Submitted' && hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
+            <div class="flex gap-2">
+              <ion-button
+                size="small"
+                expand="block"
+                color="success"
+                class="flex-1"
+                @click="approveTimesheet(entry.name)"
+                :disabled="approvingId === entry.name"
+              >
+                <ion-spinner v-if="approvingId === entry.name" name="crescent" class="mr-2" />
+                {{ approvingId === entry.name ? 'Approving...' : 'Approve' }}
+              </ion-button>
+              <ion-button
+                size="small"
+                expand="block"
+                color="danger"
+                fill="outline"
+                class="flex-1"
+                @click="rejectTimesheet(entry.name)"
+                :disabled="approvingId === entry.name"
+              >
+                Reject
+              </ion-button>
+            </div>
           </div>
         </div>
       </div>
@@ -273,17 +312,21 @@ import {
   IonSegment,
   IonSegmentButton,
   toastController,
+  alertController,
   onIonViewWillEnter,
 } from "@ionic/vue"
 import { addOutline, timeOutline, calendarOutline, folderOutline } from "ionicons/icons"
 import { call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const showAddModal = ref(false)
 const submitting = ref(false)
 const submittingId = ref(null)
+const approvingId = ref(null)
 const error = ref("")
 const filter = ref("draft")
 const timeSheets = ref([])
@@ -316,8 +359,18 @@ const newEntry = ref({
 async function loadData() {
   loading.value = true
   try {
-    const [timesheetsResult, tasksResult, summaryResult] = await Promise.all([
-      call("smart_pro.smart_pro.api.projects.get_my_timesheets"),
+    // Fetch permissions first
+    await fetchPermissions()
+
+    // For full access users, get all timesheets; otherwise get user's timesheets
+    let timesheetsResult
+    if (hasFullAccess.value) {
+      timesheetsResult = await call("smart_pro.smart_pro.api.projects.get_all_timesheets")
+    } else {
+      timesheetsResult = await call("smart_pro.smart_pro.api.projects.get_my_timesheets")
+    }
+
+    const [tasksResult, summaryResult] = await Promise.all([
       call("smart_pro.smart_pro.api.projects.get_user_tasks"),
       call("smart_pro.smart_pro.api.projects.get_today_summary"),
     ])
@@ -382,6 +435,26 @@ async function submitTimeSheet() {
 }
 
 async function submitTimesheet(timesheetName) {
+  const alert = await alertController.create({
+    header: "Submit for Approval",
+    message: "Are you sure you want to submit this timesheet for approval?",
+    buttons: [
+      {
+        text: "Cancel",
+        role: "cancel",
+      },
+      {
+        text: "Submit",
+        handler: async () => {
+          await performSubmitTimesheet(timesheetName)
+        },
+      },
+    ],
+  })
+  await alert.present()
+}
+
+async function performSubmitTimesheet(timesheetName) {
   submittingId.value = timesheetName
   try {
     await call("smart_pro.smart_pro.api.projects.submit_timesheet", {
@@ -406,6 +479,103 @@ async function submitTimesheet(timesheetName) {
     await toast.present()
   } finally {
     submittingId.value = null
+  }
+}
+
+async function approveTimesheet(timesheetName) {
+  const alert = await alertController.create({
+    header: "Approve Timesheet",
+    message: "Are you sure you want to approve this timesheet?",
+    buttons: [
+      {
+        text: "Cancel",
+        role: "cancel",
+      },
+      {
+        text: "Approve",
+        handler: async () => {
+          await performApproveTimesheet(timesheetName)
+        },
+      },
+    ],
+  })
+  await alert.present()
+}
+
+async function performApproveTimesheet(timesheetName) {
+  approvingId.value = timesheetName
+  try {
+    await call("smart_pro.smart_pro.api.projects.approve_timesheet", {
+      timesheet_name: timesheetName,
+    })
+
+    const toast = await toastController.create({
+      message: "Timesheet approved successfully!",
+      duration: 2000,
+      color: "success",
+    })
+    await toast.present()
+
+    await loadData()
+  } catch (err) {
+    console.error("Error approving timesheet:", err)
+    const toast = await toastController.create({
+      message: err.messages?.[0] || "Failed to approve timesheet",
+      duration: 3000,
+      color: "danger",
+    })
+    await toast.present()
+  } finally {
+    approvingId.value = null
+  }
+}
+
+async function rejectTimesheet(timesheetName) {
+  const alert = await alertController.create({
+    header: "Reject Timesheet",
+    message: "Are you sure you want to reject this timesheet?",
+    buttons: [
+      {
+        text: "Cancel",
+        role: "cancel",
+      },
+      {
+        text: "Reject",
+        cssClass: "alert-button-danger",
+        handler: async () => {
+          await performRejectTimesheet(timesheetName)
+        },
+      },
+    ],
+  })
+  await alert.present()
+}
+
+async function performRejectTimesheet(timesheetName) {
+  approvingId.value = timesheetName
+  try {
+    await call("smart_pro.smart_pro.api.projects.reject_timesheet", {
+      timesheet_name: timesheetName,
+    })
+
+    const toast = await toastController.create({
+      message: "Timesheet rejected!",
+      duration: 2000,
+      color: "warning",
+    })
+    await toast.present()
+
+    await loadData()
+  } catch (err) {
+    console.error("Error rejecting timesheet:", err)
+    const toast = await toastController.create({
+      message: err.messages?.[0] || "Failed to reject timesheet",
+      duration: 3000,
+      color: "danger",
+    })
+    await toast.present()
+  } finally {
+    approvingId.value = null
   }
 }
 

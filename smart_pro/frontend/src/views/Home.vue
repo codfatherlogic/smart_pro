@@ -127,6 +127,85 @@
           </div>
         </div>
 
+        <!-- Insights Dashboard (Full Access Users Only) -->
+        <div
+          v-if="hasFullAccess"
+          class="app-card mb-6"
+        >
+          <div class="app-card-header flex items-center">
+            <ion-icon :icon="analyticsOutline" class="text-lg text-blue-400 mr-2" />
+            <span>Insights Dashboard</span>
+          </div>
+          <div class="p-4">
+            <!-- Project Status Overview -->
+            <div class="mb-4">
+              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Project Status</div>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="insight-card insight-card-green">
+                  <div class="text-xl font-bold">{{ insights.activeProjects }}</div>
+                  <div class="text-xs opacity-80">Active</div>
+                </div>
+                <div class="insight-card insight-card-blue">
+                  <div class="text-xl font-bold">{{ insights.planningProjects }}</div>
+                  <div class="text-xs opacity-80">Planning</div>
+                </div>
+                <div class="insight-card insight-card-yellow">
+                  <div class="text-xl font-bold">{{ insights.onHoldProjects }}</div>
+                  <div class="text-xs opacity-80">On Hold</div>
+                </div>
+                <div class="insight-card insight-card-gray">
+                  <div class="text-xl font-bold">{{ insights.completedProjects }}</div>
+                  <div class="text-xs opacity-80">Completed</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Task Overview -->
+            <div class="mb-4">
+              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Task Overview</div>
+              <div class="grid grid-cols-3 gap-2">
+                <div class="insight-card insight-card-blue">
+                  <div class="text-xl font-bold">{{ insights.openTasks }}</div>
+                  <div class="text-xs opacity-80">Open</div>
+                </div>
+                <div class="insight-card insight-card-orange">
+                  <div class="text-xl font-bold">{{ insights.workingTasks }}</div>
+                  <div class="text-xs opacity-80">Working</div>
+                </div>
+                <div class="insight-card insight-card-green">
+                  <div class="text-xl font-bold">{{ insights.completedTasks }}</div>
+                  <div class="text-xs opacity-80">Done</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Summary -->
+            <div>
+              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Summary</div>
+              <div class="space-y-2">
+                <div class="summary-row">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Total Projects</span>
+                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{ insights.totalProjects }}</span>
+                </div>
+                <div class="summary-row">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Total Tasks</span>
+                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{ insights.totalTasks }}</span>
+                </div>
+                <div class="summary-row">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Completion Rate</span>
+                  <span class="font-semibold text-green-500">{{ insights.completionRate }}%</span>
+                </div>
+                <div class="summary-row summary-row-last">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Overdue Tasks</span>
+                  <span :class="['font-semibold', insights.overdueTasks > 0 ? 'text-red-500' : 'text-gray-800 dark:text-gray-200']">
+                    {{ insights.overdueTasks }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- My Tasks -->
         <div class="app-card">
           <div class="app-card-header flex justify-between items-center">
@@ -205,16 +284,31 @@ import {
   IonButtons,
   IonIcon,
 } from "@ionic/vue"
-import { gitNetworkOutline, chevronForwardOutline, notificationsOutline, moonOutline, sunnyOutline } from "ionicons/icons"
+import { gitNetworkOutline, chevronForwardOutline, notificationsOutline, moonOutline, sunnyOutline, analyticsOutline } from "ionicons/icons"
 import { createResource, call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const router = useRouter()
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const projects = ref([])
 const tasks = ref([])
 const stats = ref({ projects: 0, tasks: 0 })
+const insights = ref({
+  totalProjects: 0,
+  activeProjects: 0,
+  planningProjects: 0,
+  onHoldProjects: 0,
+  completedProjects: 0,
+  totalTasks: 0,
+  openTasks: 0,
+  workingTasks: 0,
+  completedTasks: 0,
+  overdueTasks: 0,
+  completionRate: 0,
+})
 const notificationCount = ref(0)
 const appName = ref("Smart Pro")
 const isDarkMode = ref(false)
@@ -243,13 +337,59 @@ async function loadData(forceRefresh = false) {
 
   loading.value = projects.value.length === 0 // Only show loading on first load
   try {
-    await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
-    projects.value = projectsResource.data || []
-    tasks.value = tasksResource.data || []
+    // Fetch permissions first
+    await fetchPermissions()
+    console.log("Home.vue - hasFullAccess:", hasFullAccess.value)
+
+    // For full access users, get all data; otherwise get user's data
+    if (hasFullAccess.value) {
+      try {
+        const [allProjects, allTasks] = await Promise.all([
+          call("smart_pro.smart_pro.api.projects.get_all_projects"),
+          call("smart_pro.smart_pro.api.projects.get_all_tasks"),
+        ])
+        projects.value = allProjects || []
+        tasks.value = allTasks || []
+        console.log("Home.vue - Loaded all projects:", projects.value.length)
+      } catch (fullAccessError) {
+        console.error("Error loading all data (falling back to user data):", fullAccessError)
+        // Fallback to user-specific data if full access fails
+        await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
+        projects.value = projectsResource.data || []
+        tasks.value = tasksResource.data || []
+      }
+    } else {
+      await Promise.all([projectsResource.fetch(), tasksResource.fetch()])
+      projects.value = projectsResource.data || []
+      tasks.value = tasksResource.data || []
+      console.log("Home.vue - Loaded user projects:", projects.value.length)
+    }
     stats.value = {
       projects: projects.value.filter((p) => p.status === "Active").length,
       tasks: tasks.value.filter((t) => t.status !== "Completed").length,
     }
+
+    // Calculate insights for full access users
+    if (hasFullAccess.value) {
+      const today = $dayjs().format("YYYY-MM-DD")
+      const completedTasksCount = tasks.value.filter((t) => t.status === "Completed").length
+      const totalTasksCount = tasks.value.length
+
+      insights.value = {
+        totalProjects: projects.value.length,
+        activeProjects: projects.value.filter((p) => p.status === "Active").length,
+        planningProjects: projects.value.filter((p) => p.status === "Planning").length,
+        onHoldProjects: projects.value.filter((p) => p.status === "On Hold").length,
+        completedProjects: projects.value.filter((p) => p.status === "Completed").length,
+        totalTasks: totalTasksCount,
+        openTasks: tasks.value.filter((t) => t.status === "Open").length,
+        workingTasks: tasks.value.filter((t) => t.status === "Working" || t.status === "Pending Review").length,
+        completedTasks: completedTasksCount,
+        overdueTasks: tasks.value.filter((t) => t.due_date && t.due_date < today && t.status !== "Completed").length,
+        completionRate: totalTasksCount > 0 ? Math.round((completedTasksCount / totalTasksCount) * 100) : 0,
+      }
+    }
+
     lastLoadTime = now
   } catch (error) {
     console.error("Error loading data:", error)
@@ -386,5 +526,76 @@ onIonViewWillEnter(() => {
   background-color: #ef4444;
   border-radius: 9px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Insight Dashboard Cards */
+.insight-card {
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.insight-card-green {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.insight-card-blue {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.insight-card-yellow {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.insight-card-orange {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.insight-card-gray {
+  background-color: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+}
+
+/* Summary rows */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+.summary-row-last {
+  border-bottom: none;
+}
+
+/* Dark mode specific overrides */
+body.dark .insight-card-green {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+body.dark .insight-card-blue {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+body.dark .insight-card-yellow {
+  background-color: rgba(234, 179, 8, 0.2);
+  color: #facc15;
+}
+
+body.dark .insight-card-orange {
+  background-color: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+}
+
+body.dark .insight-card-gray {
+  background-color: rgba(156, 163, 175, 0.2);
+  color: #d1d5db;
 }
 </style>

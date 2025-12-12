@@ -33,23 +33,29 @@ def user_has_full_access(user=None):
 	# System Manager always has full access
 	user_roles = frappe.get_roles(user)
 	if "System Manager" in user_roles:
+		frappe.logger().info(f"user_has_full_access: {user} has System Manager role")
 		return True
 
 	settings = get_settings()
 
 	# Check if user is in the users_with_full_access table
-	for row in settings.users_with_full_access:
-		if row.user == user and row.can_view_all_projects:
-			return True
+	if hasattr(settings, 'users_with_full_access') and settings.users_with_full_access:
+		for row in settings.users_with_full_access:
+			if row.user == user and row.can_view_all_projects:
+				frappe.logger().info(f"user_has_full_access: {user} is in users_with_full_access table")
+				return True
 
 	# Check if user has any of the roles with full access
-	if settings.roles_with_full_access:
+	if hasattr(settings, 'roles_with_full_access') and settings.roles_with_full_access:
 		roles_with_access = [r.strip() for r in settings.roles_with_full_access.split("\n") if r.strip()]
+		frappe.logger().info(f"user_has_full_access: roles_with_access = {roles_with_access}, user_roles = {user_roles}")
 
 		for role in roles_with_access:
 			if role in user_roles:
+				frappe.logger().info(f"user_has_full_access: {user} has role '{role}' which grants full access")
 				return True
 
+	frappe.logger().info(f"user_has_full_access: {user} does NOT have full access")
 	return False
 
 

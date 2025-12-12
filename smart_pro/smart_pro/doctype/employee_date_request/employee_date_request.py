@@ -142,19 +142,24 @@ class EmployeeDateRequest(Document):
 
     def on_approval(self):
         """Actions when request is approved"""
-        if self.request_type == "Project Date Update" and self.project:
-            # Update project dates
-            self.update_project_dates()
+        try:
+            if self.project:
+                # Update project dates for Project Date Update requests
+                if self.request_type == "Project Date Update":
+                    self.update_project_dates()
 
-            # Update assignment dates
-            if self.assignment:
-                self.update_assignment_dates()
+                    # Update assignment dates
+                    if self.assignment:
+                        self.update_assignment_dates()
 
-            # Auto-create tasks if enabled
-            if self.auto_create_tasks:
-                self.create_project_tasks()
+                # Auto-create tasks if enabled (for any request type with a project)
+                if self.auto_create_tasks:
+                    self.create_project_tasks()
 
-            frappe.msgprint(f"Project dates updated and tasks created for {self.project_title or self.project}")
+                frappe.msgprint(f"Request approved for {self.project_title or self.project}")
+        except Exception as e:
+            frappe.log_error(f"Error in on_approval: {str(e)}", "Date Request Approval Error")
+            frappe.throw(f"Error processing approval: {str(e)}")
 
     def on_rejection(self):
         """Actions when request is rejected"""
@@ -179,27 +184,31 @@ class EmployeeDateRequest(Document):
             })
 
     def create_project_tasks(self):
-        """Auto-create a single task for the project"""
+        """Auto-create a task for the project based on this date request"""
         if not self.project or not self.employee:
+            frappe.log_error(f"Cannot create task: project={self.project}, employee={self.employee}", "Task Creation Error")
             return
 
-        # Get employee's user_id
-        user_id = frappe.db.get_value("Employee", self.employee, "user_id")
-        if not user_id:
-            frappe.msgprint("Employee does not have a linked user. Task will be created without assignment.")
+        try:
+            project_title = self.project_title or frappe.db.get_value("Smart Project", self.project, "title")
 
-        project_title = self.project_title or frappe.db.get_value("Smart Project", self.project, "title")
+            # Create unique task title using date request name
+            task_title = f"{project_title} - {self.name}"
 
-        # Check if task already exists for this project
-        existing_task = frappe.db.exists("Smart Task", {
-            "project": self.project,
-            "title": project_title
-        })
+            # Check if task already exists for this date request (prevent duplicates)
+            existing_task = frappe.db.exists("Smart Task", {"title": task_title})
+            if existing_task:
+                frappe.msgprint(f"Task already exists: {task_title}")
+                return
 
-        if not existing_task:
+            # Get employee's user_id
+            user_id = frappe.db.get_value("Employee", self.employee, "user_id")
+            if not user_id:
+                frappe.msgprint("Employee does not have a linked user. Task will be created without assignment.")
+
             task = frappe.get_doc({
                 "doctype": "Smart Task",
-                "title": project_title,
+                "title": task_title,
                 "project": self.project,
                 "assigned_to": user_id,
                 "status": "Open",
@@ -207,11 +216,15 @@ class EmployeeDateRequest(Document):
                 "start_date": self.from_date,
                 "due_date": self.to_date,
                 "progress": 0,
-                "description": f"Task for {project_title}",
+                "description": f"Task created from date request {self.name} for {project_title}",
                 "project_scope": self.project_scope
             })
             task.insert(ignore_permissions=True)
+            frappe.db.commit()
             frappe.msgprint(f"Created task: {task.title}")
+        except Exception as e:
+            frappe.log_error(f"Error creating task: {str(e)}", "Task Creation Error")
+            frappe.msgprint(f"Error creating task: {str(e)}")
 
     @staticmethod
     def get_non_filterable_fields():
@@ -284,3 +297,4 @@ class EmployeeDateRequest(Document):
             "title_field": "title",
             "kanban_fields": '["project", "total_days", "employee", "modified", "_assign"]',
         }
+      

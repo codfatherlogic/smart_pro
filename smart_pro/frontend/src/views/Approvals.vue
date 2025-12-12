@@ -220,7 +220,7 @@
 
           <div class="flex space-x-2">
             <ion-button
-              v-if="timesheet.status === 'Submitted'"
+              v-if="timesheet.status === 'Submitted' && canApproveTimesheet(timesheet)"
               expand="block"
               color="success"
               size="small"
@@ -235,7 +235,7 @@
               Approve
             </ion-button>
             <ion-button
-              v-if="timesheet.status === 'Submitted'"
+              v-if="timesheet.status === 'Submitted' && canApproveTimesheet(timesheet)"
               expand="block"
               color="danger"
               size="small"
@@ -258,6 +258,10 @@
               Details
             </ion-button>
           </div>
+          <!-- Read-only indicator for full access users viewing others' timesheets -->
+          <div v-if="timesheet.status === 'Submitted' && !canApproveTimesheet(timesheet)" class="text-xs text-gray-500 mt-2 italic">
+            View only - not your project
+          </div>
         </div>
       </div>
     </ion-content>
@@ -265,7 +269,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue"
+import { ref, onMounted, watch, computed } from "vue"
 import {
   IonPage,
   IonHeader,
@@ -292,6 +296,9 @@ import {
   checkmarkDoneOutline,
 } from "ionicons/icons"
 import { call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
+
+const { fetchPermissions, hasFullAccess, isProjectManager, canApproveTimesheetForProject } = usePermissions()
 
 const loading = ref(true)
 const approvalType = ref("date_requests")
@@ -300,10 +307,23 @@ const timeSheets = ref([])
 const processingRequest = ref("")
 const processingTimesheet = ref("")
 
+// Check if user can approve a specific timesheet
+function canApproveTimesheet(timesheet) {
+  // Project managers can only approve timesheets for their projects
+  return canApproveTimesheetForProject(timesheet.project)
+}
+
 async function loadDateRequests() {
   try {
-    const result = await call("smart_pro.smart_pro.api.projects.get_pending_approvals")
-    dateRequests.value = result?.date_requests || []
+    // Use different API based on user access level
+    if (hasFullAccess.value) {
+      const result = await call("smart_pro.smart_pro.api.projects.get_all_date_requests")
+      // Filter for pending only in approvals view
+      dateRequests.value = (result || []).filter(r => r.status === "Pending Approval")
+    } else {
+      const result = await call("smart_pro.smart_pro.api.projects.get_pending_approvals")
+      dateRequests.value = result?.date_requests || []
+    }
   } catch (err) {
     console.error("Error loading date requests:", err)
   }
@@ -311,9 +331,15 @@ async function loadDateRequests() {
 
 async function loadTimeSheets() {
   try {
-    const result = await call("smart_pro.smart_pro.api.projects.get_team_time_sheets")
-    // Filter for pending time sheets (status = "Submitted")
-    timeSheets.value = (result || []).filter(ts => ts.status === "Submitted")
+    // Use the new API for project managers and full access users
+    if (hasFullAccess.value || isProjectManager.value) {
+      const result = await call("smart_pro.smart_pro.api.projects.get_all_timesheets_for_approval")
+      timeSheets.value = result || []
+    } else {
+      const result = await call("smart_pro.smart_pro.api.projects.get_team_time_sheets")
+      // Filter for pending time sheets (status = "Submitted")
+      timeSheets.value = (result || []).filter(ts => ts.status === "Submitted")
+    }
   } catch (err) {
     console.error("Error loading time sheets:", err)
   }
@@ -321,6 +347,8 @@ async function loadTimeSheets() {
 
 async function loadData() {
   loading.value = true
+  // Fetch permissions first
+  await fetchPermissions()
   await Promise.all([loadDateRequests(), loadTimeSheets()])
   loading.value = false
 }
@@ -388,12 +416,9 @@ async function rejectRequest(requestId) {
 async function approveTimesheet(timesheetId) {
   processingTimesheet.value = timesheetId
   try {
-    await call("frappe.client.set_value", {
-      doctype: "Smart Time Sheet",
-      name: timesheetId,
-      fieldname: {
-        status: "Approved",
-      },
+    // Use the new permission-aware API
+    await call("smart_pro.smart_pro.api.projects.approve_timesheet", {
+      timesheet_name: timesheetId,
     })
 
     const toast = await toastController.create({
@@ -421,12 +446,9 @@ async function approveTimesheet(timesheetId) {
 async function rejectTimesheet(timesheetId) {
   processingTimesheet.value = timesheetId
   try {
-    await call("frappe.client.set_value", {
-      doctype: "Smart Time Sheet",
-      name: timesheetId,
-      fieldname: {
-        status: "Rejected",
-      },
+    // Use the new permission-aware API
+    await call("smart_pro.smart_pro.api.projects.reject_timesheet", {
+      timesheet_name: timesheetId,
     })
 
     const toast = await toastController.create({

@@ -729,17 +729,7 @@ def create_timesheet(task, date, hours_worked, description, activity_type="Devel
         # Get task details
         task_doc = frappe.get_doc("Smart Task", task)
 
-        # Check if timesheet already exists for this task and date
-        existing = frappe.db.exists("Smart Timesheet", {
-            "employee": employee,
-            "task": task,
-            "date": date
-        })
-
-        if existing:
-            frappe.throw(f"Timesheet already exists for this task on {date}")
-
-        # Create timesheet
+        # Create timesheet (multiple timesheets allowed for same task on same day)
         doc = frappe.get_doc({
             "doctype": "Smart Timesheet",
             "employee": employee,
@@ -1293,3 +1283,287 @@ Keep it concise, professional, and actionable. Format with clear headings."""
             "success": False,
             "message": str(e)
         }
+
+
+# ==================== USER PERMISSIONS ====================
+
+@frappe.whitelist()
+def get_user_permissions():
+    """Get current user's permissions for the mobile app
+
+    Returns:
+        - has_full_access: Can see all projects/tasks/date requests/timesheets (read-only)
+        - is_project_manager: Can approve timesheets for their projects
+        - managed_projects: List of project IDs where user is project manager
+    """
+    user = frappe.session.user
+
+    try:
+        has_full_access = user_has_full_access(user)
+
+        # Check if user is a project manager for any projects
+        managed_projects = frappe.get_list(
+            "Smart Project",
+            filters={"project_manager": user},
+            pluck="name"
+        )
+
+        is_project_manager = len(managed_projects) > 0
+
+        return {
+            "success": True,
+            "has_full_access": has_full_access,
+            "is_project_manager": is_project_manager,
+            "managed_projects": managed_projects,
+            "user": user
+        }
+    except Exception as e:
+        frappe.logger().error(f"Error getting user permissions: {str(e)}")
+        return {
+            "success": False,
+            "has_full_access": False,
+            "is_project_manager": False,
+            "managed_projects": [],
+            "message": str(e)
+        }
+
+
+@frappe.whitelist()
+def get_all_timesheets_for_approval():
+    """Get all submitted timesheets for project managers to approve
+
+    Only returns timesheets from projects where the current user is the project manager
+    Or all submitted timesheets if user has full access
+    """
+    user = frappe.session.user
+
+    try:
+        # If user has full access, return all submitted timesheets
+        if user_has_full_access(user):
+            timesheets = frappe.get_list(
+                "Smart Timesheet",
+                filters={"status": "Submitted"},
+                fields=["name", "employee", "employee_name", "project", "task", "task_title",
+                        "date", "hours_worked", "activity_type", "description", "status"],
+                order_by="date desc"
+            )
+        else:
+            # Get projects where current user is project manager
+            managed_projects = frappe.get_list(
+                "Smart Project",
+                filters={"project_manager": user},
+                pluck="name"
+            )
+
+            if not managed_projects:
+                return []
+
+            # Get submitted timesheets from managed projects
+            timesheets = frappe.get_list(
+                "Smart Timesheet",
+                filters={
+                    "project": ["in", managed_projects],
+                    "status": "Submitted"
+                },
+                fields=["name", "employee", "employee_name", "project", "task", "task_title",
+                        "date", "hours_worked", "activity_type", "description", "status"],
+                order_by="date desc"
+            )
+
+        # Add project title to each timesheet
+        for ts in timesheets:
+            if ts.get("project"):
+                ts["project_title"] = frappe.db.get_value("Smart Project", ts["project"], "title")
+
+        return timesheets
+    except Exception as e:
+        frappe.logger().error(f"Error getting timesheets for approval: {str(e)}")
+        return []
+
+
+@frappe.whitelist()
+def approve_timesheet(timesheet_name):
+    """Approve a submitted timesheet
+
+    Only project managers can approve timesheets from their projects
+    """
+    user = frappe.session.user
+
+    try:
+        timesheet = frappe.get_doc("Smart Timesheet", timesheet_name)
+
+        # Check if user is the project manager
+        project_manager = frappe.db.get_value("Smart Project", timesheet.project, "project_manager")
+
+        if project_manager != user and not user_has_full_access(user):
+            return {
+                "success": False,
+                "message": "You are not authorized to approve this timesheet"
+            }
+
+        if timesheet.status != "Submitted":
+            return {
+                "success": False,
+                "message": f"Timesheet is not in 'Submitted' status. Current status: {timesheet.status}"
+            }
+
+        timesheet.status = "Approved"
+        timesheet.save(ignore_permissions=True)
+        frappe.db.commit()
+
+        return {
+            "success": True,
+            "message": "Timesheet approved successfully"
+        }
+    except Exception as e:
+        frappe.logger().error(f"Error approving timesheet: {str(e)}")
+        return {
+            "success": False,
+            "message": str(e)
+        }
+
+
+@frappe.whitelist()
+def reject_timesheet(timesheet_name, reason=None):
+    """Reject a submitted timesheet
+
+    Only project managers can reject timesheets from their projects
+    """
+    user = frappe.session.user
+
+    try:
+        timesheet = frappe.get_doc("Smart Timesheet", timesheet_name)
+
+        # Check if user is the project manager
+        project_manager = frappe.db.get_value("Smart Project", timesheet.project, "project_manager")
+
+        if project_manager != user and not user_has_full_access(user):
+            return {
+                "success": False,
+                "message": "You are not authorized to reject this timesheet"
+            }
+
+        if timesheet.status != "Submitted":
+            return {
+                "success": False,
+                "message": f"Timesheet is not in 'Submitted' status. Current status: {timesheet.status}"
+            }
+
+        timesheet.status = "Rejected"
+        if reason:
+            timesheet.add_comment("Comment", reason)
+        timesheet.save(ignore_permissions=True)
+        frappe.db.commit()
+
+        return {
+            "success": True,
+            "message": "Timesheet rejected"
+        }
+    except Exception as e:
+        frappe.logger().error(f"Error rejecting timesheet: {str(e)}")
+        return {
+            "success": False,
+            "message": str(e)
+        }
+
+
+@frappe.whitelist()
+def get_all_projects():
+    """Get all projects for users with full access (read-only view)"""
+    user = frappe.session.user
+
+    if not user_has_full_access(user):
+        frappe.throw("You do not have permission to view all projects")
+
+    try:
+        projects = frappe.get_list(
+            "Smart Project",
+            fields=["name", "title", "status", "start_date", "end_date",
+                    "budget_amount", "project_manager", "department"],
+            order_by="modified desc",
+            limit=200
+        )
+
+        return projects
+    except Exception as e:
+        frappe.logger().error(f"Error getting all projects: {str(e)}")
+        return []
+
+
+@frappe.whitelist()
+def get_all_tasks():
+    """Get all tasks for users with full access (read-only view)"""
+    user = frappe.session.user
+
+    if not user_has_full_access(user):
+        frappe.throw("You do not have permission to view all tasks")
+
+    try:
+        tasks = frappe.get_list(
+            "Smart Task",
+            fields=["name", "title", "project", "status", "priority",
+                    "due_date", "progress", "assigned_to"],
+            order_by="due_date asc",
+            limit=200
+        )
+
+        return tasks
+    except Exception as e:
+        frappe.logger().error(f"Error getting all tasks: {str(e)}")
+        return []
+
+
+@frappe.whitelist()
+def get_all_date_requests():
+    """Get all date requests for users with full access (read-only view)"""
+    user = frappe.session.user
+
+    if not user_has_full_access(user):
+        return []
+
+    try:
+        requests = frappe.get_list(
+            "Employee Date Request",
+            fields=["name", "employee", "employee_name", "project", "request_type",
+                    "from_date", "to_date", "status", "approver", "total_days"],
+            order_by="creation desc",
+            limit=100
+        )
+
+        # Add project title
+        for req in requests:
+            if req.get("project"):
+                req["project_title"] = frappe.db.get_value("Smart Project", req["project"], "title")
+
+        return requests
+    except Exception as e:
+        frappe.logger().error(f"Error getting all date requests: {str(e)}")
+        return []
+
+
+@frappe.whitelist()
+def get_all_timesheets():
+    """Get all timesheets for users with full access (read-only view)"""
+    user = frappe.session.user
+
+    if not user_has_full_access(user):
+        return []
+
+    try:
+        timesheets = frappe.get_list(
+            "Smart Timesheet",
+            fields=["name", "employee", "employee_name", "project", "task", "task_title",
+                    "date", "hours_worked", "activity_type", "description", "status"],
+            order_by="date desc",
+            limit=100
+        )
+
+        # Add project title
+        for ts in timesheets:
+            if ts.get("project"):
+                ts["project_title"] = frappe.db.get_value("Smart Project", ts["project"], "title")
+
+        return timesheets
+    except Exception as e:
+        frappe.logger().error(f"Error getting all timesheets: {str(e)}")
+        return []

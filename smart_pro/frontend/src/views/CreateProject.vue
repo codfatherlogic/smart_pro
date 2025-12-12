@@ -2,11 +2,12 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <template #start>
-          <ion-buttons>
-            <ion-back-button default-href="/smart-pro/projects" />
-          </ion-buttons>
-        </template>
+        <ion-buttons slot="start">
+          <ion-back-button
+            default-href="/smart-pro/projects"
+            text=""
+          />
+        </ion-buttons>
         <ion-title>New Project</ion-title>
       </ion-toolbar>
     </ion-header>

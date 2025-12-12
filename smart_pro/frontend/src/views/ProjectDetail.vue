@@ -146,14 +146,26 @@
         </div>
 
         <!-- Team Section -->
-        <div
-          v-if="assignments.length > 0"
-          class="app-card"
-        >
-          <div class="app-card-header">
+        <div class="app-card">
+          <div class="app-card-header flex justify-between items-center">
             <span>Team ({{ assignments.length }})</span>
+            <!-- Add assignment button for full access users -->
+            <ion-button
+              v-if="hasFullAccess"
+              fill="clear"
+              size="small"
+              @click="openAddAssignment"
+            >
+              <ion-icon :icon="addOutline" />
+            </ion-button>
           </div>
-          <div>
+          <div
+            v-if="assignments.length === 0"
+            class="p-4 text-center text-gray-500"
+          >
+            No team members assigned
+          </div>
+          <div v-else>
             <div
               v-for="member in assignments"
               :key="member.name"
@@ -199,14 +211,18 @@ import {
   IonButtons,
   IonBackButton,
   IonButton,
+  IonIcon,
   IonRefresher,
   IonRefresherContent,
 } from "@ionic/vue"
+import { addOutline } from "ionicons/icons"
 import { createResource } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const route = useRoute()
 const router = useRouter()
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const error = ref("")
@@ -240,6 +256,9 @@ async function loadData() {
   error.value = ""
 
   try {
+    // Fetch permissions first
+    await fetchPermissions()
+
     await Promise.all([
       projectResource.fetch({ project_name: projectId }),
       tasksResource.fetch({ project_name: projectId }),
@@ -308,6 +327,12 @@ function getInitials(name) {
 
 function goToTask(id) {
   router.push(`/smart-pro/task/${encodeURIComponent(id)}`)
+}
+
+function openAddAssignment() {
+  // Navigate to mobile create assignment page with project pre-filled
+  const projectName = route.params.id
+  router.push(`/smart-pro/assignment/new?project=${encodeURIComponent(projectName)}`)
 }
 
 onMounted(() => {

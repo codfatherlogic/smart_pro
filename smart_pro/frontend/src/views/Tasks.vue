@@ -105,22 +105,25 @@
               <span>{{ task.progress || 0 }}%</span>
             </div>
             <div
-              class="progress-bar"
-              @click.stop="openProgressModal(task)"
+              :class="['progress-bar', { 'progress-bar-readonly': hasFullAccess }]"
+              @click.stop="!hasFullAccess && openProgressModal(task)"
             >
               <div
                 class="progress-bar-fill"
                 :style="{ width: (task.progress || 0) + '%' }"
               />
             </div>
-            <div class="text-xs text-gray-500 mt-1 text-center">
+            <div
+              v-if="!hasFullAccess"
+              class="text-xs text-gray-500 mt-1 text-center"
+            >
               Tap progress bar to update
             </div>
           </div>
 
-          <!-- Log Hours Button (hidden for completed tasks) -->
+          <!-- Log Hours Button (hidden for completed tasks and full access users - read-only mode) -->
           <div
-            v-if="task.status !== 'Completed'"
+            v-if="task.status !== 'Completed' && !hasFullAccess"
             class="mt-3 pt-3 border-t border-gray-100"
           >
             <ion-button
@@ -132,6 +135,15 @@
               <ion-icon :icon="timeOutline" slot="start" />
               Log Hours
             </ion-button>
+          </div>
+          <!-- Read-only indicator for full access users -->
+          <div
+            v-if="task.status !== 'Completed' && hasFullAccess"
+            class="mt-3 pt-3 border-t border-gray-100"
+          >
+            <div class="text-xs text-gray-500 italic text-center">
+              View only mode - Full access users cannot log hours
+            </div>
           </div>
         </div>
       </div>
@@ -391,9 +403,11 @@ import {
 } from "@ionic/vue"
 import { checkmarkCircleOutline, timeOutline } from "ionicons/icons"
 import { createResource, call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const router = useRouter()
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const filter = ref("open")
@@ -452,8 +466,17 @@ async function loadData(forceRefresh = false) {
   loading.value = tasks.value.length === 0 // Only show loading on first load
   error.value = ""
   try {
-    await tasksResource.fetch()
-    tasks.value = tasksResource.data || []
+    // Fetch permissions first
+    await fetchPermissions()
+
+    // For full access users, get all tasks; otherwise get user's tasks
+    if (hasFullAccess.value) {
+      const result = await call("smart_pro.smart_pro.api.projects.get_all_tasks")
+      tasks.value = result || []
+    } else {
+      await tasksResource.fetch()
+      tasks.value = tasksResource.data || []
+    }
     lastLoadTime = now
   } catch (err) {
     console.error("Error loading tasks:", err)
@@ -681,6 +704,14 @@ onIonViewWillEnter(() => {
 
 .progress-bar:hover {
   background-color: #d1d5db;
+}
+
+.progress-bar-readonly {
+  cursor: default;
+}
+
+.progress-bar-readonly:hover {
+  background-color: #e5e7eb;
 }
 
 .progress-bar-fill {

@@ -66,6 +66,11 @@ const routes = [
     component: () => import("@/views/CreateProject.vue"),
   },
   {
+    path: "/smart-pro/assignment/new",
+    name: "CreateAssignment",
+    component: () => import("@/views/CreateAssignment.vue"),
+  },
+  {
     path: "/smart-pro/project/:id",
     name: "ProjectDetail",
     component: () => import("@/views/ProjectDetail.vue"),

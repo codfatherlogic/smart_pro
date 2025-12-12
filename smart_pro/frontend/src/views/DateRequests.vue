@@ -108,8 +108,8 @@
             Tasks will be auto-created on approval
           </div>
 
-          <!-- Action Buttons for Pending Requests -->
-          <div v-if="request.status === 'Pending Approval'" class="mt-3 pt-3 border-t border-gray-100">
+          <!-- Action Buttons for Pending Requests (hidden for full access users - read-only mode) -->
+          <div v-if="request.status === 'Pending Approval' && !hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
             <div class="flex flex-wrap gap-2">
               <!-- Edit Dates Button -->
               <ion-button size="small" fill="outline" color="primary" @click="openEditModal(request)">
@@ -126,6 +126,12 @@
                 <ion-icon :icon="closeOutline" slot="start" />
                 Reject
               </ion-button>
+            </div>
+          </div>
+          <!-- Read-only indicator for full access users -->
+          <div v-if="request.status === 'Pending Approval' && hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
+            <div class="text-xs text-gray-500 italic">
+              View only mode - Full access users cannot approve/reject date requests
             </div>
           </div>
         </div>
@@ -231,12 +237,15 @@ import {
   IonSegment,
   IonSegmentButton,
   toastController,
+  alertController,
   onIonViewWillEnter,
 } from "@ionic/vue"
 import { calendarOutline, personOutline, checkmarkCircleOutline, createOutline, checkmarkOutline, closeOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons"
 import { call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const $dayjs = inject("$dayjs")
+const { fetchPermissions, hasFullAccess } = usePermissions()
 
 const loading = ref(true)
 const showEditModal = ref(false)
@@ -294,10 +303,18 @@ async function loadData(forceRefresh = false) {
 
   loading.value = dateRequests.value.length === 0 // Only show loading on first load
   try {
-    const [requestsResult, userResult] = await Promise.all([
-      call("smart_pro.smart_pro.api.projects.get_my_date_requests"),
-      call("frappe.auth.get_logged_user"),
-    ])
+    // Fetch permissions first
+    await fetchPermissions()
+
+    // For full access users, get all date requests; otherwise get user's requests
+    let requestsResult
+    if (hasFullAccess.value) {
+      requestsResult = await call("smart_pro.smart_pro.api.projects.get_all_date_requests")
+    } else {
+      requestsResult = await call("smart_pro.smart_pro.api.projects.get_my_date_requests")
+    }
+
+    const userResult = await call("frappe.auth.get_logged_user")
     dateRequests.value = requestsResult || []
     currentUser.value = userResult || ""
     lastLoadTime = now
@@ -388,6 +405,26 @@ async function updateRequest() {
 }
 
 async function approveRequest(request) {
+  const alert = await alertController.create({
+    header: "Approve Request",
+    message: "Are you sure you want to approve this date request?",
+    buttons: [
+      {
+        text: "Cancel",
+        role: "cancel",
+      },
+      {
+        text: "Approve",
+        handler: async () => {
+          await performApproveRequest(request)
+        },
+      },
+    ],
+  })
+  await alert.present()
+}
+
+async function performApproveRequest(request) {
   try {
     await call("smart_pro.smart_pro.api.projects.approve_date_request", {
       request_id: request.name,
@@ -414,6 +451,27 @@ async function approveRequest(request) {
 }
 
 async function rejectRequest(request) {
+  const alert = await alertController.create({
+    header: "Reject Request",
+    message: "Are you sure you want to reject this date request?",
+    buttons: [
+      {
+        text: "Cancel",
+        role: "cancel",
+      },
+      {
+        text: "Reject",
+        cssClass: "alert-button-danger",
+        handler: async () => {
+          await performRejectRequest(request)
+        },
+      },
+    ],
+  })
+  await alert.present()
+}
+
+async function performRejectRequest(request) {
   try {
     await call("smart_pro.smart_pro.api.projects.approve_date_request", {
       request_id: request.name,

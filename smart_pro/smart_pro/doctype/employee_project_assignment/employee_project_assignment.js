@@ -26,6 +26,27 @@ frappe.ui.form.on("Employee Project Assignment", {
 				generate_scope(frm, r.title, frm.doc.employee_name, frm.doc.role);
 			});
 		}, __('AI'));
+	},
+
+	employee(frm) {
+		// Auto-fetch employee's user_id (email) to Approver field when employee is selected
+		if (frm.doc.employee) {
+			frappe.db.get_value('Employee', frm.doc.employee, ['user_id', 'employee_name'], function(r) {
+				if (r) {
+					// Set employee name
+					if (r.employee_name) {
+						frm.set_value('employee_name', r.employee_name);
+					}
+					// Set approver to employee's email/user_id
+					if (r.user_id) {
+						frm.set_value('approver', r.user_id);
+					}
+				}
+			});
+		} else {
+			frm.set_value('employee_name', '');
+			frm.set_value('approver', '');
+		}
 	}
 });
 

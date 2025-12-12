@@ -83,7 +83,9 @@
               :style="{ width: (task.progress || 0) + '%' }"
             />
           </div>
+          <!-- Update Progress Button (hidden for full access users - read-only mode) -->
           <ion-button
+            v-if="!hasFullAccess"
             expand="block"
             fill="outline"
             class="mt-4"
@@ -143,8 +145,8 @@
           </div>
         </div>
 
-        <!-- Actions -->
-        <div class="space-y-3">
+        <!-- Actions (hidden for full access users - read-only mode) -->
+        <div v-if="!hasFullAccess" class="space-y-3">
           <ion-button
             v-if="task.status !== 'Completed'"
             expand="block"
@@ -160,6 +162,12 @@
           >
             Start Working
           </ion-button>
+        </div>
+        <!-- Read-only indicator for full access users -->
+        <div v-if="hasFullAccess" class="app-card p-4 mt-6">
+          <div class="text-sm text-gray-500 italic text-center">
+            View only mode - Full access users cannot modify tasks
+          </div>
         </div>
       </div>
     </ion-content>
@@ -188,8 +196,10 @@ import {
 } from "@ionic/vue"
 import { ellipsisVertical } from "ionicons/icons"
 import { call } from "frappe-ui"
+import { usePermissions } from "@/composables/usePermissions"
 
 const route = useRoute()
+const { fetchPermissions, hasFullAccess } = usePermissions()
 const router = useRouter()
 const $dayjs = inject("$dayjs")
 
@@ -213,6 +223,9 @@ async function loadData() {
   error.value = ""
 
   try {
+    // Fetch permissions first
+    await fetchPermissions()
+
     const result = await call("frappe.client.get", {
       doctype: "Smart Task",
       name: taskId,

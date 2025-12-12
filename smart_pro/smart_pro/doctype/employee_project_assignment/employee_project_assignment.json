@@ -39,7 +39,8 @@
    "in_list_view": 1,
    "label": "Employee",
    "options": "Employee",
-   "reqd": 1
+   "reqd": 1,
+   "link_filters": "[[\"Employee\", \"status\", \"=\", \"Active\"]]"
   },
   {
    "fieldname": "employee_name",
