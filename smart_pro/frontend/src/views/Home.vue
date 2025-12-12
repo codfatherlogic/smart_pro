@@ -133,71 +133,71 @@
           class="app-card mb-6"
         >
           <div class="app-card-header flex items-center">
-            <ion-icon :icon="analyticsOutline" class="text-lg text-blue-600 mr-2" />
+            <ion-icon :icon="analyticsOutline" class="text-lg text-blue-400 mr-2" />
             <span>Insights Dashboard</span>
           </div>
           <div class="p-4">
             <!-- Project Status Overview -->
             <div class="mb-4">
-              <div class="text-sm font-medium text-gray-700 mb-2">Project Status</div>
+              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Project Status</div>
               <div class="grid grid-cols-2 gap-2">
-                <div class="bg-green-50 rounded-lg p-3 text-center">
-                  <div class="text-xl font-bold text-green-600">{{ insights.activeProjects }}</div>
-                  <div class="text-xs text-green-700">Active</div>
+                <div class="insight-card insight-card-green">
+                  <div class="text-xl font-bold">{{ insights.activeProjects }}</div>
+                  <div class="text-xs opacity-80">Active</div>
                 </div>
-                <div class="bg-blue-50 rounded-lg p-3 text-center">
-                  <div class="text-xl font-bold text-blue-600">{{ insights.planningProjects }}</div>
-                  <div class="text-xs text-blue-700">Planning</div>
+                <div class="insight-card insight-card-blue">
+                  <div class="text-xl font-bold">{{ insights.planningProjects }}</div>
+                  <div class="text-xs opacity-80">Planning</div>
                 </div>
-                <div class="bg-yellow-50 rounded-lg p-3 text-center">
-                  <div class="text-xl font-bold text-yellow-600">{{ insights.onHoldProjects }}</div>
-                  <div class="text-xs text-yellow-700">On Hold</div>
+                <div class="insight-card insight-card-yellow">
+                  <div class="text-xl font-bold">{{ insights.onHoldProjects }}</div>
+                  <div class="text-xs opacity-80">On Hold</div>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3 text-center">
-                  <div class="text-xl font-bold text-gray-600">{{ insights.completedProjects }}</div>
-                  <div class="text-xs text-gray-700">Completed</div>
+                <div class="insight-card insight-card-gray">
+                  <div class="text-xl font-bold">{{ insights.completedProjects }}</div>
+                  <div class="text-xs opacity-80">Completed</div>
                 </div>
               </div>
             </div>
 
             <!-- Task Overview -->
             <div class="mb-4">
-              <div class="text-sm font-medium text-gray-700 mb-2">Task Overview</div>
+              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Task Overview</div>
               <div class="grid grid-cols-3 gap-2">
-                <div class="bg-blue-50 rounded-lg p-3 text-center">
-                  <div class="text-xl font-bold text-blue-600">{{ insights.openTasks }}</div>
-                  <div class="text-xs text-blue-700">Open</div>
+                <div class="insight-card insight-card-blue">
+                  <div class="text-xl font-bold">{{ insights.openTasks }}</div>
+                  <div class="text-xs opacity-80">Open</div>
                 </div>
-                <div class="bg-orange-50 rounded-lg p-3 text-center">
-                  <div class="text-xl font-bold text-orange-600">{{ insights.workingTasks }}</div>
-                  <div class="text-xs text-orange-700">Working</div>
+                <div class="insight-card insight-card-orange">
+                  <div class="text-xl font-bold">{{ insights.workingTasks }}</div>
+                  <div class="text-xs opacity-80">Working</div>
                 </div>
-                <div class="bg-green-50 rounded-lg p-3 text-center">
-                  <div class="text-xl font-bold text-green-600">{{ insights.completedTasks }}</div>
-                  <div class="text-xs text-green-700">Done</div>
+                <div class="insight-card insight-card-green">
+                  <div class="text-xl font-bold">{{ insights.completedTasks }}</div>
+                  <div class="text-xs opacity-80">Done</div>
                 </div>
               </div>
             </div>
 
-            <!-- Team & Assignments -->
+            <!-- Summary -->
             <div>
-              <div class="text-sm font-medium text-gray-700 mb-2">Summary</div>
+              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Summary</div>
               <div class="space-y-2">
-                <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span class="text-sm text-gray-600">Total Projects</span>
-                  <span class="font-semibold text-gray-800">{{ insights.totalProjects }}</span>
+                <div class="summary-row">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Total Projects</span>
+                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{ insights.totalProjects }}</span>
                 </div>
-                <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span class="text-sm text-gray-600">Total Tasks</span>
-                  <span class="font-semibold text-gray-800">{{ insights.totalTasks }}</span>
+                <div class="summary-row">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Total Tasks</span>
+                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{ insights.totalTasks }}</span>
                 </div>
-                <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span class="text-sm text-gray-600">Completion Rate</span>
-                  <span class="font-semibold text-green-600">{{ insights.completionRate }}%</span>
+                <div class="summary-row">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Completion Rate</span>
+                  <span class="font-semibold text-green-500">{{ insights.completionRate }}%</span>
                 </div>
-                <div class="flex justify-between items-center py-2">
-                  <span class="text-sm text-gray-600">Overdue Tasks</span>
-                  <span :class="['font-semibold', insights.overdueTasks > 0 ? 'text-red-600' : 'text-gray-800']">
+                <div class="summary-row summary-row-last">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Overdue Tasks</span>
+                  <span :class="['font-semibold', insights.overdueTasks > 0 ? 'text-red-500' : 'text-gray-800 dark:text-gray-200']">
                     {{ insights.overdueTasks }}
                   </span>
                 </div>
@@ -526,5 +526,76 @@ onIonViewWillEnter(() => {
   background-color: #ef4444;
   border-radius: 9px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Insight Dashboard Cards */
+.insight-card {
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.insight-card-green {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.insight-card-blue {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.insight-card-yellow {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.insight-card-orange {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.insight-card-gray {
+  background-color: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+}
+
+/* Summary rows */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+.summary-row-last {
+  border-bottom: none;
+}
+
+/* Dark mode specific overrides */
+body.dark .insight-card-green {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+body.dark .insight-card-blue {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+body.dark .insight-card-yellow {
+  background-color: rgba(234, 179, 8, 0.2);
+  color: #facc15;
+}
+
+body.dark .insight-card-orange {
+  background-color: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+}
+
+body.dark .insight-card-gray {
+  background-color: rgba(156, 163, 175, 0.2);
+  color: #d1d5db;
 }
 </style>
