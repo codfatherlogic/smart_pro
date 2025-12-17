@@ -225,3 +225,82 @@ class EmployeeDateRequest(Document):
         except Exception as e:
             frappe.log_error(f"Error creating task: {str(e)}", "Task Creation Error")
             frappe.msgprint(f"Error creating task: {str(e)}")
+
+    @staticmethod
+    def get_non_filterable_fields():
+        return ["converted"]
+
+    @staticmethod
+    def default_list_data():
+        columns = [
+            {
+                "label": "Name",
+                "type": "Data",
+                "key": "name",
+                "width": "12rem",
+            },
+            {
+                "label": "Employee",
+                "type": "Data",
+                "key": "employee",
+                "width": "12rem",
+            },
+            {
+                "label": "Employee Name",
+                "type": "Data",
+                "key": "employee_name",
+                "width": "12rem",
+            },
+            {
+            	"label": "Project Title",
+            	"type": "Data",
+            	"key": "project_title",
+            	"width": "12rem",
+            },
+            {
+                "label": "Status",
+                "type": "Select",
+                "key": "status",
+                "width": "8rem",
+            },
+            {
+                "label": "Request Type",
+                "type": "Select",
+                "key": "request_type",
+                "width": "8rem",
+            },
+            {
+                "label": "Total Days",
+                "type": "Data",
+                "key": "total_days",
+                "width": "8rem",
+            },
+            {
+                "label": "Approver",
+                "type": "Link",
+                "options": "User",
+                "key": "approver",
+                "width": "8rem",
+            },
+            {
+                "label": "Last Modified",
+                "type": "Datetime",
+                "key": "modified",
+                "width": "8rem",
+            },
+        ]
+        rows = [
+            "name",
+            "title",
+            "project",
+        ]
+        return {"columns": columns, "rows": rows}
+
+    @staticmethod
+    def default_kanban_settings():
+        return {
+            "column_field": "status",
+            "title_field": "title",
+            "kanban_fields": '["project", "total_days", "employee", "modified", "_assign"]',
+        }
+      
