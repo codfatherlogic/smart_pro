@@ -23,6 +23,53 @@ import "./main.css"
 // Configure Frappe UI
 setConfig("resourceFetcher", frappeRequest)
 
+// Ensure requests to our API send cookies and CSRF header by default.
+// This helps avoid CSRFTokenError when the library's internal fetch
+// doesn't include credentials in some environments.
+;(function patchFetch() {
+  if (!window.fetch) return
+  const originalFetch = window.fetch.bind(window)
+  window.fetch = async function (input, init = {}) {
+    try {
+      const url = typeof input === "string" ? input : input.url
+
+      // Only modify requests that target our backend API
+      if (url && (url.startsWith("/api/") || url.startsWith("/api/method/"))) {
+        init = init || {}
+        // include credentials so cookies (session) are sent
+        if (!init.credentials) init.credentials = "include"
+
+        init.headers = init.headers || {}
+
+        // preserve existing headers if they are a Headers instance
+        if (init.headers instanceof Headers) {
+          // add CSRF token header if available and this is not a GET
+          const method = (init.method || 'GET').toUpperCase()
+          if (method !== 'GET' && window.csrf_token && window.csrf_token !== "{{ csrf_token }}") {
+            init.headers.set("X-Frappe-CSRF-Token", window.csrf_token)
+          }
+          if (!init.headers.has("X-Requested-With")) {
+            init.headers.set("X-Requested-With", "XMLHttpRequest")
+          }
+        } else {
+          // plain object
+          const method = (init.method || 'GET').toUpperCase()
+          if (method !== 'GET' && window.csrf_token && window.csrf_token !== "{{ csrf_token }}") {
+            init.headers["X-Frappe-CSRF-Token"] = window.csrf_token
+          }
+          if (!init.headers["X-Requested-With"]) {
+            init.headers["X-Requested-With"] = "XMLHttpRequest"
+          }
+        }
+      }
+
+      return await originalFetch(input, init)
+    } catch (e) {
+      return originalFetch(input, init)
+    }
+  }
+})()
+
 // Create Vue app
 const app = createApp(App)
 

@@ -69,3 +69,76 @@ class EmployeeProjectAssignment(Document):
                 f"Note: Date request could not be auto-created. Please create manually.",
                 indicator="orange"
             )
+
+    @staticmethod
+    def get_non_filterable_fields():
+        return ["converted"]
+
+    @staticmethod
+    def default_list_data():
+        columns = [
+            {
+                "label": "Employee",
+                "type": "Data",
+                "key": "employee",
+                "width": "12rem",
+            },
+            {
+                "label": "Employee Name",
+                "type": "Data",
+                "key": "employee_name",
+                "width": "12rem",
+            },
+            {
+            	"label": "Project",
+            	"type": "Link",
+            	"key": "project",
+            	"options": "Smart Project",
+            	"width": "12rem",
+            },
+            {
+                "label": "Status",
+                "type": "Select",
+                "key": "status",
+                "width": "8rem",
+            },
+            {
+                "label": "Start Date",
+                "type": "Date",
+                "key": "start_date",
+                "width": "8rem",
+            },
+            {
+                "label": "End Date",
+                "type": "Date",
+                "key": "end_date",
+                "width": "8rem",
+            },
+            {
+                "label": "Approver",
+                "type": "Link",
+                "options": "User",
+                "key": "approver",
+                "width": "8rem",
+            },
+            {
+                "label": "Last Modified",
+                "type": "Datetime",
+                "key": "modified",
+                "width": "8rem",
+            },
+        ]
+        rows = [
+            "name",
+            "status",
+            "project",
+        ]
+        return {"columns": columns, "rows": rows}
+
+    @staticmethod
+    def default_kanban_settings():
+        return {
+            "column_field": "status",
+            "title_field": "title",
+            "kanban_fields": '["project", "allocation_percentage", "modified", "_assign"]',
+        }
