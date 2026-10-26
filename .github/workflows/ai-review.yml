@@ -1,0 +1,68 @@
+name: ai-review
+
+# Reviews every PR opened against this repo from the same repo. Deliberately not
+# covering fork PRs: `pull_request` from a fork gets no secrets, so the review
+# would fail rather than run.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+        type: number
+      model:
+        description: crenya-ai model id
+        required: false
+        default: crenya-economy
+        type: choice
+        options:
+          - crenya-economy
+          - crenya-lite
+          - crenya
+      dry_run:
+        description: Print the review instead of posting it
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number || inputs.pr }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Review PR #${{ github.event.pull_request.number || inputs.pr }}
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    # The org's own runner. Hosted minutes are blocked ($0 Actions budget), so every
+    # job here must name a self-hosted label set.
+    runs-on: [self-hosted, Linux, ARM64]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run review
+        env:
+          CRENYA_AI_TOKEN: ${{ secrets.CRENYA_AI_TOKEN }}
+          CRENYA_AI_BASE_URL: https://api.crenya.ai/v1
+          CRENYA_AI_MODEL: ${{ inputs.model || 'crenya-economy' }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRENYA_AI_TOKEN:-}" ]; then
+            echo "::error::CRENYA_AI_TOKEN is not set. Add it as an org or repo secret."
+            exit 1
+          fi
+          pr="${{ github.event.pull_request.number || inputs.pr }}"
+          model="${{ inputs.model || 'crenya-economy' }}"
+          args=(--pr "$pr" --model "$model")
+          if [ "${{ inputs.dry_run }}" = "true" ]; then args+=(--dry-run); fi
+          python3 scripts/ai_review.py "${args[@]}"
