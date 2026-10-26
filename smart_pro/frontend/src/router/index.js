@@ -107,8 +107,24 @@ async function getAuthUser(forceRefresh = false) {
     return authCache.user
   }
 
+  // Helper to read a cookie value by name
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'))
+    return match ? decodeURIComponent(match[1]) : null
+  }
+
   try {
-    const response = await fetch("/api/method/frappe.auth.get_logged_user")
+    const headers = {
+      "X-Requested-With": "XMLHttpRequest",
+    }
+
+    // For a read-only GET auth check we don't send the CSRF token header.
+    // The important part is to include credentials so the session cookie is sent.
+    const response = await fetch("/api/method/frappe.auth.get_logged_user", {
+      method: "GET",
+      credentials: "include",
+      headers,
+    })
     const data = await response.json()
     authCache.user = data.message || "Guest"
     authCache.timestamp = now

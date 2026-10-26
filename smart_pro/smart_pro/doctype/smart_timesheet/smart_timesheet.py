@@ -36,3 +36,65 @@ class SmartTimesheet(Document):
         """Auto-fetch task title"""
         if self.task and not self.task_title:
             self.task_title = frappe.db.get_value("Smart Task", self.task, "title")
+
+    @staticmethod
+    def get_non_filterable_fields():
+        return ["converted"]
+
+    @staticmethod
+    def default_list_data():
+        columns = [
+            {
+                "label": "Name",
+                "type": "Data",
+                "key": "name",
+                "width": "12rem",
+            },
+            {
+            	"label": "Employee",
+            	"type": "Link",
+            	"key": "employee",
+            	"options": "Employee",
+            	"width": "10rem",
+            },
+            {
+                "label": "Status",
+                "type": "Select",
+                "key": "status",
+                "width": "8rem",
+            },
+            {
+                "label": "Start Date",
+                "type": "Date",
+                "key": "start_date",
+                "width": "8rem",
+            },
+            {
+            	"label": "Project",
+            	"type": "Link",
+            	"key": "project",
+            	"options": "Project",
+            	"width": "10rem",
+            },
+            {
+                "label": "Task Title",
+                "type": "Data",
+                "key": "task_title",
+                "width": "8rem",
+            },
+        ]
+        rows = [
+            "name",
+            "task",
+            "employee",
+            "status",
+        ]
+        return {"columns": columns, "rows": rows}
+
+    @staticmethod
+    def default_kanban_settings():
+        return {
+            "column_field": "status",
+            "title_field": "name",
+            "kanban_fields": '["priority", "task", "modified", "_assign"]',
+        }

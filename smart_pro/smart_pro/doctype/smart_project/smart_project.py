@@ -21,3 +21,62 @@ class SmartProject(Document):
             from frappe.utils import today
             if self.start_date <= today():
                 self.status = "Active"
+    
+    @staticmethod
+    def get_non_filterable_fields():
+        return ["converted"]
+
+    @staticmethod
+    def default_list_data():
+        columns = [
+            {
+                "label": "Title",
+                "type": "Data",
+                "key": "title",
+                "width": "12rem",
+            },
+            # {
+            # 	"label": "Organization",
+            # 	"type": "Link",
+            # 	"key": "organization",
+            # 	"options": "CRM Organization",
+            # 	"width": "10rem",
+            # },
+            {
+                "label": "Status",
+                "type": "Select",
+                "key": "status",
+                "width": "8rem",
+            },
+            {
+                "label": "Start Date",
+                "type": "Date",
+                "key": "start_date",
+                "width": "8rem",
+            },
+            {
+                "label": "End Date",
+                "type": "Date",
+                "key": "end_date",
+                "width": "8rem",
+            },
+            {
+                "label": "Last Modified",
+                "type": "Datetime",
+                "key": "modified",
+                "width": "8rem",
+            },
+        ]
+        rows = [
+            "name",
+            "project_name",
+        ]
+        return {"columns": columns, "rows": rows}
+
+    @staticmethod
+    def default_kanban_settings():
+        return {
+            "column_field": "status",
+            "title_field": "project_name",
+            "kanban_fields": '["priority", "project_type", "modified", "_assign"]',
+        }
