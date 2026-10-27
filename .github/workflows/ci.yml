@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, crenya-ci]
     timeout-minutes: 60
     strategy:
       fail-fast: false
