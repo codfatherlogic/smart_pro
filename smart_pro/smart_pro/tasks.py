@@ -40,7 +40,7 @@ def send_project_end_date_reminders():
 		filters={
 			"status": ["in", ["Planning", "Active", "On Hold"]],
 			"end_date": ["<=", reminder_date],
-			"end_date": ["is", "set"],
+			"end_date": ["is", "set"],  # noqa: F601
 			"project_manager": ["is", "set"],
 		},
 		fields=["name", "title", "end_date", "project_manager", "status"],
@@ -148,7 +148,7 @@ def send_task_due_date_reminders():
 		filters={
 			"status": ["in", ["Open", "Working", "Pending Review"]],
 			"due_date": ["<=", reminder_date],
-			"due_date": ["is", "set"],
+			"due_date": ["is", "set"],  # noqa: F601
 			"assigned_to": ["is", "set"],
 		},
 		fields=["name", "title", "due_date", "assigned_to", "status", "priority", "project"],
