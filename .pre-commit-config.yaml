@@ -56,6 +56,9 @@ repos:
         exclude: |
             (?x)^(
                 smart_pro/public/dist/.*|
+                smart_pro/public/frontend/.*|
+                smart_pro/smart_pro/public/frontend/.*|
+                smart_pro/frontend/.*|
                 cypress/.*|
                 .*node_modules.*|
                 .*boilerplate.*|

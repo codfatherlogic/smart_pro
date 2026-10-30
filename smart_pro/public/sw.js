@@ -1,3 +1,4 @@
+/* global clients */ // a service worker's own global
 // Service Worker for Smart Pro PWA
 const CACHE_NAME = "smart-pro-v1";
 const urlsToCache = [
