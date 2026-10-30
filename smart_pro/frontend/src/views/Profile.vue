@@ -34,35 +34,26 @@
             <div class="text-2xl font-bold text-primary-500">
               {{ stats.projects }}
             </div>
-            <div class="text-xs text-gray-500">
-              Projects
-            </div>
+            <div class="text-xs text-gray-500">Projects</div>
           </div>
           <div class="app-card p-4 text-center">
             <div class="text-2xl font-bold text-orange-500">
               {{ stats.tasks }}
             </div>
-            <div class="text-xs text-gray-500">
-              Tasks
-            </div>
+            <div class="text-xs text-gray-500">Tasks</div>
           </div>
           <div class="app-card p-4 text-center">
             <div class="text-2xl font-bold text-green-500">
               {{ stats.completed }}
             </div>
-            <div class="text-xs text-gray-500">
-              Done
-            </div>
+            <div class="text-xs text-gray-500">Done</div>
           </div>
         </div>
 
         <!-- Menu Items -->
         <div class="app-card">
           <ion-list lines="full">
-            <ion-item
-              button
-              @click="openSettings"
-            >
+            <ion-item button @click="openSettings">
               <template #start>
                 <ion-icon :icon="settingsOutline" />
               </template>
@@ -72,10 +63,7 @@
               </template>
             </ion-item>
 
-            <ion-item
-              button
-              @click="openHelp"
-            >
+            <ion-item button @click="openHelp">
               <template #start>
                 <ion-icon :icon="helpCircleOutline" />
               </template>
@@ -85,10 +73,7 @@
               </template>
             </ion-item>
 
-            <ion-item
-              button
-              @click="openAbout"
-            >
+            <ion-item button @click="openAbout">
               <template #start>
                 <ion-icon :icon="informationCircleOutline" />
               </template>
@@ -98,27 +83,15 @@
               </template>
             </ion-item>
 
-            <ion-item
-              button
-              class="text-red-500"
-              @click="logout"
-            >
-              <ion-icon
-                slot="start"
-                :icon="logOutOutline"
-                color="danger"
-              />
-              <ion-label color="danger">
-                Logout
-              </ion-label>
+            <ion-item button class="text-red-500" @click="logout">
+              <ion-icon slot="start" :icon="logOutOutline" color="danger" />
+              <ion-label color="danger"> Logout </ion-label>
             </ion-item>
           </ion-list>
         </div>
 
         <!-- App Version -->
-        <div class="text-center mt-6 text-sm text-gray-400">
-          Smart Pro v1.0.0
-        </div>
+        <div class="text-center mt-6 text-sm text-gray-400">Smart Pro v1.0.0</div>
       </div>
     </ion-content>
   </ion-page>

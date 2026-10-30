@@ -3,10 +3,7 @@
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button
-            default-href="/smart-pro/projects"
-            text=""
-          />
+          <ion-back-button default-href="/smart-pro/projects" text="" />
         </ion-buttons>
         <ion-title>New Project</ion-title>
       </ion-toolbar>
@@ -44,54 +41,26 @@
 
           <!-- Status -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </ion-label>
-            <ion-select
-              v-model="form.status"
-              fill="outline"
-              interface="action-sheet"
-            >
-              <ion-select-option value="Planning">
-                Planning
-              </ion-select-option>
-              <ion-select-option value="Active">
-                Active
-              </ion-select-option>
-              <ion-select-option value="On Hold">
-                On Hold
-              </ion-select-option>
-              <ion-select-option value="Completed">
-                Completed
-              </ion-select-option>
-              <ion-select-option value="Cancelled">
-                Cancelled
-              </ion-select-option>
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Status </ion-label>
+            <ion-select v-model="form.status" fill="outline" interface="action-sheet">
+              <ion-select-option value="Planning"> Planning </ion-select-option>
+              <ion-select-option value="Active"> Active </ion-select-option>
+              <ion-select-option value="On Hold"> On Hold </ion-select-option>
+              <ion-select-option value="Completed"> Completed </ion-select-option>
+              <ion-select-option value="Cancelled"> Cancelled </ion-select-option>
             </ion-select>
           </div>
 
           <!-- Start Date -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Start Date
-            </ion-label>
-            <ion-input
-              v-model="form.start_date"
-              type="date"
-              fill="outline"
-            />
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Start Date </ion-label>
+            <ion-input v-model="form.start_date" type="date" fill="outline" />
           </div>
 
           <!-- End Date -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              End Date
-            </ion-label>
-            <ion-input
-              v-model="form.end_date"
-              type="date"
-              fill="outline"
-            />
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> End Date </ion-label>
+            <ion-input v-model="form.end_date" type="date" fill="outline" />
           </div>
 
           <!-- Budget -->
@@ -108,25 +77,13 @@
           </div>
 
           <!-- Submit Button -->
-          <ion-button
-            expand="block"
-            type="submit"
-            :disabled="saving || !form.title"
-            class="mt-6"
-          >
-            <ion-spinner
-              v-if="saving"
-              name="crescent"
-              class="mr-2"
-            />
+          <ion-button expand="block" type="submit" :disabled="saving || !form.title" class="mt-6">
+            <ion-spinner v-if="saving" name="crescent" class="mr-2" />
             {{ saving ? "Creating..." : "Create Project" }}
           </ion-button>
         </form>
 
-        <div
-          v-if="error"
-          class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm"
-        >
+        <div v-if="error" class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
           {{ error }}
         </div>
       </div>

@@ -1,1 +1,7 @@
-if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/assets/smart_pro/frontend/sw.js', { scope: '/assets/smart_pro/frontend/' })})}
+if ("serviceWorker" in navigator) {
+	window.addEventListener("load", () => {
+		navigator.serviceWorker.register("/assets/smart_pro/frontend/sw.js", {
+			scope: "/assets/smart_pro/frontend/",
+		});
+	});
+}

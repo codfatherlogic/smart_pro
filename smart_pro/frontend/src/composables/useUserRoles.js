@@ -33,11 +33,12 @@ export function useUserRoles() {
   }
 
   const isTeamLead = computed(() => {
-    const result = roles.value.includes("Projects Manager") ||
-           roles.value.includes("Project Manager") ||
-           roles.value.includes("HR Manager") ||
-           roles.value.includes("HR-Manager") ||
-           roles.value.includes("System Manager")
+    const result =
+      roles.value.includes("Projects Manager") ||
+      roles.value.includes("Project Manager") ||
+      roles.value.includes("HR Manager") ||
+      roles.value.includes("HR-Manager") ||
+      roles.value.includes("System Manager")
     return result
   })
 

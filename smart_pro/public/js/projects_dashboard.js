@@ -1,98 +1,104 @@
-frappe.pages['projects_dashboard'].onload = function(wrapper) {
-    const { __, frappe } = window;
-    
-    // Create a new Vue app
-    const app = new Vue({
-        el: wrapper,
-        data() {
-            return {
-                projects: [],
-                tasks: [],
-                pendingRequests: [],
-                loading: true,
-                selectedProject: null,
-                projectDetails: null,
-                projectTasks: [],
-                projectAssignments: []
-            };
-        },
-        mounted() {
-            this.loadData();
-        },
-        methods: {
-            async loadData() {
-                this.loading = true;
-                try {
-                    const [projects, tasks, requests] = await Promise.all([
-                        frappe.call('smart_pro.api.projects.get_user_projects'),
-                        frappe.call('smart_pro.api.projects.get_user_tasks'),
-                        frappe.call('smart_pro.api.projects.get_pending_date_requests')
-                    ]);
-                    
-                    this.projects = projects.message || [];
-                    this.tasks = tasks.message || [];
-                    this.pendingRequests = requests.message || [];
-                } catch (error) {
-                    console.error('Error loading data:', error);
-                    frappe.msgprint(__('Error loading data: ') + error.message);
-                } finally {
-                    this.loading = false;
-                }
-            },
-            
-            async selectProject(project) {
-                this.selectedProject = project;
-                try {
-                    const [details, tasks, assignments] = await Promise.all([
-                        frappe.call('smart_pro.api.projects.get_project_details', { project_name: project.name }),
-                        frappe.call('smart_pro.api.projects.get_project_tasks', { project_name: project.name }),
-                        frappe.call('smart_pro.api.projects.get_employee_assignments', { project_name: project.name })
-                    ]);
-                    
-                    this.projectDetails = details.message;
-                    this.projectTasks = tasks.message || [];
-                    this.projectAssignments = assignments.message || [];
-                } catch (error) {
-                    console.error('Error loading project details:', error);
-                    frappe.msgprint(__('Error loading project details: ') + error.message);
-                }
-            },
-            
-            formatDate(dateString) {
-                if (!dateString) return '';
-                return frappe.datetime.str_to_user(dateString);
-            },
-            
-            getStatusColor(status) {
-                const colors = {
-                    'Active': 'green',
-                    'Planning': 'blue',
-                    'Completed': 'gray',
-                    'Cancelled': 'red',
-                    'On Hold': 'orange',
-                    'Open': 'blue',
-                    'Working': 'orange',
-                    'Pending Review': 'yellow',
-                    'Pending Approval': 'yellow',
-                    'Approved': 'green',
-                    'Rejected': 'red'
-                };
-                return colors[status] || 'gray';
-            }
-        },
-        template: `
+frappe.pages["projects_dashboard"].onload = function (wrapper) {
+	const { __, frappe } = window;
+
+	// Create a new Vue app
+	const app = new Vue({
+		el: wrapper,
+		data() {
+			return {
+				projects: [],
+				tasks: [],
+				pendingRequests: [],
+				loading: true,
+				selectedProject: null,
+				projectDetails: null,
+				projectTasks: [],
+				projectAssignments: [],
+			};
+		},
+		mounted() {
+			this.loadData();
+		},
+		methods: {
+			async loadData() {
+				this.loading = true;
+				try {
+					const [projects, tasks, requests] = await Promise.all([
+						frappe.call("smart_pro.api.projects.get_user_projects"),
+						frappe.call("smart_pro.api.projects.get_user_tasks"),
+						frappe.call("smart_pro.api.projects.get_pending_date_requests"),
+					]);
+
+					this.projects = projects.message || [];
+					this.tasks = tasks.message || [];
+					this.pendingRequests = requests.message || [];
+				} catch (error) {
+					console.error("Error loading data:", error);
+					frappe.msgprint(__("Error loading data: ") + error.message);
+				} finally {
+					this.loading = false;
+				}
+			},
+
+			async selectProject(project) {
+				this.selectedProject = project;
+				try {
+					const [details, tasks, assignments] = await Promise.all([
+						frappe.call("smart_pro.api.projects.get_project_details", {
+							project_name: project.name,
+						}),
+						frappe.call("smart_pro.api.projects.get_project_tasks", {
+							project_name: project.name,
+						}),
+						frappe.call("smart_pro.api.projects.get_employee_assignments", {
+							project_name: project.name,
+						}),
+					]);
+
+					this.projectDetails = details.message;
+					this.projectTasks = tasks.message || [];
+					this.projectAssignments = assignments.message || [];
+				} catch (error) {
+					console.error("Error loading project details:", error);
+					frappe.msgprint(__("Error loading project details: ") + error.message);
+				}
+			},
+
+			formatDate(dateString) {
+				if (!dateString) return "";
+				return frappe.datetime.str_to_user(dateString);
+			},
+
+			getStatusColor(status) {
+				const colors = {
+					Active: "green",
+					Planning: "blue",
+					Completed: "gray",
+					Cancelled: "red",
+					"On Hold": "orange",
+					Open: "blue",
+					Working: "orange",
+					"Pending Review": "yellow",
+					"Pending Approval": "yellow",
+					Approved: "green",
+					Rejected: "red",
+				};
+				return colors[status] || "gray";
+			},
+		},
+		template: `
             <div class="container-fluid">
                 <div class="page-header">
                     <h1>Projects Dashboard</h1>
                     <p class="text-muted">Manage your projects, tasks, and employee assignments</p>
                 </div>
-                
+
                 <div v-if="loading" class="text-center p-5">
                     <div class="spinner-border" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
-                
+
                 <div v-else class="row">
                     <!-- Left Column: Projects and Tasks -->
                     <div class="col-md-8">
@@ -105,8 +111,8 @@ frappe.pages['projects_dashboard'].onload = function(wrapper) {
                                     No projects found
                                 </div>
                                 <div v-else class="list-group">
-                                    <a href="#" 
-                                       v-for="project in projects" 
+                                    <a href="#"
+                                       v-for="project in projects"
                                        :key="project.name"
                                        class="list-group-item list-group-item-action"
                                        @click.prevent="selectProject(project)">
@@ -126,7 +132,7 @@ frappe.pages['projects_dashboard'].onload = function(wrapper) {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="mb-0">My Tasks</h5>
@@ -155,7 +161,7 @@ frappe.pages['projects_dashboard'].onload = function(wrapper) {
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Right Column: Selected Project Details -->
                     <div class="col-md-4">
                         <div v-if="selectedProject" class="card mb-4">
@@ -165,28 +171,28 @@ frappe.pages['projects_dashboard'].onload = function(wrapper) {
                             <div class="card-body">
                                 <h6>{{ projectDetails ? projectDetails.title : '' }}</h6>
                                 <p class="text-muted">{{ projectDetails ? projectDetails.description : '' }}</p>
-                                
+
                                 <div class="mb-3">
                                     <strong>Status:</strong>
                                     <span :class="'badge ms-2 bg-' + getStatusColor(projectDetails ? projectDetails.status : '')">
                                         {{ projectDetails ? projectDetails.status : '' }}
                                     </span>
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <strong>Manager:</strong> {{ projectDetails ? projectDetails.project_manager : '' }}
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <strong>Budget:</strong> {{ projectDetails ? projectDetails.budget_amount : '' }} {{ projectDetails ? projectDetails.currency : '' }}
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <strong>Timeline:</strong> {{ formatDate(projectDetails ? projectDetails.start_date : '') }} to {{ formatDate(projectDetails ? projectDetails.end_date : '') }}
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="mb-0">Pending Approvals</h5>
@@ -212,6 +218,6 @@ frappe.pages['projects_dashboard'].onload = function(wrapper) {
                     </div>
                 </div>
             </div>
-        `
-    });
+        `,
+	});
 };

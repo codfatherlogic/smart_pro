@@ -66,15 +66,21 @@
         <ion-icon :icon="timeOutline" class="empty-state-icon" />
         <div class="empty-state-title">No timesheet entries</div>
         <div class="empty-state-description">
-          {{ filter === "draft" ? "No draft timesheets" : filter === "submitted" ? "No submitted timesheets" : filter === "approved" ? "No approved timesheets" : "Log your work hours from your assigned tasks" }}
+          {{
+            filter === "draft"
+              ? "No draft timesheets"
+              : filter === "submitted"
+              ? "No submitted timesheets"
+              : filter === "approved"
+              ? "No approved timesheets"
+              : "Log your work hours from your assigned tasks"
+          }}
         </div>
         <!-- Log Hours button hidden for full access users -->
         <ion-button v-if="!hasFullAccess" class="mt-4" @click="openAddModal">
           Log Hours
         </ion-button>
-        <div v-if="hasFullAccess" class="mt-4 text-sm text-gray-500 italic">
-          View only mode
-        </div>
+        <div v-if="hasFullAccess" class="mt-4 text-sm text-gray-500 italic">View only mode</div>
       </div>
 
       <!-- Time Sheets List -->
@@ -110,7 +116,10 @@
           </div>
 
           <!-- Submit Button for Draft entries (hidden for full access users - read-only mode) -->
-          <div v-if="entry.status === 'Draft' && !hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
+          <div
+            v-if="entry.status === 'Draft' && !hasFullAccess"
+            class="mt-3 pt-3 border-t border-gray-100"
+          >
             <ion-button
               size="small"
               expand="block"
@@ -118,18 +127,24 @@
               :disabled="submittingId === entry.name"
             >
               <ion-spinner v-if="submittingId === entry.name" name="crescent" class="mr-2" />
-              {{ submittingId === entry.name ? 'Submitting...' : 'Submit for Approval' }}
+              {{ submittingId === entry.name ? "Submitting..." : "Submit for Approval" }}
             </ion-button>
           </div>
           <!-- Read-only indicator for full access users viewing draft entries -->
-          <div v-if="entry.status === 'Draft' && hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
+          <div
+            v-if="entry.status === 'Draft' && hasFullAccess"
+            class="mt-3 pt-3 border-t border-gray-100"
+          >
             <div class="text-xs text-gray-500 italic text-center">
               View only mode - Full access users cannot submit timesheets
             </div>
           </div>
 
           <!-- Approve/Reject Buttons for Submitted entries (for full access users) -->
-          <div v-if="entry.status === 'Submitted' && hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
+          <div
+            v-if="entry.status === 'Submitted' && hasFullAccess"
+            class="mt-3 pt-3 border-t border-gray-100"
+          >
             <div class="flex gap-2">
               <ion-button
                 size="small"
@@ -140,7 +155,7 @@
                 :disabled="approvingId === entry.name"
               >
                 <ion-spinner v-if="approvingId === entry.name" name="crescent" class="mr-2" />
-                {{ approvingId === entry.name ? 'Approving...' : 'Approve' }}
+                {{ approvingId === entry.name ? "Approving..." : "Approve" }}
               </ion-button>
               <ion-button
                 size="small"
@@ -173,9 +188,7 @@
         <form @submit.prevent="submitTimeSheet">
           <!-- Task Selection -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Task *
-            </ion-label>
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Task * </ion-label>
             <ion-select
               v-model="newEntry.task"
               placeholder="Select a task"
@@ -190,15 +203,8 @@
 
           <!-- Date -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Date *
-            </ion-label>
-            <ion-input
-              v-model="newEntry.date"
-              type="date"
-              fill="outline"
-              required
-            />
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Date * </ion-label>
+            <ion-input v-model="newEntry.date" type="date" fill="outline" required />
           </div>
 
           <!-- Hours Worked -->
@@ -223,11 +229,7 @@
             <ion-label class="block text-sm font-medium text-gray-700 mb-1">
               Activity Type
             </ion-label>
-            <ion-select
-              v-model="newEntry.activity_type"
-              interface="action-sheet"
-              fill="outline"
-            >
+            <ion-select v-model="newEntry.activity_type" interface="action-sheet" fill="outline">
               <ion-select-option value="Development">Development</ion-select-option>
               <ion-select-option value="Design">Design</ion-select-option>
               <ion-select-option value="Testing">Testing</ion-select-option>
@@ -269,12 +271,7 @@
           </div>
 
           <!-- Submit Button -->
-          <ion-button
-            expand="block"
-            type="submit"
-            :disabled="submitting"
-            class="mt-6"
-          >
+          <ion-button expand="block" type="submit" :disabled="submitting" class="mt-6">
             <ion-spinner v-if="submitting" name="crescent" class="mr-2" />
             {{ submitting ? "Saving..." : "Save Timesheet" }}
           </ion-button>
@@ -375,7 +372,7 @@ async function loadData() {
       call("smart_pro.smart_pro.api.projects.get_today_summary"),
     ])
     timeSheets.value = timesheetsResult || []
-    myTasks.value = (tasksResult || []).filter(t => t.status !== "Completed")
+    myTasks.value = (tasksResult || []).filter((t) => t.status !== "Completed")
     todaySummary.value = summaryResult || { total_hours: 0, tasks_worked: 0 }
   } catch (err) {
     console.error("Error loading data:", err)
@@ -399,7 +396,12 @@ function openAddModal() {
 }
 
 async function submitTimeSheet() {
-  if (!newEntry.value.task || !newEntry.value.date || !newEntry.value.hours_worked || !newEntry.value.description) {
+  if (
+    !newEntry.value.task ||
+    !newEntry.value.date ||
+    !newEntry.value.hours_worked ||
+    !newEntry.value.description
+  ) {
     error.value = "Task, date, hours, and description are required"
     return
   }
@@ -686,7 +688,8 @@ onIonViewWillEnter(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

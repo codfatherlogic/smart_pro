@@ -7,11 +7,7 @@
         </ion-buttons>
         <ion-title>Notifications</ion-title>
         <ion-buttons slot="end">
-          <ion-button
-            v-if="notifications.length > 0"
-            @click="markAllAsRead"
-            :disabled="markingAll"
-          >
+          <ion-button v-if="notifications.length > 0" @click="markAllAsRead" :disabled="markingAll">
             <ion-icon :icon="checkmarkDoneOutline" />
           </ion-button>
         </ion-buttons>
@@ -24,42 +20,22 @@
       </ion-refresher>
 
       <!-- Loading State -->
-      <div
-        v-if="loading"
-        class="p-4"
-      >
-        <div
-          v-for="i in 5"
-          :key="i"
-          class="app-card mb-4 p-4"
-        >
+      <div v-if="loading" class="p-4">
+        <div v-for="i in 5" :key="i" class="app-card mb-4 p-4">
           <div class="skeleton h-4 w-3/4 mb-2" />
           <div class="skeleton h-3 w-1/2" />
         </div>
       </div>
 
       <!-- Empty State -->
-      <div
-        v-else-if="notifications.length === 0"
-        class="empty-state h-full"
-      >
-        <ion-icon
-          :icon="notificationsOffOutline"
-          class="empty-state-icon"
-        />
-        <div class="empty-state-title">
-          No notifications
-        </div>
-        <div class="empty-state-description">
-          You're all caught up!
-        </div>
+      <div v-else-if="notifications.length === 0" class="empty-state h-full">
+        <ion-icon :icon="notificationsOffOutline" class="empty-state-icon" />
+        <div class="empty-state-title">No notifications</div>
+        <div class="empty-state-description">You're all caught up!</div>
       </div>
 
       <!-- Notifications List -->
-      <div
-        v-else
-        class="p-4"
-      >
+      <div v-else class="p-4">
         <div
           v-for="notification in notifications"
           :key="notification.name"
@@ -82,10 +58,7 @@
             </div>
           </div>
           <div class="notification-actions">
-            <span
-              v-if="!notification.read"
-              class="unread-dot"
-            />
+            <span v-if="!notification.read" class="unread-dot" />
           </div>
         </div>
       </div>
@@ -140,11 +113,11 @@ async function loadData() {
       fields: ["name", "title", "body", "data", "status", "created_at"],
       filters: {},
       order_by: "created_at desc",
-      limit_page_length: 50
+      limit_page_length: 50,
     })
 
     // Transform Smart Pro Notifications to common format
-    const transformedNotifications = (smartProNotifications || []).map(n => {
+    const transformedNotifications = (smartProNotifications || []).map((n) => {
       let parsedData = {}
       try {
         parsedData = n.data ? JSON.parse(n.data) : {}
@@ -160,7 +133,7 @@ async function loadData() {
         document_name: parsedData.name,
         read: n.status === "read" ? 1 : 0,
         creation: n.created_at,
-        source: "smart_pro"
+        source: "smart_pro",
       }
     })
 
@@ -169,14 +142,23 @@ async function loadData() {
     try {
       const frappeResult = await call("frappe.client.get_list", {
         doctype: "Notification Log",
-        fields: ["name", "subject", "email_content", "type", "document_type", "document_name", "read", "creation"],
+        fields: [
+          "name",
+          "subject",
+          "email_content",
+          "type",
+          "document_type",
+          "document_name",
+          "read",
+          "creation",
+        ],
         filters: {},
         order_by: "creation desc",
-        limit_page_length: 50
+        limit_page_length: 50,
       })
-      frappeNotifications = (frappeResult || []).map(n => ({
+      frappeNotifications = (frappeResult || []).map((n) => ({
         ...n,
-        source: "frappe"
+        source: "frappe",
       }))
     } catch (e) {
       console.log("Frappe Notification Log not accessible:", e)
@@ -206,7 +188,7 @@ async function handleNotificationClick(notification) {
     try {
       await call("smart_pro.smart_pro.api.projects.mark_notification_as_read", {
         notification_name: notification.name,
-        source: notification.source || "smart_pro"
+        source: notification.source || "smart_pro",
       })
       notification.read = 1
     } catch (err) {
@@ -236,7 +218,7 @@ async function markAllAsRead() {
     await call("smart_pro.smart_pro.api.projects.mark_all_notifications_as_read")
 
     // Update local state
-    notifications.value.forEach(n => {
+    notifications.value.forEach((n) => {
       n.read = 1
     })
 
@@ -266,7 +248,10 @@ function formatTime(dateStr) {
 
 function stripHtml(html) {
   if (!html) return ""
-  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim()
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .trim()
 }
 
 function getNotificationIcon(type) {
@@ -325,7 +310,11 @@ onIonViewWillEnter(() => {
 }
 
 .notification-card.unread {
-  background: linear-gradient(135deg, var(--ion-color-primary-tint, #eff6ff) 0%, var(--ion-card-background, #fff) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ion-color-primary-tint, #eff6ff) 0%,
+    var(--ion-card-background, #fff) 100%
+  );
   border-left: 3px solid var(--ion-color-primary);
 }
 
@@ -336,7 +325,11 @@ body.dark .notification-card {
 }
 
 body.dark .notification-card.unread {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, var(--ion-card-background, #1e1e1e) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.2) 0%,
+    var(--ion-card-background, #1e1e1e) 100%
+  );
 }
 
 body.dark .notification-subject {
@@ -362,14 +355,38 @@ body.dark .notification-time {
   flex-shrink: 0;
 }
 
-.notification-icon.alert { background: #fecaca; color: #dc2626; }
-.notification-icon.warning { background: #fed7aa; color: #ea580c; }
-.notification-icon.success { background: #d1fae5; color: #059669; }
-.notification-icon.info { background: #dbeafe; color: #2563eb; }
-.notification-icon.assignment { background: #e9d5ff; color: #9333ea; }
-.notification-icon.mention { background: #fce7f3; color: #db2777; }
-.notification-icon.share { background: #ccfbf1; color: #0d9488; }
-.notification-icon.event { background: #fef3c7; color: #d97706; }
+.notification-icon.alert {
+  background: #fecaca;
+  color: #dc2626;
+}
+.notification-icon.warning {
+  background: #fed7aa;
+  color: #ea580c;
+}
+.notification-icon.success {
+  background: #d1fae5;
+  color: #059669;
+}
+.notification-icon.info {
+  background: #dbeafe;
+  color: #2563eb;
+}
+.notification-icon.assignment {
+  background: #e9d5ff;
+  color: #9333ea;
+}
+.notification-icon.mention {
+  background: #fce7f3;
+  color: #db2777;
+}
+.notification-icon.share {
+  background: #ccfbf1;
+  color: #0d9488;
+}
+.notification-icon.event {
+  background: #fef3c7;
+  color: #d97706;
+}
 
 .notification-content {
   flex: 1;
@@ -455,7 +472,8 @@ body.dark .skeleton {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

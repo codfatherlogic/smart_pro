@@ -3,10 +3,7 @@
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button
-            :default-href="backUrl"
-            text=""
-          />
+          <ion-back-button :default-href="backUrl" text="" />
         </ion-buttons>
         <ion-title>New Assignment</ion-title>
       </ion-toolbar>
@@ -23,9 +20,7 @@
         <form v-else @submit.prevent="handleSubmit">
           <!-- Project (read-only if pre-filled) -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Project *
-            </ion-label>
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Project * </ion-label>
             <ion-input
               v-if="projectName"
               :value="projectTitle || projectName"
@@ -53,9 +48,7 @@
 
           <!-- Employee -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Employee *
-            </ion-label>
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Employee * </ion-label>
             <ion-select
               v-model="form.employee"
               fill="outline"
@@ -63,11 +56,7 @@
               placeholder="Select Employee"
               @ionChange="onEmployeeChange"
             >
-              <ion-select-option
-                v-for="emp in employees"
-                :key="emp.name"
-                :value="emp.name"
-              >
+              <ion-select-option v-for="emp in employees" :key="emp.name" :value="emp.name">
                 {{ emp.employee_name }}
               </ion-select-option>
             </ion-select>
@@ -75,20 +64,14 @@
 
           <!-- Role -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Role *
-            </ion-label>
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Role * </ion-label>
             <ion-select
               v-model="form.role"
               fill="outline"
               interface="action-sheet"
               placeholder="Select Role"
             >
-              <ion-select-option
-                v-for="role in roles"
-                :key="role.name"
-                :value="role.name"
-              >
+              <ion-select-option v-for="role in roles" :key="role.name" :value="role.name">
                 {{ role.name }}
               </ion-select-option>
             </ion-select>
@@ -111,14 +94,8 @@
 
           <!-- Status -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </ion-label>
-            <ion-select
-              v-model="form.status"
-              fill="outline"
-              interface="action-sheet"
-            >
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Status </ion-label>
+            <ion-select v-model="form.status" fill="outline" interface="action-sheet">
               <ion-select-option value="Active">Active</ion-select-option>
               <ion-select-option value="On Hold">On Hold</ion-select-option>
               <ion-select-option value="Completed">Completed</ion-select-option>
@@ -131,30 +108,18 @@
             <ion-label class="block text-sm font-medium text-gray-700 mb-1">
               Start Date *
             </ion-label>
-            <ion-input
-              v-model="form.start_date"
-              type="date"
-              fill="outline"
-            />
+            <ion-input v-model="form.start_date" type="date" fill="outline" />
           </div>
 
           <!-- End Date -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              End Date
-            </ion-label>
-            <ion-input
-              v-model="form.end_date"
-              type="date"
-              fill="outline"
-            />
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> End Date </ion-label>
+            <ion-input v-model="form.end_date" type="date" fill="outline" />
           </div>
 
           <!-- Approver -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Approver
-            </ion-label>
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Approver </ion-label>
             <ion-input
               v-model="form.approver"
               type="text"
@@ -162,9 +127,7 @@
               fill="outline"
               readonly
             />
-            <p class="text-xs text-gray-500 mt-1">
-              Auto-filled from employee's user ID
-            </p>
+            <p class="text-xs text-gray-500 mt-1">Auto-filled from employee's user ID</p>
           </div>
 
           <!-- Project Scope -->
@@ -182,25 +145,13 @@
           </div>
 
           <!-- Submit Button -->
-          <ion-button
-            expand="block"
-            type="submit"
-            :disabled="saving || !isFormValid"
-            class="mt-6"
-          >
-            <ion-spinner
-              v-if="saving"
-              name="crescent"
-              class="mr-2"
-            />
+          <ion-button expand="block" type="submit" :disabled="saving || !isFormValid" class="mt-6">
+            <ion-spinner v-if="saving" name="crescent" class="mr-2" />
             {{ saving ? "Creating..." : "Create Assignment" }}
           </ion-button>
         </form>
 
-        <div
-          v-if="error"
-          class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm"
-        >
+        <div v-if="error" class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
           {{ error }}
         </div>
       </div>
@@ -297,7 +248,7 @@ async function loadOptions() {
 
     // If project is pre-filled, get its title
     if (projectName) {
-      const project = projects.value.find(p => p.name === projectName)
+      const project = projects.value.find((p) => p.name === projectName)
       if (project) {
         projectTitle.value = project.title
       }
@@ -312,7 +263,7 @@ async function loadOptions() {
 
 function onEmployeeChange() {
   // Auto-fill approver with employee's user_id
-  const selectedEmployee = employees.value.find(e => e.name === form.value.employee)
+  const selectedEmployee = employees.value.find((e) => e.name === form.value.employee)
   if (selectedEmployee && selectedEmployee.user_id) {
     form.value.approver = selectedEmployee.user_id
   } else {
@@ -331,7 +282,7 @@ async function handleSubmit() {
 
   try {
     // Get employee name for the record
-    const selectedEmployee = employees.value.find(e => e.name === form.value.employee)
+    const selectedEmployee = employees.value.find((e) => e.name === form.value.employee)
 
     const result = await call("frappe.client.insert", {
       doc: {

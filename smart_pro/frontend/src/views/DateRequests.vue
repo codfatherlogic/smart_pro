@@ -44,7 +44,15 @@
         <ion-icon :icon="calendarOutline" class="empty-state-icon" />
         <div class="empty-state-title">No date requests</div>
         <div class="empty-state-description">
-          {{ filter === "pending" ? "No pending requests" : filter === "approved" ? "No approved requests" : filter === "rejected" ? "No rejected requests" : "Your date requests will appear here" }}
+          {{
+            filter === "pending"
+              ? "No pending requests"
+              : filter === "approved"
+              ? "No approved requests"
+              : filter === "rejected"
+              ? "No rejected requests"
+              : "Your date requests will appear here"
+          }}
         </div>
       </div>
 
@@ -55,7 +63,7 @@
             <div>
               <span class="text-xs text-gray-500 uppercase">{{ request.request_type }}</span>
               <h3 class="font-semibold text-gray-800">
-                {{ request.project_title || request.project || 'General Request' }}
+                {{ request.project_title || request.project || "General Request" }}
               </h3>
             </div>
             <span :class="['status-badge', getStatusClass(request.status)]">
@@ -87,7 +95,7 @@
             </div>
             <div
               class="scope-content px-2 pb-2"
-              :class="{ 'expanded': expandedScopes[request.name] }"
+              :class="{ expanded: expandedScopes[request.name] }"
             >
               <div class="text-gray-700 whitespace-pre-wrap" v-html="request.project_scope" />
             </div>
@@ -98,38 +106,65 @@
             Approver: {{ request.approver }}
           </div>
 
-          <div v-if="request.comments && request.status !== 'Pending Approval'" class="mt-2 p-2 bg-gray-50 rounded text-sm">
+          <div
+            v-if="request.comments && request.status !== 'Pending Approval'"
+            class="mt-2 p-2 bg-gray-50 rounded text-sm"
+          >
             <span class="font-medium">Comments:</span> {{ stripHtml(request.comments) }}
           </div>
 
           <!-- Auto Create Tasks indicator -->
-          <div v-if="request.auto_create_tasks && request.request_type === 'Project Date Update'" class="mt-2 text-xs text-green-600">
+          <div
+            v-if="request.auto_create_tasks && request.request_type === 'Project Date Update'"
+            class="mt-2 text-xs text-green-600"
+          >
             <ion-icon :icon="checkmarkCircleOutline" class="mr-1" />
             Tasks will be auto-created on approval
           </div>
 
           <!-- Action Buttons for Pending Requests (hidden for full access users - read-only mode) -->
-          <div v-if="request.status === 'Pending Approval' && !hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
+          <div
+            v-if="request.status === 'Pending Approval' && !hasFullAccess"
+            class="mt-3 pt-3 border-t border-gray-100"
+          >
             <div class="flex flex-wrap gap-2">
               <!-- Edit Dates Button -->
-              <ion-button size="small" fill="outline" color="primary" @click="openEditModal(request)">
+              <ion-button
+                size="small"
+                fill="outline"
+                color="primary"
+                @click="openEditModal(request)"
+              >
                 <ion-icon :icon="createOutline" slot="start" />
                 Edit Dates
               </ion-button>
               <!-- Approve Button -->
-              <ion-button size="small" fill="solid" color="success" @click="approveRequest(request)">
+              <ion-button
+                size="small"
+                fill="solid"
+                color="success"
+                @click="approveRequest(request)"
+              >
                 <ion-icon :icon="checkmarkOutline" slot="start" />
                 Approve
               </ion-button>
               <!-- Reject Button -->
-              <ion-button size="small" fill="outline" color="danger" @click="rejectRequest(request)">
+              <ion-button
+                size="small"
+                fill="outline"
+                color="danger"
+                @click="rejectRequest(request)"
+              >
                 <ion-icon :icon="closeOutline" slot="start" />
                 Reject
               </ion-button>
             </div>
           </div>
           <!-- Read-only indicator for full access users -->
-          <div v-if="request.status === 'Pending Approval' && hasFullAccess" class="mt-3 pt-3 border-t border-gray-100">
+          <div
+            v-if="request.status === 'Pending Approval' && hasFullAccess"
+            class="mt-3 pt-3 border-t border-gray-100"
+          >
             <div class="text-xs text-gray-500 italic">
               View only mode - Full access users cannot approve/reject date requests
             </div>
@@ -155,25 +190,13 @@
             <ion-label class="block text-sm font-medium text-gray-700 mb-1">
               From Date *
             </ion-label>
-            <ion-input
-              v-model="editRequest.from_date"
-              type="date"
-              fill="outline"
-              required
-            />
+            <ion-input v-model="editRequest.from_date" type="date" fill="outline" required />
           </div>
 
           <!-- To Date -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              To Date *
-            </ion-label>
-            <ion-input
-              v-model="editRequest.to_date"
-              type="date"
-              fill="outline"
-              required
-            />
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> To Date * </ion-label>
+            <ion-input v-model="editRequest.to_date" type="date" fill="outline" required />
           </div>
 
           <!-- Calculated Days -->
@@ -195,12 +218,7 @@
           </div>
 
           <!-- Update Button -->
-          <ion-button
-            expand="block"
-            type="submit"
-            :disabled="updating"
-            class="mt-6"
-          >
+          <ion-button expand="block" type="submit" :disabled="updating" class="mt-6">
             <ion-spinner v-if="updating" name="crescent" class="mr-2" />
             {{ updating ? "Updating..." : "Update Request" }}
           </ion-button>
@@ -211,7 +229,6 @@
         </form>
       </ion-content>
     </ion-modal>
-
   </ion-page>
 </template>
 
@@ -240,7 +257,16 @@ import {
   alertController,
   onIonViewWillEnter,
 } from "@ionic/vue"
-import { calendarOutline, personOutline, checkmarkCircleOutline, createOutline, checkmarkOutline, closeOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons"
+import {
+  calendarOutline,
+  personOutline,
+  checkmarkCircleOutline,
+  createOutline,
+  checkmarkOutline,
+  closeOutline,
+  chevronDownOutline,
+  chevronUpOutline,
+} from "ionicons/icons"
 import { call } from "frappe-ui"
 import { usePermissions } from "@/composables/usePermissions"
 
@@ -297,7 +323,12 @@ async function loadData(forceRefresh = false) {
   const now = Date.now()
 
   // Skip reload if data is fresh (unless forced)
-  if (!forceRefresh && lastLoadTime && (now - lastLoadTime) < CACHE_TTL && dateRequests.value.length > 0) {
+  if (
+    !forceRefresh &&
+    lastLoadTime &&
+    now - lastLoadTime < CACHE_TTL &&
+    dateRequests.value.length > 0
+  ) {
     return
   }
 
@@ -604,7 +635,8 @@ onIonViewWillEnter(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

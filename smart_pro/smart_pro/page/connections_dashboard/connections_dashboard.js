@@ -1,22 +1,26 @@
-frappe.pages['connections_dashboard'].on_page_load = function(wrapper) {
-    var page = frappe.ui.make_app_page({
-        parent: wrapper,
-        title: 'Connections Dashboard',
-        single_column: true
-    });
+frappe.pages["connections_dashboard"].on_page_load = function (wrapper) {
+	var page = frappe.ui.make_app_page({
+		parent: wrapper,
+		title: "Connections Dashboard",
+		single_column: true,
+	});
 
-    // Add refresh button
-    page.set_primary_action(__('Refresh'), () => {
-        load_dashboard(page);
-    }, 'refresh');
+	// Add refresh button
+	page.set_primary_action(
+		__("Refresh"),
+		() => {
+			load_dashboard(page);
+		},
+		"refresh"
+	);
 
-    // Load dashboard
-    load_dashboard(page);
+	// Load dashboard
+	load_dashboard(page);
 };
 
 function load_dashboard(page) {
-    // Show loading
-    $(page.body).html(`
+	// Show loading
+	$(page.body).html(`
         <div class="text-center" style="padding: 50px;">
             <div class="spinner-border text-primary" role="status">
                 <span class="sr-only">Loading...</span>
@@ -25,27 +29,27 @@ function load_dashboard(page) {
         </div>
     `);
 
-    // Fetch data
-    frappe.call({
-        method: 'smart_pro.smart_pro.api.projects.get_connections_dashboard',
-        callback: function(r) {
-            if (r.message) {
-                render_dashboard(page, r.message);
-            }
-        },
-        error: function() {
-            $(page.body).html(`
+	// Fetch data
+	frappe.call({
+		method: "smart_pro.smart_pro.api.projects.get_connections_dashboard",
+		callback: function (r) {
+			if (r.message) {
+				render_dashboard(page, r.message);
+			}
+		},
+		error: function () {
+			$(page.body).html(`
                 <div class="text-center" style="padding: 50px;">
                     <i class="fa fa-exclamation-triangle text-warning" style="font-size: 48px;"></i>
                     <p class="mt-3">Error loading dashboard. Please try again.</p>
                 </div>
             `);
-        }
-    });
+		},
+	});
 }
 
 function render_dashboard(page, data) {
-    const html = `
+	const html = `
         <div class="connections-dashboard" style="padding: 20px;">
             <!-- Workflow Banner -->
             <div class="workflow-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
@@ -283,42 +287,48 @@ function render_dashboard(page, data) {
         </div>
     `;
 
-    $(page.body).html(html);
+	$(page.body).html(html);
 
-    // Add click handlers for doctype cards
-    $(page.body).find('.doctype-card').on('click', function() {
-        const doctype = $(this).data('doctype');
-        frappe.set_route('List', doctype);
-    });
+	// Add click handlers for doctype cards
+	$(page.body)
+		.find(".doctype-card")
+		.on("click", function () {
+			const doctype = $(this).data("doctype");
+			frappe.set_route("List", doctype);
+		});
 
-    // Add hover effect
-    $(page.body).find('.doctype-card').hover(
-        function() {
-            $(this).css('transform', 'translateY(-5px)');
-            $(this).css('box-shadow', '0 5px 20px rgba(0,0,0,0.15)');
-        },
-        function() {
-            $(this).css('transform', 'translateY(0)');
-            $(this).css('box-shadow', '0 2px 10px rgba(0,0,0,0.1)');
-        }
-    );
+	// Add hover effect
+	$(page.body)
+		.find(".doctype-card")
+		.hover(
+			function () {
+				$(this).css("transform", "translateY(-5px)");
+				$(this).css("box-shadow", "0 5px 20px rgba(0,0,0,0.15)");
+			},
+			function () {
+				$(this).css("transform", "translateY(0)");
+				$(this).css("box-shadow", "0 2px 10px rgba(0,0,0,0.1)");
+			}
+		);
 
-    // Quick action handlers
-    $(page.body).find('.quick-action').on('click', function() {
-        const action = $(this).data('action');
-        switch(action) {
-            case 'new-project':
-                frappe.new_doc('Smart Project');
-                break;
-            case 'new-assignment':
-                frappe.new_doc('Employee Project Assignment');
-                break;
-            case 'new-date-request':
-                frappe.new_doc('Employee Date Request');
-                break;
-            case 'new-task':
-                frappe.new_doc('Smart Task');
-                break;
-        }
-    });
+	// Quick action handlers
+	$(page.body)
+		.find(".quick-action")
+		.on("click", function () {
+			const action = $(this).data("action");
+			switch (action) {
+				case "new-project":
+					frappe.new_doc("Smart Project");
+					break;
+				case "new-assignment":
+					frappe.new_doc("Employee Project Assignment");
+					break;
+				case "new-date-request":
+					frappe.new_doc("Employee Date Request");
+					break;
+				case "new-task":
+					frappe.new_doc("Smart Task");
+					break;
+			}
+		});
 }

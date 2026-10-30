@@ -28,16 +28,16 @@
 <script>
 frappe.ready(function() {
 	console.log('Frappe ready, initializing dashboard...');
-	
+
 	// Wait for Vue to be available
 	if (typeof Vue === 'undefined') {
 		console.error('Vue is not available');
 		document.getElementById('projects-dashboard-app').innerHTML = '<div class="alert alert-danger">Vue.js is not loaded. Please refresh the page.</div>';
 		return;
 	}
-	
+
 	console.log('Vue is available, creating app...');
-	
+
 	// Initialize dashboard
 	const dashboardApp = new Vue({
 		el: '#projects-dashboard-app',
@@ -59,14 +59,14 @@ frappe.ready(function() {
 			async loadData() {
 				this.loading = true;
 				this.error = null;
-				
+
 				try {
 					const [projects, tasks, requests] = await Promise.all([
 						frappe.call('smart_pro.api.projects.get_user_projects'),
 						frappe.call('smart_pro.api.projects.get_user_tasks'),
 						frappe.call('smart_pro.api.projects.get_pending_date_requests')
 					]);
-					
+
 					this.projects = projects.message || [];
 					this.tasks = tasks.message || [];
 					this.pendingRequests = requests.message || [];
@@ -77,7 +77,7 @@ frappe.ready(function() {
 					this.loading = false;
 				}
 			},
-			
+
 			async selectProject(project) {
 				this.selectedProject = project;
 				try {
@@ -87,12 +87,12 @@ frappe.ready(function() {
 					console.error('Error loading project details:', err);
 				}
 			},
-			
+
 			formatDate(dateString) {
 				if (!dateString) return '';
 				return frappe.datetime.str_to_user(dateString);
 			},
-			
+
 			getStatusBadgeClass(status) {
 				const statusMap = {
 					'Active': 'success',
@@ -115,14 +115,14 @@ frappe.ready(function() {
 				<div v-if="error" class="alert alert-danger" role="alert">
 					{{ error }}
 				</div>
-				
+
 				<div v-if="loading" class="text-center p-5">
 					<div class="spinner-border" role="status">
 						<span class="sr-only">Loading...</span>
 					</div>
 					<p class="mt-2">Loading dashboard data...</p>
 				</div>
-				
+
 				<div v-else class="row">
 					<!-- Left Column: Projects and Tasks -->
 					<div class="col-lg-8">
@@ -136,8 +136,8 @@ frappe.ready(function() {
 									<p>No projects found</p>
 								</div>
 								<div v-else class="list-group list-group-flush">
-									<a href="#" 
-									   v-for="project in projects" 
+									<a href="#"
+									   v-for="project in projects"
 									   :key="project.name"
 									   class="list-group-item list-group-item-action py-3"
 									   @click.prevent="selectProject(project)">
@@ -159,7 +159,7 @@ frappe.ready(function() {
 								</div>
 							</div>
 						</div>
-						
+
 						<!-- Tasks Section -->
 						<div class="card">
 							<div class="card-header bg-light">
@@ -189,7 +189,7 @@ frappe.ready(function() {
 							</div>
 						</div>
 					</div>
-					
+
 					<!-- Right Column: Project Details -->
 					<div class="col-lg-4">
 						<!-- Project Details Card -->
@@ -200,22 +200,22 @@ frappe.ready(function() {
 							<div class="card-body">
 								<h6 class="mb-3">{{ projectDetails.title }}</h6>
 								<p class="text-muted small mb-3">{{ projectDetails.description }}</p>
-								
+
 								<div class="mb-3">
 									<strong>Status:</strong>
 									<span :class="'badge bg-' + getStatusBadgeClass(projectDetails.status) + ' ms-2'">
 										{{ projectDetails.status }}
 									</span>
 								</div>
-								
+
 								<div v-if="projectDetails.project_manager" class="mb-3">
 									<strong>Manager:</strong> {{ projectDetails.project_manager }}
 								</div>
-								
+
 								<div v-if="projectDetails.budget_amount" class="mb-3">
 									<strong>Budget:</strong> {{ projectDetails.budget_amount }} {{ projectDetails.currency || 'INR' }}
 								</div>
-								
+
 								<div class="mb-0">
 									<strong>Timeline:</strong>
 									<div class="small text-muted">
@@ -224,7 +224,7 @@ frappe.ready(function() {
 								</div>
 							</div>
 						</div>
-						
+
 						<!-- Empty State -->
 						<div v-else class="card mb-4">
 							<div class="card-header bg-light">
@@ -234,7 +234,7 @@ frappe.ready(function() {
 								<p>Select a project to view details</p>
 							</div>
 						</div>
-						
+
 						<!-- Pending Approvals -->
 						<div class="card">
 							<div class="card-header bg-light">
