@@ -45,15 +45,15 @@ app_include_css = "/assets/smart_pro/css/projects_dashboard.css"
 # Desk Pages
 # ------------------
 desk_pages = [
-    {
-        "module": "Smart Pro",
-        "label": "Projects Dashboard",
-        "icon": "fa fa-project-diagram",
-        "type": "page",
-        "link": "projects_dashboard",
-        "description": "Dashboard for managing projects, tasks, and employee assignments",
-        "roles": ["System Manager", "Project Manager", "Employee"]
-    }
+	{
+		"module": "Smart Pro",
+		"label": "Projects Dashboard",
+		"icon": "fa fa-project-diagram",
+		"type": "page",
+		"link": "projects_dashboard",
+		"description": "Dashboard for managing projects, tasks, and employee assignments",
+		"roles": ["System Manager", "Project Manager", "Employee"],
+	}
 ]
 
 # include js in doctype views
@@ -87,7 +87,7 @@ desk_pages = [
 # Website Route Rules for PWA
 # ---------------------------
 website_route_rules = [
-    {"from_route": "/smart-pro/<path:app_path>", "to_route": "smart-pro"},
+	{"from_route": "/smart-pro/<path:app_path>", "to_route": "smart-pro"},
 ]
 
 # Jinja
@@ -107,9 +107,7 @@ website_route_rules = [
 
 # Fixtures
 # --------
-fixtures = [
-    {"dt": "Role", "filters": [["role_name", "=", "Smart Pro User"]]}
-]
+fixtures = [{"dt": "Role", "filters": [["role_name", "=", "Smart Pro User"]]}]
 
 # Uninstallation
 # ------------
@@ -175,12 +173,8 @@ fixtures = [
 # ---------------
 
 scheduler_events = {
-	"daily": [
-		"smart_pro.smart_pro.tasks.daily"
-	],
-	"weekly": [
-		"smart_pro.smart_pro.tasks.weekly"
-	],
+	"daily": ["smart_pro.smart_pro.tasks.daily"],
+	"weekly": ["smart_pro.smart_pro.tasks.weekly"],
 }
 
 # Testing
@@ -258,4 +252,3 @@ scheduler_events = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-

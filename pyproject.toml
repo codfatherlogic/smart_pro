@@ -34,6 +34,8 @@ select = [
     "RUF",
 ]
 ignore = [
+    "UP032", # .format() -> f-string: Frappe's semgrep rules flag f-strings in frappe.db.sql
+    "RUF003", # ambiguous unicode in comments is meant
     "B017", # assertRaises(Exception) - should be more specific
     "B018", # useless expression, not assigned to anything
     "B023", # function doesn't bind loop variable - will have last iteration's value

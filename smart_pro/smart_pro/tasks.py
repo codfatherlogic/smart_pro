@@ -41,9 +41,9 @@ def send_project_end_date_reminders():
 			"status": ["in", ["Planning", "Active", "On Hold"]],
 			"end_date": ["<=", reminder_date],
 			"end_date": ["is", "set"],
-			"project_manager": ["is", "set"]
+			"project_manager": ["is", "set"],
 		},
-		fields=["name", "title", "end_date", "project_manager", "status"]
+		fields=["name", "title", "end_date", "project_manager", "status"],
 	)
 
 	if not projects:
@@ -72,8 +72,8 @@ def send_project_end_date_reminders():
 				"reference_doctype": "Smart Project",
 				"reference_name": project.name,
 				"communication_date": today(),
-				"subject": ["like", f"%{urgency}%"]
-			}
+				"subject": ["like", f"%{urgency}%"],
+			},
 		)
 
 		if existing_log:
@@ -116,10 +116,12 @@ def send_project_end_date_reminders():
 				message=message,
 				reference_doctype="Smart Project",
 				reference_name=project.name,
-				now=True
+				now=True,
 			)
 
-			frappe.logger().info(f"Smart Pro: Sent project end date reminder for {project.name} to {project.project_manager}")
+			frappe.logger().info(
+				f"Smart Pro: Sent project end date reminder for {project.name} to {project.project_manager}"
+			)
 
 		except Exception as e:
 			frappe.logger().error(f"Smart Pro: Error sending project reminder for {project.name}: {str(e)}")
@@ -147,9 +149,9 @@ def send_task_due_date_reminders():
 			"status": ["in", ["Open", "Working", "Pending Review"]],
 			"due_date": ["<=", reminder_date],
 			"due_date": ["is", "set"],
-			"assigned_to": ["is", "set"]
+			"assigned_to": ["is", "set"],
 		},
-		fields=["name", "title", "due_date", "assigned_to", "status", "priority", "project"]
+		fields=["name", "title", "due_date", "assigned_to", "status", "priority", "project"],
 	)
 
 	if not tasks:
@@ -178,8 +180,8 @@ def send_task_due_date_reminders():
 				"reference_doctype": "Smart Task",
 				"reference_name": task.name,
 				"communication_date": today(),
-				"subject": ["like", f"%{urgency}%"]
-			}
+				"subject": ["like", f"%{urgency}%"],
+			},
 		)
 
 		if existing_log:
@@ -233,10 +235,12 @@ def send_task_due_date_reminders():
 				message=message,
 				reference_doctype="Smart Task",
 				reference_name=task.name,
-				now=True
+				now=True,
 			)
 
-			frappe.logger().info(f"Smart Pro: Sent task due date reminder for {task.name} to {task.assigned_to}")
+			frappe.logger().info(
+				f"Smart Pro: Sent task due date reminder for {task.name} to {task.assigned_to}"
+			)
 
 		except Exception as e:
 			frappe.logger().error(f"Smart Pro: Error sending task reminder for {task.name}: {str(e)}")
@@ -252,13 +256,16 @@ def send_weekly_project_report():
 		return
 
 	# Get all active project managers
-	project_managers = frappe.db.sql("""
+	project_managers = frappe.db.sql(
+		"""
 		SELECT DISTINCT project_manager
 		FROM `tabSmart Project`
 		WHERE status IN ('Planning', 'Active', 'On Hold')
 		AND project_manager IS NOT NULL
 		AND project_manager != ''
-	""", as_dict=True)
+	""",
+		as_dict=True,
+	)
 
 	if not project_managers:
 		frappe.logger().info("Smart Pro: No project managers found for weekly report")
@@ -272,11 +279,8 @@ def send_weekly_project_report():
 		# Get all projects for this manager
 		projects = frappe.get_all(
 			"Smart Project",
-			filters={
-				"project_manager": manager_email,
-				"status": ["in", ["Planning", "Active", "On Hold"]]
-			},
-			fields=["name", "title", "status", "start_date", "end_date"]
+			filters={"project_manager": manager_email, "status": ["in", ["Planning", "Active", "On Hold"]]},
+			fields=["name", "title", "status", "start_date", "end_date"],
 		)
 
 		if not projects:
@@ -288,14 +292,18 @@ def send_weekly_project_report():
 
 		for project in projects:
 			# Get task stats for this project
-			task_stats = frappe.db.sql("""
+			task_stats = frappe.db.sql(
+				"""
 				SELECT
 					COUNT(*) as total,
 					SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
 					SUM(CASE WHEN status IN ('Open', 'Working', 'Pending Review') AND due_date < %s THEN 1 ELSE 0 END) as overdue
 				FROM `tabSmart Task`
 				WHERE project = %s
-			""", (today(), project.name), as_dict=True)[0]
+			""",
+				(today(), project.name),
+				as_dict=True,
+			)[0]
 
 			total_tasks = task_stats.total or 0
 			completed_tasks = task_stats.completed or 0
@@ -376,12 +384,7 @@ def send_weekly_project_report():
 			</p>
 			"""
 
-			frappe.sendmail(
-				recipients=[manager_email],
-				subject=subject,
-				message=message,
-				now=True
-			)
+			frappe.sendmail(recipients=[manager_email], subject=subject, message=message, now=True)
 
 			frappe.logger().info(f"Smart Pro: Sent weekly report to {manager_email}")
 
