@@ -3,9 +3,10 @@ Push Notifications and Email Notifications for Smart Pro PWA
 Handles sending push notifications and beautiful email notifications
 """
 
-import frappe
 import json
-from frappe.utils import now_datetime, get_url
+
+import frappe
+from frappe.utils import get_url, now_datetime
 
 
 def is_email_notifications_enabled():

@@ -42,7 +42,9 @@
           <div class="app-card p-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                <div
+                  class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3"
+                >
                   <ion-icon :icon="folderOutline" class="text-2xl text-blue-600" />
                 </div>
                 <div>
@@ -68,7 +70,9 @@
           <div class="app-card p-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                <div
+                  class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-3"
+                >
                   <ion-icon :icon="peopleOutline" class="text-2xl text-purple-600" />
                 </div>
                 <div>
@@ -91,7 +95,9 @@
           <div class="app-card p-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                <div
+                  class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-3"
+                >
                   <ion-icon :icon="calendarOutline" class="text-2xl text-orange-600" />
                 </div>
                 <div>
@@ -117,7 +123,9 @@
           <div class="app-card p-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <div
+                  class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-3"
+                >
                   <ion-icon :icon="checkmarkCircleOutline" class="text-2xl text-green-600" />
                 </div>
                 <div>
@@ -143,7 +151,9 @@
           <div class="app-card p-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <div class="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center mr-3">
+                <div
+                  class="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center mr-3"
+                >
                   <ion-icon :icon="timeOutline" class="text-2xl text-teal-600" />
                 </div>
                 <div>
@@ -169,7 +179,9 @@
           <div class="app-card p-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                <div
+                  class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-3"
+                >
                   <ion-icon :icon="notificationsOutline" class="text-2xl text-red-600" />
                 </div>
                 <div>
@@ -242,7 +254,11 @@
               <ion-icon :icon="folderOutline" slot="start" />
               View Projects
             </ion-button>
-            <ion-button expand="block" color="secondary" @click="router.push('/smart-pro/date-requests')">
+            <ion-button
+              expand="block"
+              color="secondary"
+              @click="router.push('/smart-pro/date-requests')"
+            >
               <ion-icon :icon="calendarOutline" slot="start" />
               Date Request
             </ion-button>
@@ -250,7 +266,11 @@
               <ion-icon :icon="checkmarkCircleOutline" slot="start" />
               View Tasks
             </ion-button>
-            <ion-button expand="block" color="tertiary" @click="router.push('/smart-pro/timesheet')">
+            <ion-button
+              expand="block"
+              color="tertiary"
+              @click="router.push('/smart-pro/timesheet')"
+            >
               <ion-icon :icon="timeOutline" slot="start" />
               Log Hours
             </ion-button>
@@ -384,7 +404,8 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

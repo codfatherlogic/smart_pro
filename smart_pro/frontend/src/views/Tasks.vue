@@ -31,15 +31,8 @@
       </ion-refresher>
 
       <!-- Loading State -->
-      <div
-        v-if="loading"
-        class="p-4"
-      >
-        <div
-          v-for="i in 5"
-          :key="i"
-          class="app-card mb-4 p-4"
-        >
+      <div v-if="loading" class="p-4">
+        <div v-for="i in 5" :key="i" class="app-card mb-4 p-4">
           <div class="skeleton h-5 w-3/4 mb-2" />
           <div class="skeleton h-4 w-1/2 mb-2" />
           <div class="skeleton h-2 w-full" />
@@ -47,37 +40,27 @@
       </div>
 
       <!-- Empty State -->
-      <div
-        v-else-if="filteredTasks.length === 0"
-        class="empty-state h-full"
-      >
-        <ion-icon
-          :icon="checkmarkCircleOutline"
-          class="empty-state-icon"
-        />
-        <div class="empty-state-title">
-          No tasks
-        </div>
+      <div v-else-if="filteredTasks.length === 0" class="empty-state h-full">
+        <ion-icon :icon="checkmarkCircleOutline" class="empty-state-icon" />
+        <div class="empty-state-title">No tasks</div>
         <div class="empty-state-description">
-          {{ filter === "done" ? "No completed tasks yet" : filter === "open" ? "No open tasks" : filter === "working" ? "No tasks in progress" : "No tasks assigned to you" }}
+          {{
+            filter === "done"
+              ? "No completed tasks yet"
+              : filter === "open"
+              ? "No open tasks"
+              : filter === "working"
+              ? "No tasks in progress"
+              : "No tasks assigned to you"
+          }}
         </div>
       </div>
 
       <!-- Tasks List -->
-      <div
-        v-else
-        class="p-4"
-      >
-        <div
-          v-for="task in filteredTasks"
-          :key="task.name"
-          class="app-card mb-4 p-4"
-        >
+      <div v-else class="p-4">
+        <div v-for="task in filteredTasks" :key="task.name" class="app-card mb-4 p-4">
           <div class="flex justify-between items-start mb-2">
-            <h3
-              class="font-semibold text-gray-800 flex-1 pr-2"
-              @click="goToTask(task.name)"
-            >
+            <h3 class="font-semibold text-gray-800 flex-1 pr-2" @click="goToTask(task.name)">
               {{ task.title || task.name }}
             </h3>
             <span :class="['status-badge', getStatusClass(task.status)]">
@@ -108,15 +91,9 @@
               :class="['progress-bar', { 'progress-bar-readonly': hasFullAccess }]"
               @click.stop="!hasFullAccess && openProgressModal(task)"
             >
-              <div
-                class="progress-bar-fill"
-                :style="{ width: (task.progress || 0) + '%' }"
-              />
+              <div class="progress-bar-fill" :style="{ width: (task.progress || 0) + '%' }" />
             </div>
-            <div
-              v-if="!hasFullAccess"
-              class="text-xs text-gray-500 mt-1 text-center"
-            >
+            <div v-if="!hasFullAccess" class="text-xs text-gray-500 mt-1 text-center">
               Tap progress bar to update
             </div>
           </div>
@@ -150,25 +127,17 @@
     </ion-content>
 
     <!-- Progress Update Modal -->
-    <ion-modal
-      :is-open="showProgressModal"
-      @did-dismiss="showProgressModal = false"
-    >
+    <ion-modal :is-open="showProgressModal" @did-dismiss="showProgressModal = false">
       <ion-header>
         <ion-toolbar>
           <ion-title>Update Progress</ion-title>
           <ion-buttons slot="end">
-            <ion-button @click="showProgressModal = false">
-              Close
-            </ion-button>
+            <ion-button @click="showProgressModal = false"> Close </ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
-        <div
-          v-if="selectedTask"
-          class="mb-4"
-        >
+        <div v-if="selectedTask" class="mb-4">
           <h3 class="font-semibold text-lg mb-2">
             {{ selectedTask.title || selectedTask.name }}
           </h3>
@@ -197,79 +166,43 @@
                 <ion-label>100%</ion-label>
               </template>
             </ion-range>
-            <div class="text-lg font-semibold w-16 text-center">
-              {{ progressValue }}%
-            </div>
+            <div class="text-lg font-semibold w-16 text-center">{{ progressValue }}%</div>
           </div>
         </div>
 
         <div class="mb-4">
-          <ion-label class="block text-sm font-medium text-gray-700 mb-2">
-            Status
-          </ion-label>
-          <ion-select
-            v-model="statusValue"
-            fill="outline"
-            interface="action-sheet"
-          >
-            <ion-select-option value="Open">
-              Open
-            </ion-select-option>
-            <ion-select-option value="Working">
-              Working
-            </ion-select-option>
-            <ion-select-option value="Pending Review">
-              Pending Review
-            </ion-select-option>
-            <ion-select-option value="Completed">
-              Completed
-            </ion-select-option>
+          <ion-label class="block text-sm font-medium text-gray-700 mb-2"> Status </ion-label>
+          <ion-select v-model="statusValue" fill="outline" interface="action-sheet">
+            <ion-select-option value="Open"> Open </ion-select-option>
+            <ion-select-option value="Working"> Working </ion-select-option>
+            <ion-select-option value="Pending Review"> Pending Review </ion-select-option>
+            <ion-select-option value="Completed"> Completed </ion-select-option>
           </ion-select>
         </div>
 
-        <ion-button
-          expand="block"
-          :disabled="updating"
-          class="mt-6"
-          @click="updateProgress"
-        >
-          <ion-spinner
-            v-if="updating"
-            name="crescent"
-            class="mr-2"
-          />
+        <ion-button expand="block" :disabled="updating" class="mt-6" @click="updateProgress">
+          <ion-spinner v-if="updating" name="crescent" class="mr-2" />
           {{ updating ? "Updating..." : "Update Task" }}
         </ion-button>
 
-        <div
-          v-if="error"
-          class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm"
-        >
+        <div v-if="error" class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
           {{ error }}
         </div>
       </ion-content>
     </ion-modal>
 
     <!-- Log Hours Modal -->
-    <ion-modal
-      :is-open="showLogHoursModal"
-      @did-dismiss="showLogHoursModal = false"
-    >
+    <ion-modal :is-open="showLogHoursModal" @did-dismiss="showLogHoursModal = false">
       <ion-header>
         <ion-toolbar>
           <ion-title>Log Hours</ion-title>
           <ion-buttons slot="end">
-            <ion-button @click="showLogHoursModal = false">
-              Close
-            </ion-button>
+            <ion-button @click="showLogHoursModal = false"> Close </ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
-        <div
-          v-if="selectedTaskForLog"
-          class="mb-4"
-        >
+        <div v-if="selectedTaskForLog" class="mb-4">
           <h3 class="font-semibold text-lg mb-2">
             {{ selectedTaskForLog.title || selectedTaskForLog.name }}
           </h3>
@@ -281,15 +214,8 @@
         <form @submit.prevent="submitLogHours">
           <!-- Date -->
           <div class="mb-4">
-            <ion-label class="block text-sm font-medium text-gray-700 mb-1">
-              Date *
-            </ion-label>
-            <ion-input
-              v-model="logEntry.date"
-              type="date"
-              fill="outline"
-              required
-            />
+            <ion-label class="block text-sm font-medium text-gray-700 mb-1"> Date * </ion-label>
+            <ion-input v-model="logEntry.date" type="date" fill="outline" required />
           </div>
 
           <!-- Hours Worked -->
@@ -314,11 +240,7 @@
             <ion-label class="block text-sm font-medium text-gray-700 mb-1">
               Activity Type
             </ion-label>
-            <ion-select
-              v-model="logEntry.activity_type"
-              interface="action-sheet"
-              fill="outline"
-            >
+            <ion-select v-model="logEntry.activity_type" interface="action-sheet" fill="outline">
               <ion-select-option value="Development">Development</ion-select-option>
               <ion-select-option value="Design">Design</ion-select-option>
               <ion-select-option value="Testing">Testing</ion-select-option>
@@ -347,24 +269,12 @@
           </div>
 
           <!-- Submit Button -->
-          <ion-button
-            expand="block"
-            type="submit"
-            :disabled="loggingHours"
-            class="mt-6"
-          >
-            <ion-spinner
-              v-if="loggingHours"
-              name="crescent"
-              class="mr-2"
-            />
+          <ion-button expand="block" type="submit" :disabled="loggingHours" class="mt-6">
+            <ion-spinner v-if="loggingHours" name="crescent" class="mr-2" />
             {{ loggingHours ? "Saving..." : "Save Timesheet" }}
           </ion-button>
 
-          <div
-            v-if="logError"
-            class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm"
-          >
+          <div v-if="logError" class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
             {{ logError }}
           </div>
         </form>
@@ -459,7 +369,7 @@ async function loadData(forceRefresh = false) {
   const now = Date.now()
 
   // Skip reload if data is fresh (unless forced)
-  if (!forceRefresh && lastLoadTime && (now - lastLoadTime) < CACHE_TTL && tasks.value.length > 0) {
+  if (!forceRefresh && lastLoadTime && now - lastLoadTime < CACHE_TTL && tasks.value.length > 0) {
     return
   }
 
@@ -556,7 +466,7 @@ async function updateProgress() {
     await toast.present()
 
     // Update local data
-    const taskIndex = tasks.value.findIndex(t => t.name === selectedTask.value.name)
+    const taskIndex = tasks.value.findIndex((t) => t.name === selectedTask.value.name)
     if (taskIndex !== -1) {
       tasks.value[taskIndex].progress = progressValue.value
       tasks.value[taskIndex].status = statusValue.value
@@ -634,7 +544,6 @@ onIonViewWillEnter(() => {
   loadData()
 })
 </script>
-
 
 <style scoped>
 .empty-state {
@@ -728,7 +637,8 @@ onIonViewWillEnter(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

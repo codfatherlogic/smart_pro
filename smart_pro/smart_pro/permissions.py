@@ -26,16 +26,16 @@ def get_permission_query_conditions(user):
 
 	# Project Manager can see their own projects
 	if "Project Manager" in user_roles:
-		conditions["Smart Project"] = f"`tabSmart Project`.`project_manager` = %s"
+		conditions["Smart Project"] = "`tabSmart Project`.`project_manager` = %s"
 		conditions["Project Plan"] = (
-			f"`tabProject Plan`.`project` IN (SELECT `name` FROM `tabSmart Project` WHERE `project_manager` = %s)"
+			"`tabProject Plan`.`project` IN (SELECT `name` FROM `tabSmart Project` WHERE `project_manager` = %s)"
 		)
 
 	# Employee can see assigned tasks and their own requests
 	if "Employee" in user_roles:
-		conditions["Smart Task"] = f"`tabSmart Task`.`assigned_to` = %s"
+		conditions["Smart Task"] = "`tabSmart Task`.`assigned_to` = %s"
 		conditions["Employee Date Request"] = (
-			f"`tabEmployee Date Request`.`employee` IN (SELECT `name` FROM `tabEmployee` WHERE `user_id` = %s)"
+			"`tabEmployee Date Request`.`employee` IN (SELECT `name` FROM `tabEmployee` WHERE `user_id` = %s)"
 		)
 
 	return conditions

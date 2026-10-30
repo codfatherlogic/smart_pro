@@ -20,39 +20,23 @@
       </ion-refresher>
 
       <!-- Loading State -->
-      <div
-        v-if="loading"
-        class="p-4"
-      >
+      <div v-if="loading" class="p-4">
         <div class="skeleton h-8 w-3/4 mb-4" />
         <div class="skeleton h-4 w-1/2 mb-6" />
         <div class="skeleton h-24 w-full mb-4" />
       </div>
 
       <!-- Error State -->
-      <div
-        v-else-if="error"
-        class="empty-state h-full"
-      >
-        <div class="empty-state-title">
-          Error loading task
-        </div>
+      <div v-else-if="error" class="empty-state h-full">
+        <div class="empty-state-title">Error loading task</div>
         <div class="empty-state-description">
           {{ error }}
         </div>
-        <ion-button
-          class="mt-4"
-          @click="loadData"
-        >
-          Retry
-        </ion-button>
+        <ion-button class="mt-4" @click="loadData"> Retry </ion-button>
       </div>
 
       <!-- Task Details -->
-      <div
-        v-else-if="task"
-        class="p-4"
-      >
+      <div v-else-if="task" class="p-4">
         <!-- Header -->
         <div class="mb-6">
           <div class="flex justify-between items-start mb-2">
@@ -63,10 +47,7 @@
               {{ task.status }}
             </span>
           </div>
-          <p
-            v-if="task.description"
-            class="text-gray-600"
-          >
+          <p v-if="task.description" class="text-gray-600">
             {{ task.description }}
           </p>
         </div>
@@ -78,10 +59,7 @@
             <span class="text-primary-600 font-bold">{{ task.progress || 0 }}%</span>
           </div>
           <div class="progress-bar h-3">
-            <div
-              class="progress-bar-fill"
-              :style="{ width: (task.progress || 0) + '%' }"
-            />
+            <div class="progress-bar-fill" :style="{ width: (task.progress || 0) + '%' }" />
           </div>
           <!-- Update Progress Button (hidden for full access users - read-only mode) -->
           <ion-button
@@ -97,48 +75,32 @@
 
         <!-- Project Scope Card -->
         <div v-if="task.project_scope" class="app-card p-4 mb-6">
-          <div class="text-xs text-gray-500 mb-2 uppercase font-semibold">
-            Project Scope
-          </div>
+          <div class="text-xs text-gray-500 mb-2 uppercase font-semibold">Project Scope</div>
           <div class="text-gray-700 prose prose-sm max-w-none" v-html="task.project_scope" />
         </div>
 
         <!-- Info Cards -->
         <div class="grid grid-cols-2 gap-4 mb-6">
           <div class="app-card p-4">
-            <div class="text-xs text-gray-500 mb-1">
-              Project
-            </div>
-            <div
-              class="font-medium text-primary-600"
-              @click="goToProject"
-            >
+            <div class="text-xs text-gray-500 mb-1">Project</div>
+            <div class="font-medium text-primary-600" @click="goToProject">
               {{ task.project || "-" }}
             </div>
           </div>
           <div class="app-card p-4">
-            <div class="text-xs text-gray-500 mb-1">
-              Due Date
-            </div>
-            <div
-              class="font-medium"
-              :class="{ 'text-red-600': isOverdue }"
-            >
+            <div class="text-xs text-gray-500 mb-1">Due Date</div>
+            <div class="font-medium" :class="{ 'text-red-600': isOverdue }">
               {{ formatDate(task.due_date) }}
             </div>
           </div>
           <div class="app-card p-4">
-            <div class="text-xs text-gray-500 mb-1">
-              Priority
-            </div>
+            <div class="text-xs text-gray-500 mb-1">Priority</div>
             <div :class="['font-medium', getPriorityClass(task.priority)]">
               {{ task.priority || "Normal" }}
             </div>
           </div>
           <div class="app-card p-4">
-            <div class="text-xs text-gray-500 mb-1">
-              Assigned To
-            </div>
+            <div class="text-xs text-gray-500 mb-1">Assigned To</div>
             <div class="font-medium">
               {{ task.assigned_to || "-" }}
             </div>
@@ -147,11 +109,7 @@
 
         <!-- Actions (hidden for full access users - read-only mode) -->
         <div v-if="!hasFullAccess" class="space-y-3">
-          <ion-button
-            v-if="task.status !== 'Completed'"
-            expand="block"
-            @click="markComplete"
-          >
+          <ion-button v-if="task.status !== 'Completed'" expand="block" @click="markComplete">
             Mark as Complete
           </ion-button>
           <ion-button

@@ -1,8 +1,9 @@
 import frappe
 from frappe.utils import now_datetime
+
 from smart_pro.smart_pro.doctype.smart_pro_settings.smart_pro_settings import (
-	user_has_full_access,
 	user_can_view_all_tasks,
+	user_has_full_access,
 )
 
 
@@ -88,8 +89,8 @@ def get_user_projects(include_completed=False):
 			)
 		return projects
 	except Exception as e:
-		frappe.logger().error(f"Error getting user projects: {str(e)}")
-		frappe.throw(f"Error loading projects: {str(e)}")
+		frappe.logger().error(f"Error getting user projects: {e!s}")
+		frappe.throw(f"Error loading projects: {e!s}")
 
 
 @frappe.whitelist()
@@ -191,8 +192,8 @@ def get_user_tasks(include_from_completed_projects=False):
 			)
 		return tasks
 	except Exception as e:
-		frappe.logger().error(f"Error getting user tasks: {str(e)}")
-		frappe.throw(f"Error loading tasks: {str(e)}")
+		frappe.logger().error(f"Error getting user tasks: {e!s}")
+		frappe.throw(f"Error loading tasks: {e!s}")
 
 
 @frappe.whitelist()
@@ -294,8 +295,8 @@ def get_pending_date_requests():
 		frappe.logger().info(f"get_pending_date_requests: Found {len(requests)} requests for user {user}")
 		return requests
 	except Exception as e:
-		frappe.logger().error(f"Error getting pending date requests: {str(e)}")
-		frappe.throw(f"Error loading pending requests: {str(e)}")
+		frappe.logger().error(f"Error getting pending date requests: {e!s}")
+		frappe.throw(f"Error loading pending requests: {e!s}")
 
 
 @frappe.whitelist()
@@ -331,8 +332,8 @@ def get_debug_info():
 		frappe.logger().info(f"Debug info: {debug_info}")
 		return debug_info
 	except Exception as e:
-		frappe.logger().error(f"Error getting debug info: {str(e)}")
-		frappe.throw(f"Error getting debug info: {str(e)}")
+		frappe.logger().error(f"Error getting debug info: {e!s}")
+		frappe.throw(f"Error getting debug info: {e!s}")
 
 
 @frappe.whitelist()
@@ -364,8 +365,8 @@ def get_team_members():
 		frappe.logger().info(f"get_team_members: Found {len(assignments)} team members for user {user}")
 		return assignments
 	except Exception as e:
-		frappe.logger().error(f"Error getting team members: {str(e)}")
-		frappe.throw(f"Error loading team members: {str(e)}")
+		frappe.logger().error(f"Error getting team members: {e!s}")
+		frappe.throw(f"Error loading team members: {e!s}")
 
 
 @frappe.whitelist()
@@ -389,8 +390,8 @@ def get_team_tasks():
 		frappe.logger().info(f"get_team_tasks: Found {len(tasks)} tasks for user {user}")
 		return tasks
 	except Exception as e:
-		frappe.logger().error(f"Error getting team tasks: {str(e)}")
-		frappe.throw(f"Error loading team tasks: {str(e)}")
+		frappe.logger().error(f"Error getting team tasks: {e!s}")
+		frappe.throw(f"Error loading team tasks: {e!s}")
 
 
 @frappe.whitelist()
@@ -412,8 +413,8 @@ def get_pending_approvals():
 		)
 		return {"date_requests": date_requests}
 	except Exception as e:
-		frappe.logger().error(f"Error getting pending approvals: {str(e)}")
-		frappe.throw(f"Error loading pending approvals: {str(e)}")
+		frappe.logger().error(f"Error getting pending approvals: {e!s}")
+		frappe.throw(f"Error loading pending approvals: {e!s}")
 
 
 @frappe.whitelist()
@@ -479,8 +480,8 @@ def approve_date_request(request_id, status, comments=None):
 		frappe.logger().info(f"Date request {request_id} {status} by {user}")
 		return {"success": True, "message": message}
 	except Exception as e:
-		frappe.logger().error(f"Error approving date request: {str(e)}")
-		frappe.throw(f"Error approving request: {str(e)}")
+		frappe.logger().error(f"Error approving date request: {e!s}")
+		frappe.throw(f"Error approving request: {e!s}")
 
 
 @frappe.whitelist()
@@ -514,8 +515,8 @@ def update_date_request(request_id, from_date, to_date, reason=None):
 		frappe.logger().info(f"Date request {request_id} updated by {user}")
 		return {"success": True, "message": "Request updated successfully"}
 	except Exception as e:
-		frappe.logger().error(f"Error updating date request: {str(e)}")
-		frappe.throw(f"Error updating request: {str(e)}")
+		frappe.logger().error(f"Error updating date request: {e!s}")
+		frappe.throw(f"Error updating request: {e!s}")
 
 
 @frappe.whitelist()
@@ -539,8 +540,8 @@ def get_user_time_sheets():
 		frappe.logger().info(f"get_user_time_sheets: Found {len(timesheets)} time sheets for user {user}")
 		return timesheets
 	except Exception as e:
-		frappe.logger().error(f"Error getting time sheets: {str(e)}")
-		frappe.throw(f"Error loading time sheets: {str(e)}")
+		frappe.logger().error(f"Error getting time sheets: {e!s}")
+		frappe.throw(f"Error loading time sheets: {e!s}")
 
 
 @frappe.whitelist()
@@ -574,8 +575,8 @@ def get_team_time_sheets():
 		frappe.logger().info(f"get_team_time_sheets: Found {len(timesheets)} time sheets for user {user}")
 		return timesheets
 	except Exception as e:
-		frappe.logger().error(f"Error getting team time sheets: {str(e)}")
-		frappe.throw(f"Error loading team time sheets: {str(e)}")
+		frappe.logger().error(f"Error getting team time sheets: {e!s}")
+		frappe.throw(f"Error loading team time sheets: {e!s}")
 
 
 @frappe.whitelist()
@@ -592,8 +593,8 @@ def get_user_roles():
 			"is_employee": "Employee" in roles,
 		}
 	except Exception as e:
-		frappe.logger().error(f"Error getting user roles: {str(e)}")
-		frappe.throw(f"Error loading user roles: {str(e)}")
+		frappe.logger().error(f"Error getting user roles: {e!s}")
+		frappe.throw(f"Error loading user roles: {e!s}")
 
 
 # ==================== EMPLOYEE ASSIGNED PROJECTS ====================
@@ -639,8 +640,8 @@ def get_employee_assigned_projects():
 
 		return projects
 	except Exception as e:
-		frappe.logger().error(f"Error getting employee assigned projects: {str(e)}")
-		frappe.throw(f"Error loading assigned projects: {str(e)}")
+		frappe.logger().error(f"Error getting employee assigned projects: {e!s}")
+		frappe.throw(f"Error loading assigned projects: {e!s}")
 
 
 # ==================== EMPLOYEE DATE REQUEST APIs ====================
@@ -700,8 +701,8 @@ def get_my_date_requests(include_from_completed_projects=False):
 
 		return requests
 	except Exception as e:
-		frappe.logger().error(f"Error getting date requests: {str(e)}")
-		frappe.throw(f"Error loading date requests: {str(e)}")
+		frappe.logger().error(f"Error getting date requests: {e!s}")
+		frappe.throw(f"Error loading date requests: {e!s}")
 
 
 @frappe.whitelist()
@@ -735,8 +736,8 @@ def create_date_request(
 
 		return {"success": True, "name": doc.name, "message": "Date request created successfully"}
 	except Exception as e:
-		frappe.logger().error(f"Error creating date request: {str(e)}")
-		frappe.throw(f"Error creating date request: {str(e)}")
+		frappe.logger().error(f"Error creating date request: {e!s}")
+		frappe.throw(f"Error creating date request: {e!s}")
 
 
 # ==================== TIMESHEET APIs ====================
@@ -803,8 +804,8 @@ def get_my_timesheets(from_date=None, to_date=None, include_from_completed_proje
 
 		return timesheets
 	except Exception as e:
-		frappe.logger().error(f"Error getting timesheets: {str(e)}")
-		frappe.throw(f"Error loading timesheets: {str(e)}")
+		frappe.logger().error(f"Error getting timesheets: {e!s}")
+		frappe.throw(f"Error loading timesheets: {e!s}")
 
 
 @frappe.whitelist()
@@ -840,8 +841,8 @@ def create_timesheet(task, date, hours_worked, description, activity_type="Devel
 
 		return {"success": True, "name": doc.name, "message": "Timesheet created successfully"}
 	except Exception as e:
-		frappe.logger().error(f"Error creating timesheet: {str(e)}")
-		frappe.throw(f"Error creating timesheet: {str(e)}")
+		frappe.logger().error(f"Error creating timesheet: {e!s}")
+		frappe.throw(f"Error creating timesheet: {e!s}")
 
 
 @frappe.whitelist()
@@ -854,8 +855,8 @@ def submit_timesheet(timesheet_name):
 
 		return {"success": True, "message": "Timesheet submitted successfully"}
 	except Exception as e:
-		frappe.logger().error(f"Error submitting timesheet: {str(e)}")
-		frappe.throw(f"Error submitting timesheet: {str(e)}")
+		frappe.logger().error(f"Error submitting timesheet: {e!s}")
+		frappe.throw(f"Error submitting timesheet: {e!s}")
 
 
 @frappe.whitelist()
@@ -883,8 +884,8 @@ def get_task_timesheets(task_name):
 
 		return {"timesheets": timesheets, "total_hours": total_hours}
 	except Exception as e:
-		frappe.logger().error(f"Error getting task timesheets: {str(e)}")
-		frappe.throw(f"Error loading task timesheets: {str(e)}")
+		frappe.logger().error(f"Error getting task timesheets: {e!s}")
+		frappe.throw(f"Error loading task timesheets: {e!s}")
 
 
 @frappe.whitelist()
@@ -909,8 +910,8 @@ def get_today_summary():
 
 		return {"timesheets": timesheets, "total_hours": total_hours, "tasks_worked": len(timesheets)}
 	except Exception as e:
-		frappe.logger().error(f"Error getting today summary: {str(e)}")
-		frappe.throw(f"Error loading today summary: {str(e)}")
+		frappe.logger().error(f"Error getting today summary: {e!s}")
+		frappe.throw(f"Error loading today summary: {e!s}")
 
 
 # ==================== APP SETTINGS API ====================
@@ -928,7 +929,7 @@ def get_app_settings():
 			"enable_offline_mode": settings.enable_offline_mode,
 		}
 	except Exception as e:
-		frappe.logger().error(f"Error getting app settings: {str(e)}")
+		frappe.logger().error(f"Error getting app settings: {e!s}")
 		return {
 			"app_name": "Smart Pro",
 			"app_logo": None,
@@ -999,7 +1000,7 @@ def get_connections_dashboard():
 			"notifications": notifications,
 		}
 	except Exception as e:
-		frappe.logger().error(f"Error getting connections dashboard: {str(e)}")
+		frappe.logger().error(f"Error getting connections dashboard: {e!s}")
 		return {
 			"projects": 0,
 			"activeProjects": 0,
@@ -1041,7 +1042,7 @@ def mark_notification_as_read(notification_name, source="smart_pro"):
 				return {"success": True}
 		return {"success": False, "message": "Notification not found"}
 	except Exception as e:
-		frappe.logger().error(f"Error marking notification as read: {str(e)}")
+		frappe.logger().error(f"Error marking notification as read: {e!s}")
 		return {"success": False, "message": str(e)}
 
 
@@ -1074,7 +1075,7 @@ def mark_all_notifications_as_read():
 		frappe.db.commit()
 		return {"success": True}
 	except Exception as e:
-		frappe.logger().error(f"Error marking all notifications as read: {str(e)}")
+		frappe.logger().error(f"Error marking all notifications as read: {e!s}")
 		return {"success": False, "message": str(e)}
 
 
@@ -1140,12 +1141,12 @@ def get_social_login_providers(redirect_to=None):
 					}
 				)
 			except Exception as auth_err:
-				frappe.logger().warning(f"Could not generate OAuth URL for {key.name}: {str(auth_err)}")
+				frappe.logger().warning(f"Could not generate OAuth URL for {key.name}: {auth_err!s}")
 				continue
 
 		return {"success": True, "providers": providers}
 	except Exception as e:
-		frappe.logger().error(f"Error getting social login providers: {str(e)}")
+		frappe.logger().error(f"Error getting social login providers: {e!s}")
 		return {"success": False, "providers": [], "message": str(e)}
 
 
@@ -1200,7 +1201,7 @@ def generate_project_description(title):
 		return response
 
 	except Exception as e:
-		frappe.logger().error(f"Error generating AI description: {str(e)}")
+		frappe.logger().error(f"Error generating AI description: {e!s}")
 		return {"success": False, "message": str(e)}
 
 
@@ -1331,7 +1332,7 @@ Keep it concise, professional, and actionable. Format with clear headings."""
 		return response
 
 	except Exception as e:
-		frappe.logger().error(f"Error generating AI project scope: {str(e)}")
+		frappe.logger().error(f"Error generating AI project scope: {e!s}")
 		return {"success": False, "message": str(e)}
 
 
@@ -1365,7 +1366,7 @@ def get_user_permissions():
 			"user": user,
 		}
 	except Exception as e:
-		frappe.logger().error(f"Error getting user permissions: {str(e)}")
+		frappe.logger().error(f"Error getting user permissions: {e!s}")
 		return {
 			"success": False,
 			"has_full_access": False,
@@ -1441,7 +1442,7 @@ def get_all_timesheets_for_approval():
 
 		return timesheets
 	except Exception as e:
-		frappe.logger().error(f"Error getting timesheets for approval: {str(e)}")
+		frappe.logger().error(f"Error getting timesheets for approval: {e!s}")
 		return []
 
 
@@ -1474,7 +1475,7 @@ def approve_timesheet(timesheet_name):
 
 		return {"success": True, "message": "Timesheet approved successfully"}
 	except Exception as e:
-		frappe.logger().error(f"Error approving timesheet: {str(e)}")
+		frappe.logger().error(f"Error approving timesheet: {e!s}")
 		return {"success": False, "message": str(e)}
 
 
@@ -1509,7 +1510,7 @@ def reject_timesheet(timesheet_name, reason=None):
 
 		return {"success": True, "message": "Timesheet rejected"}
 	except Exception as e:
-		frappe.logger().error(f"Error rejecting timesheet: {str(e)}")
+		frappe.logger().error(f"Error rejecting timesheet: {e!s}")
 		return {"success": False, "message": str(e)}
 
 
@@ -1540,7 +1541,7 @@ def get_all_projects():
 
 		return projects
 	except Exception as e:
-		frappe.logger().error(f"Error getting all projects: {str(e)}")
+		frappe.logger().error(f"Error getting all projects: {e!s}")
 		return []
 
 
@@ -1562,7 +1563,7 @@ def get_all_tasks():
 
 		return tasks
 	except Exception as e:
-		frappe.logger().error(f"Error getting all tasks: {str(e)}")
+		frappe.logger().error(f"Error getting all tasks: {e!s}")
 		return []
 
 
@@ -1600,7 +1601,7 @@ def get_all_date_requests():
 
 		return requests
 	except Exception as e:
-		frappe.logger().error(f"Error getting all date requests: {str(e)}")
+		frappe.logger().error(f"Error getting all date requests: {e!s}")
 		return []
 
 
@@ -1639,5 +1640,5 @@ def get_all_timesheets():
 
 		return timesheets
 	except Exception as e:
-		frappe.logger().error(f"Error getting all timesheets: {str(e)}")
+		frappe.logger().error(f"Error getting all timesheets: {e!s}")
 		return []

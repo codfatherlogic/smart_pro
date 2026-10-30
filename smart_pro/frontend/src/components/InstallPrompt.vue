@@ -21,9 +21,7 @@
           Get the app on your device for easy access & a better experience!
         </p>
         <div class="install-actions">
-          <ion-button expand="block" @click="installApp">
-            Install
-          </ion-button>
+          <ion-button expand="block" @click="installApp"> Install </ion-button>
           <ion-button expand="block" fill="clear" color="medium" @click="dismissDialog">
             Not Now
           </ion-button>
@@ -33,20 +31,26 @@
   </ion-modal>
 
   <!-- iOS Install Instructions Popover -->
-  <ion-modal :is-open="showIOSPopover" @did-dismiss="dismissIOSPopover" :initial-breakpoint="0.4" :breakpoints="[0, 0.4]">
+  <ion-modal
+    :is-open="showIOSPopover"
+    @did-dismiss="dismissIOSPopover"
+    :initial-breakpoint="0.4"
+    :breakpoints="[0, 0.4]"
+  >
     <ion-content class="ion-padding">
       <div class="ios-install-content">
         <div class="install-icon-wrapper">
           <ion-icon :icon="shareOutline" class="install-icon ios-share" />
         </div>
         <h2 class="install-title">Install {{ appName }}</h2>
-        <p class="install-description">
-          To install this app on your iPhone/iPad:
-        </p>
+        <p class="install-description">To install this app on your iPhone/iPad:</p>
         <div class="ios-steps">
           <div class="ios-step">
             <span class="step-number">1</span>
-            <span>Tap the <ion-icon :icon="shareOutline" class="inline-icon" /> Share button in Safari</span>
+            <span
+              >Tap the <ion-icon :icon="shareOutline" class="inline-icon" /> Share button in
+              Safari</span
+            >
           </div>
           <div class="ios-step">
             <span class="step-number">2</span>
@@ -57,7 +61,13 @@
             <span>Tap "Add" to install</span>
           </div>
         </div>
-        <ion-button expand="block" fill="clear" color="medium" @click="dismissIOSPopover" class="mt-4">
+        <ion-button
+          expand="block"
+          fill="clear"
+          color="medium"
+          @click="dismissIOSPopover"
+          class="mt-4"
+        >
           Got it
         </ion-button>
       </div>
@@ -88,8 +98,7 @@ let deferredPrompt = null
 // Check if running in standalone mode (already installed)
 function isStandalone() {
   return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true
+    window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true
   )
 }
 

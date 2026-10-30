@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from frappe.utils import date_diff, add_days, getdate
+from frappe.utils import add_days, date_diff, getdate
 
 
 class EmployeeDateRequest(Document):
@@ -164,8 +164,8 @@ class EmployeeDateRequest(Document):
 
 				frappe.msgprint(f"Request approved for {self.project_title or self.project}")
 		except Exception as e:
-			frappe.log_error(f"Error in on_approval: {str(e)}", "Date Request Approval Error")
-			frappe.throw(f"Error processing approval: {str(e)}")
+			frappe.log_error(f"Error in on_approval: {e!s}", "Date Request Approval Error")
+			frappe.throw(f"Error processing approval: {e!s}")
 
 	def on_rejection(self):
 		"""Actions when request is rejected"""
@@ -236,5 +236,5 @@ class EmployeeDateRequest(Document):
 			frappe.db.commit()
 			frappe.msgprint(f"Created task: {task.title}")
 		except Exception as e:
-			frappe.log_error(f"Error creating task: {str(e)}", "Task Creation Error")
-			frappe.msgprint(f"Error creating task: {str(e)}")
+			frappe.log_error(f"Error creating task: {e!s}", "Task Creation Error")
+			frappe.msgprint(f"Error creating task: {e!s}")

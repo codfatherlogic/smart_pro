@@ -252,15 +252,15 @@
     .mobile-header {
         padding: 12px;
     }
-    
+
     .app-title {
         font-size: 1.3rem;
     }
-    
+
     .tab-content {
         padding: 12px;
     }
-    
+
     .project-card,
     .task-card,
     .request-card {
@@ -273,20 +273,20 @@
     .mobile-container {
         background-color: #121212;
     }
-    
+
     .mobile-tabs {
         background: #1e1e1e;
         border-bottom-color: #333;
     }
-    
+
     .tab-btn {
         color: #aaa;
     }
-    
+
     .tab-btn.active {
         color: #4dabf7;
     }
-    
+
     .project-card,
     .task-card,
     .request-card {
@@ -294,17 +294,17 @@
         border-color: #333;
         color: #e0e0e0;
     }
-    
+
     .project-header h6,
     .task-header h6,
     .request-header h6 {
         color: #e0e0e0;
     }
-    
+
     .detail-item {
         color: #aaa;
     }
-    
+
     .progress {
         background-color: #333;
     }

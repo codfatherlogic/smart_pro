@@ -1,8 +1,8 @@
-frappe.pages['projects_dashboard'].on_page_load = function(wrapper) {
+frappe.pages["projects_dashboard"].on_page_load = function (wrapper) {
 	var page = frappe.ui.make_app_page({
 		parent: wrapper,
-		title: 'Projects Dashboard',
-		single_column: true
+		title: "Projects Dashboard",
+		single_column: true,
 	});
 
 	// Store page reference
@@ -12,16 +12,20 @@ frappe.pages['projects_dashboard'].on_page_load = function(wrapper) {
 		tasks: [],
 		pendingRequests: [],
 		filters: {
-			projectStatus: 'all',
-			taskStatus: 'all',
-			search: ''
-		}
+			projectStatus: "all",
+			taskStatus: "all",
+			search: "",
+		},
 	};
 
 	// Add refresh button
-	page.set_primary_action(__('Refresh'), () => {
-		loadDashboardData(wrapper);
-	}, 'refresh');
+	page.set_primary_action(
+		__("Refresh"),
+		() => {
+			loadDashboardData(wrapper);
+		},
+		"refresh"
+	);
 
 	// Add custom CSS
 	addCustomStyles();
@@ -30,15 +34,15 @@ frappe.pages['projects_dashboard'].on_page_load = function(wrapper) {
 	loadDashboardData(wrapper);
 };
 
-frappe.pages['projects_dashboard'].refresh = function(wrapper) {
+frappe.pages["projects_dashboard"].refresh = function (wrapper) {
 	loadDashboardData(wrapper);
 };
 
 function addCustomStyles() {
-	if (document.getElementById('projects-dashboard-styles')) return;
+	if (document.getElementById("projects-dashboard-styles")) return;
 
-	const styles = document.createElement('style');
-	styles.id = 'projects-dashboard-styles';
+	const styles = document.createElement("style");
+	styles.id = "projects-dashboard-styles";
 	styles.textContent = `
 		.smart-dashboard {
 			padding: 0;
@@ -421,7 +425,7 @@ function addCustomStyles() {
 }
 
 function loadDashboardData(wrapper) {
-	const $container = $(wrapper).find('.layout-main-section');
+	const $container = $(wrapper).find(".layout-main-section");
 
 	// Show loading
 	$container.html(`
@@ -435,25 +439,27 @@ function loadDashboardData(wrapper) {
 
 	// Fetch data
 	Promise.all([
-		frappe.call({ method: 'smart_pro.smart_pro.api.projects.get_user_projects' }),
-		frappe.call({ method: 'smart_pro.smart_pro.api.projects.get_user_tasks' }),
-		frappe.call({ method: 'smart_pro.smart_pro.api.projects.get_pending_date_requests' })
-	]).then(([projectsRes, tasksRes, requestsRes]) => {
-		wrapper.dashboardData.projects = projectsRes.message || [];
-		wrapper.dashboardData.tasks = tasksRes.message || [];
-		wrapper.dashboardData.pendingRequests = requestsRes.message || [];
+		frappe.call({ method: "smart_pro.smart_pro.api.projects.get_user_projects" }),
+		frappe.call({ method: "smart_pro.smart_pro.api.projects.get_user_tasks" }),
+		frappe.call({ method: "smart_pro.smart_pro.api.projects.get_pending_date_requests" }),
+	])
+		.then(([projectsRes, tasksRes, requestsRes]) => {
+			wrapper.dashboardData.projects = projectsRes.message || [];
+			wrapper.dashboardData.tasks = tasksRes.message || [];
+			wrapper.dashboardData.pendingRequests = requestsRes.message || [];
 
-		renderDashboard($container, wrapper);
-	}).catch(err => {
-		console.error('Error loading dashboard:', err);
-		$container.html(`
+			renderDashboard($container, wrapper);
+		})
+		.catch((err) => {
+			console.error("Error loading dashboard:", err);
+			$container.html(`
 			<div class="smart-dashboard">
 				<div class="alert alert-danger m-4">
-					<strong>Error loading dashboard:</strong> ${err.message || 'Unknown error'}
+					<strong>Error loading dashboard:</strong> ${err.message || "Unknown error"}
 				</div>
 			</div>
 		`);
-	});
+		});
 }
 
 function renderDashboard($container, wrapper) {
@@ -462,47 +468,57 @@ function renderDashboard($container, wrapper) {
 	// Calculate stats
 	const stats = {
 		totalProjects: projects.length,
-		activeProjects: projects.filter(p => p.status === 'Active').length,
+		activeProjects: projects.filter((p) => p.status === "Active").length,
 		totalTasks: tasks.length,
-		openTasks: tasks.filter(t => t.status === 'Open').length,
-		workingTasks: tasks.filter(t => t.status === 'Working').length,
-		completedTasks: tasks.filter(t => t.status === 'Completed').length,
-		pendingApprovals: pendingRequests.length
+		openTasks: tasks.filter((t) => t.status === "Open").length,
+		workingTasks: tasks.filter((t) => t.status === "Working").length,
+		completedTasks: tasks.filter((t) => t.status === "Completed").length,
+		pendingApprovals: pendingRequests.length,
 	};
 
 	const html = `
 		<div class="smart-dashboard p-4">
 			<!-- Stats Grid -->
 			<div class="stats-grid">
-				<div class="stat-card ${filters.projectStatus === 'all' ? 'active' : ''}" data-filter="project" data-value="all">
+				<div class="stat-card ${
+					filters.projectStatus === "all" ? "active" : ""
+				}" data-filter="project" data-value="all">
 					<div class="stat-icon blue">
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
 					</div>
 					<div class="stat-value">${stats.totalProjects}</div>
 					<div class="stat-label">Total Projects</div>
 				</div>
-				<div class="stat-card ${filters.projectStatus === 'Active' ? 'active' : ''}" data-filter="project" data-value="Active">
+				<div class="stat-card ${
+					filters.projectStatus === "Active" ? "active" : ""
+				}" data-filter="project" data-value="Active">
 					<div class="stat-icon green">
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
 					</div>
 					<div class="stat-value">${stats.activeProjects}</div>
 					<div class="stat-label">Active Projects</div>
 				</div>
-				<div class="stat-card ${filters.taskStatus === 'all' ? 'active' : ''}" data-filter="task" data-value="all">
+				<div class="stat-card ${
+					filters.taskStatus === "all" ? "active" : ""
+				}" data-filter="task" data-value="all">
 					<div class="stat-icon purple">
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
 					</div>
 					<div class="stat-value">${stats.totalTasks}</div>
 					<div class="stat-label">Total Tasks</div>
 				</div>
-				<div class="stat-card ${filters.taskStatus === 'Open' ? 'active' : ''}" data-filter="task" data-value="Open">
+				<div class="stat-card ${
+					filters.taskStatus === "Open" ? "active" : ""
+				}" data-filter="task" data-value="Open">
 					<div class="stat-icon orange">
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
 					</div>
 					<div class="stat-value">${stats.openTasks}</div>
 					<div class="stat-label">Open Tasks</div>
 				</div>
-				<div class="stat-card ${filters.taskStatus === 'Working' ? 'active' : ''}" data-filter="task" data-value="Working">
+				<div class="stat-card ${
+					filters.taskStatus === "Working" ? "active" : ""
+				}" data-filter="task" data-value="Working">
 					<div class="stat-icon teal">
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
 					</div>
@@ -524,7 +540,9 @@ function renderDashboard($container, wrapper) {
 					<!-- Search Box -->
 					<div class="search-box">
 						<svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-						<input type="text" id="dashboard-search" placeholder="Search projects, tasks..." value="${filters.search}">
+						<input type="text" id="dashboard-search" placeholder="Search projects, tasks..." value="${
+							filters.search
+						}">
 					</div>
 
 					<!-- Projects Section -->
@@ -536,10 +554,18 @@ function renderDashboard($container, wrapper) {
 								<span class="section-badge">${getFilteredProjects(projects, filters).length}</span>
 							</div>
 							<div class="filter-tabs">
-								<span class="filter-tab ${filters.projectStatus === 'all' ? 'active' : ''}" data-filter="projectStatus" data-value="all">All</span>
-								<span class="filter-tab ${filters.projectStatus === 'Active' ? 'active' : ''}" data-filter="projectStatus" data-value="Active">Active</span>
-								<span class="filter-tab ${filters.projectStatus === 'Planning' ? 'active' : ''}" data-filter="projectStatus" data-value="Planning">Planning</span>
-								<span class="filter-tab ${filters.projectStatus === 'Completed' ? 'active' : ''}" data-filter="projectStatus" data-value="Completed">Done</span>
+								<span class="filter-tab ${
+									filters.projectStatus === "all" ? "active" : ""
+								}" data-filter="projectStatus" data-value="all">All</span>
+								<span class="filter-tab ${
+									filters.projectStatus === "Active" ? "active" : ""
+								}" data-filter="projectStatus" data-value="Active">Active</span>
+								<span class="filter-tab ${
+									filters.projectStatus === "Planning" ? "active" : ""
+								}" data-filter="projectStatus" data-value="Planning">Planning</span>
+								<span class="filter-tab ${
+									filters.projectStatus === "Completed" ? "active" : ""
+								}" data-filter="projectStatus" data-value="Completed">Done</span>
 							</div>
 						</div>
 						<div class="section-body" id="projects-list">
@@ -556,10 +582,18 @@ function renderDashboard($container, wrapper) {
 								<span class="section-badge">${getFilteredTasks(tasks, filters).length}</span>
 							</div>
 							<div class="filter-tabs">
-								<span class="filter-tab ${filters.taskStatus === 'all' ? 'active' : ''}" data-filter="taskStatus" data-value="all">All</span>
-								<span class="filter-tab ${filters.taskStatus === 'Open' ? 'active' : ''}" data-filter="taskStatus" data-value="Open">Open</span>
-								<span class="filter-tab ${filters.taskStatus === 'Working' ? 'active' : ''}" data-filter="taskStatus" data-value="Working">Working</span>
-								<span class="filter-tab ${filters.taskStatus === 'Completed' ? 'active' : ''}" data-filter="taskStatus" data-value="Completed">Done</span>
+								<span class="filter-tab ${
+									filters.taskStatus === "all" ? "active" : ""
+								}" data-filter="taskStatus" data-value="all">All</span>
+								<span class="filter-tab ${
+									filters.taskStatus === "Open" ? "active" : ""
+								}" data-filter="taskStatus" data-value="Open">Open</span>
+								<span class="filter-tab ${
+									filters.taskStatus === "Working" ? "active" : ""
+								}" data-filter="taskStatus" data-value="Working">Working</span>
+								<span class="filter-tab ${
+									filters.taskStatus === "Completed" ? "active" : ""
+								}" data-filter="taskStatus" data-value="Completed">Done</span>
 							</div>
 						</div>
 						<div class="section-body" id="tasks-list">
@@ -625,15 +659,16 @@ function renderDashboard($container, wrapper) {
 function getFilteredProjects(projects, filters) {
 	let filtered = projects;
 
-	if (filters.projectStatus !== 'all') {
-		filtered = filtered.filter(p => p.status === filters.projectStatus);
+	if (filters.projectStatus !== "all") {
+		filtered = filtered.filter((p) => p.status === filters.projectStatus);
 	}
 
 	if (filters.search) {
 		const search = filters.search.toLowerCase();
-		filtered = filtered.filter(p =>
-			(p.title || '').toLowerCase().includes(search) ||
-			(p.name || '').toLowerCase().includes(search)
+		filtered = filtered.filter(
+			(p) =>
+				(p.title || "").toLowerCase().includes(search) ||
+				(p.name || "").toLowerCase().includes(search)
 		);
 	}
 
@@ -643,16 +678,17 @@ function getFilteredProjects(projects, filters) {
 function getFilteredTasks(tasks, filters) {
 	let filtered = tasks;
 
-	if (filters.taskStatus !== 'all') {
-		filtered = filtered.filter(t => t.status === filters.taskStatus);
+	if (filters.taskStatus !== "all") {
+		filtered = filtered.filter((t) => t.status === filters.taskStatus);
 	}
 
 	if (filters.search) {
 		const search = filters.search.toLowerCase();
-		filtered = filtered.filter(t =>
-			(t.title || '').toLowerCase().includes(search) ||
-			(t.name || '').toLowerCase().includes(search) ||
-			(t.project || '').toLowerCase().includes(search)
+		filtered = filtered.filter(
+			(t) =>
+				(t.title || "").toLowerCase().includes(search) ||
+				(t.name || "").toLowerCase().includes(search) ||
+				(t.project || "").toLowerCase().includes(search)
 		);
 	}
 
@@ -669,8 +705,12 @@ function renderProjectsList(projects) {
 		`;
 	}
 
-	return projects.map(project => `
-		<div class="project-card" onclick="frappe.set_route('Form', 'Smart Project', '${encodeURIComponent(project.name)}')">
+	return projects
+		.map(
+			(project) => `
+		<div class="project-card" onclick="frappe.set_route('Form', 'Smart Project', '${encodeURIComponent(
+			project.name
+		)}')">
 			<div class="d-flex justify-content-between align-items-start">
 				<div>
 					<div class="project-title">${frappe.utils.escape_html(project.title || project.name)}</div>
@@ -679,18 +719,26 @@ function renderProjectsList(projects) {
 							<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
 							${formatDate(project.start_date)} - ${formatDate(project.end_date)}
 						</span>
-						${project.project_manager ? `
+						${
+							project.project_manager
+								? `
 							<span>
 								<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
 								${frappe.utils.escape_html(project.project_manager)}
 							</span>
-						` : ''}
+						`
+								: ""
+						}
 					</div>
 				</div>
-				<span class="status-pill ${getStatusClassCss(project.status)}">${frappe.utils.escape_html(project.status || 'Unknown')}</span>
+				<span class="status-pill ${getStatusClassCss(project.status)}">${frappe.utils.escape_html(
+				project.status || "Unknown"
+			)}</span>
 			</div>
 		</div>
-	`).join('');
+	`
+		)
+		.join("");
 }
 
 function renderTasksList(tasks) {
@@ -703,20 +751,27 @@ function renderTasksList(tasks) {
 		`;
 	}
 
-	return tasks.map(task => {
-		const progress = task.progress || 0;
-		const progressClass = progress < 30 ? 'low' : progress < 70 ? 'medium' : 'high';
+	return tasks
+		.map((task) => {
+			const progress = task.progress || 0;
+			const progressClass = progress < 30 ? "low" : progress < 70 ? "medium" : "high";
 
-		return `
+			return `
 			<div class="task-card">
 				<div class="task-header">
 					<div class="task-title">
-						<a href="/app/smart-task/${encodeURIComponent(task.name)}">${frappe.utils.escape_html(task.title || task.name)}</a>
+						<a href="/app/smart-task/${encodeURIComponent(task.name)}">${frappe.utils.escape_html(
+				task.title || task.name
+			)}</a>
 					</div>
-					<span class="status-pill ${getStatusClassCss(task.status)}">${frappe.utils.escape_html(task.status || 'Unknown')}</span>
+					<span class="status-pill ${getStatusClassCss(task.status)}">${frappe.utils.escape_html(
+				task.status || "Unknown"
+			)}</span>
 				</div>
 				<div class="task-project">
-					Project: <strong>${frappe.utils.escape_html(task.project || '-')}</strong> | Due: ${formatDate(task.due_date)}
+					Project: <strong>${frappe.utils.escape_html(task.project || "-")}</strong> | Due: ${formatDate(
+				task.due_date
+			)}
 				</div>
 				<div class="progress-wrapper">
 					<div class="progress-bar-container">
@@ -726,7 +781,8 @@ function renderTasksList(tasks) {
 				</div>
 			</div>
 		`;
-	}).join('');
+		})
+		.join("");
 }
 
 function renderApprovalsList(requests) {
@@ -739,73 +795,98 @@ function renderApprovalsList(requests) {
 		`;
 	}
 
-	return requests.map(request => `
+	return requests
+		.map(
+			(request) => `
 		<div class="approval-card">
 			<div class="approval-header">
-				<span class="approval-employee">${frappe.utils.escape_html(request.employee_name || request.employee)}</span>
-				<span class="status-pill pending">${frappe.utils.escape_html(request.request_type || 'Request')}</span>
+				<span class="approval-employee">${frappe.utils.escape_html(
+					request.employee_name || request.employee
+				)}</span>
+				<span class="status-pill pending">${frappe.utils.escape_html(
+					request.request_type || "Request"
+				)}</span>
 			</div>
 			<div class="approval-dates">
 				<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
 				${formatDate(request.from_date)} - ${formatDate(request.to_date)}
 			</div>
-			${request.reason ? `<div class="approval-reason">${frappe.utils.escape_html(request.reason)}</div>` : ''}
+			${
+				request.reason
+					? `<div class="approval-reason">${frappe.utils.escape_html(
+							request.reason
+					  )}</div>`
+					: ""
+			}
 		</div>
-	`).join('');
+	`
+		)
+		.join("");
 }
 
 function attachEventListeners($container, wrapper) {
 	// Filter tabs
-	$container.on('click', '.filter-tab', function() {
-		const filterType = $(this).data('filter');
-		const filterValue = $(this).data('value');
+	$container.on("click", ".filter-tab", function () {
+		const filterType = $(this).data("filter");
+		const filterValue = $(this).data("value");
 
 		wrapper.dashboardData.filters[filterType] = filterValue;
 		renderDashboard($container, wrapper);
 	});
 
 	// Stat cards as filters
-	$container.on('click', '.stat-card[data-filter="project"]', function() {
-		wrapper.dashboardData.filters.projectStatus = $(this).data('value');
+	$container.on("click", '.stat-card[data-filter="project"]', function () {
+		wrapper.dashboardData.filters.projectStatus = $(this).data("value");
 		renderDashboard($container, wrapper);
 	});
 
-	$container.on('click', '.stat-card[data-filter="task"]', function() {
-		wrapper.dashboardData.filters.taskStatus = $(this).data('value');
+	$container.on("click", '.stat-card[data-filter="task"]', function () {
+		wrapper.dashboardData.filters.taskStatus = $(this).data("value");
 		renderDashboard($container, wrapper);
 	});
 
 	// Search
 	let searchTimeout;
-	$container.on('input', '#dashboard-search', function() {
+	$container.on("input", "#dashboard-search", function () {
 		clearTimeout(searchTimeout);
 		const searchValue = $(this).val();
 
 		searchTimeout = setTimeout(() => {
 			wrapper.dashboardData.filters.search = searchValue;
 			// Update lists without full re-render
-			$('#projects-list').html(renderProjectsList(getFilteredProjects(wrapper.dashboardData.projects, wrapper.dashboardData.filters)));
-			$('#tasks-list').html(renderTasksList(getFilteredTasks(wrapper.dashboardData.tasks, wrapper.dashboardData.filters)));
+			$("#projects-list").html(
+				renderProjectsList(
+					getFilteredProjects(
+						wrapper.dashboardData.projects,
+						wrapper.dashboardData.filters
+					)
+				)
+			);
+			$("#tasks-list").html(
+				renderTasksList(
+					getFilteredTasks(wrapper.dashboardData.tasks, wrapper.dashboardData.filters)
+				)
+			);
 		}, 300);
 	});
 }
 
 function formatDate(dateString) {
-	if (!dateString) return '-';
+	if (!dateString) return "-";
 	return frappe.datetime.str_to_user(dateString);
 }
 
 function getStatusClassCss(status) {
 	const statusMap = {
-		'Active': 'active',
-		'Planning': 'planning',
-		'Completed': 'completed',
-		'Cancelled': 'cancelled',
-		'On Hold': 'on-hold',
-		'Open': 'open',
-		'Working': 'working',
-		'Pending Review': 'pending',
-		'Pending Approval': 'pending'
+		Active: "active",
+		Planning: "planning",
+		Completed: "completed",
+		Cancelled: "cancelled",
+		"On Hold": "on-hold",
+		Open: "open",
+		Working: "working",
+		"Pending Review": "pending",
+		"Pending Approval": "pending",
 	};
-	return statusMap[status] || '';
+	return statusMap[status] || "";
 }

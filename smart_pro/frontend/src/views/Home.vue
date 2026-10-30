@@ -9,11 +9,8 @@
           </ion-button>
           <ion-button @click="goToNotifications" class="notification-btn">
             <ion-icon :icon="notificationsOutline" />
-            <span
-              v-if="notificationCount > 0"
-              class="notification-badge"
-            >
-              {{ notificationCount > 9 ? '9+' : notificationCount }}
+            <span v-if="notificationCount > 0" class="notification-badge">
+              {{ notificationCount > 9 ? "9+" : notificationCount }}
             </span>
           </ion-button>
         </ion-buttons>
@@ -28,12 +25,8 @@
       <div class="p-4">
         <!-- Welcome Section -->
         <div class="mb-6">
-          <h1 class="text-2xl font-bold text-gray-800">
-            Welcome back!
-          </h1>
-          <p class="text-gray-500">
-            Here's your overview
-          </p>
+          <h1 class="text-2xl font-bold text-gray-800">Welcome back!</h1>
+          <p class="text-gray-500">Here's your overview</p>
         </div>
 
         <!-- Stats Cards -->
@@ -42,17 +35,13 @@
             <div class="text-3xl font-bold text-primary-500">
               {{ stats.projects }}
             </div>
-            <div class="text-sm text-gray-500">
-              Active Projects
-            </div>
+            <div class="text-sm text-gray-500">Active Projects</div>
           </div>
           <div class="app-card p-4">
             <div class="text-3xl font-bold text-orange-500">
               {{ stats.tasks }}
             </div>
-            <div class="text-sm text-gray-500">
-              Pending Tasks
-            </div>
+            <div class="text-sm text-gray-500">Pending Tasks</div>
           </div>
         </div>
 
@@ -60,31 +49,17 @@
         <div class="app-card mb-6">
           <div class="app-card-header flex justify-between items-center">
             <span>Recent Projects</span>
-            <ion-button
-              fill="clear"
-              size="small"
-              @click="router.push('/smart-pro/projects')"
-            >
+            <ion-button fill="clear" size="small" @click="router.push('/smart-pro/projects')">
               See All
             </ion-button>
           </div>
-          <div
-            v-if="loading"
-            class="p-4"
-          >
+          <div v-if="loading" class="p-4">
             <div class="skeleton h-16 mb-3" />
             <div class="skeleton h-16 mb-3" />
           </div>
-          <div
-            v-else-if="projects.length === 0"
-            class="empty-state py-8"
-          >
-            <div class="empty-state-title">
-              No projects yet
-            </div>
-            <div class="empty-state-description">
-              Create your first project to get started
-            </div>
+          <div v-else-if="projects.length === 0" class="empty-state py-8">
+            <div class="empty-state-title">No projects yet</div>
+            <div class="empty-state-description">Create your first project to get started</div>
           </div>
           <div v-else>
             <div
@@ -115,7 +90,9 @@
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+              <div
+                class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3"
+              >
                 <ion-icon :icon="gitNetworkOutline" class="text-xl text-purple-600" />
               </div>
               <div>
@@ -128,10 +105,7 @@
         </div>
 
         <!-- Insights Dashboard (Full Access Users Only) -->
-        <div
-          v-if="hasFullAccess"
-          class="app-card mb-6"
-        >
+        <div v-if="hasFullAccess" class="app-card mb-6">
           <div class="app-card-header flex items-center">
             <ion-icon :icon="analyticsOutline" class="text-lg text-blue-400 mr-2" />
             <span>Insights Dashboard</span>
@@ -139,7 +113,9 @@
           <div class="p-4">
             <!-- Project Status Overview -->
             <div class="mb-4">
-              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Project Status</div>
+              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+                Project Status
+              </div>
               <div class="grid grid-cols-2 gap-2">
                 <div class="insight-card insight-card-green">
                   <div class="text-xl font-bold">{{ insights.activeProjects }}</div>
@@ -162,7 +138,9 @@
 
             <!-- Task Overview -->
             <div class="mb-4">
-              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Task Overview</div>
+              <div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+                Task Overview
+              </div>
               <div class="grid grid-cols-3 gap-2">
                 <div class="insight-card insight-card-blue">
                   <div class="text-xl font-bold">{{ insights.openTasks }}</div>
@@ -185,11 +163,15 @@
               <div class="space-y-2">
                 <div class="summary-row">
                   <span class="text-sm text-gray-600 dark:text-gray-400">Total Projects</span>
-                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{ insights.totalProjects }}</span>
+                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{
+                    insights.totalProjects
+                  }}</span>
                 </div>
                 <div class="summary-row">
                   <span class="text-sm text-gray-600 dark:text-gray-400">Total Tasks</span>
-                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{ insights.totalTasks }}</span>
+                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{
+                    insights.totalTasks
+                  }}</span>
                 </div>
                 <div class="summary-row">
                   <span class="text-sm text-gray-600 dark:text-gray-400">Completion Rate</span>
@@ -197,7 +179,14 @@
                 </div>
                 <div class="summary-row summary-row-last">
                   <span class="text-sm text-gray-600 dark:text-gray-400">Overdue Tasks</span>
-                  <span :class="['font-semibold', insights.overdueTasks > 0 ? 'text-red-500' : 'text-gray-800 dark:text-gray-200']">
+                  <span
+                    :class="[
+                      'font-semibold',
+                      insights.overdueTasks > 0
+                        ? 'text-red-500'
+                        : 'text-gray-800 dark:text-gray-200',
+                    ]"
+                  >
                     {{ insights.overdueTasks }}
                   </span>
                 </div>
@@ -210,31 +199,17 @@
         <div class="app-card">
           <div class="app-card-header flex justify-between items-center">
             <span>My Tasks</span>
-            <ion-button
-              fill="clear"
-              size="small"
-              @click="router.push('/smart-pro/tasks')"
-            >
+            <ion-button fill="clear" size="small" @click="router.push('/smart-pro/tasks')">
               See All
             </ion-button>
           </div>
-          <div
-            v-if="loading"
-            class="p-4"
-          >
+          <div v-if="loading" class="p-4">
             <div class="skeleton h-16 mb-3" />
             <div class="skeleton h-16 mb-3" />
           </div>
-          <div
-            v-else-if="tasks.length === 0"
-            class="empty-state py-8"
-          >
-            <div class="empty-state-title">
-              No tasks assigned
-            </div>
-            <div class="empty-state-description">
-              Tasks assigned to you will appear here
-            </div>
+          <div v-else-if="tasks.length === 0" class="empty-state py-8">
+            <div class="empty-state-title">No tasks assigned</div>
+            <div class="empty-state-description">Tasks assigned to you will appear here</div>
           </div>
           <div v-else>
             <div
@@ -247,14 +222,9 @@
                 <div class="font-medium text-gray-800">
                   {{ task.title || task.name }}
                 </div>
-                <div class="text-sm text-gray-500">
-                  Due: {{ formatDate(task.due_date) }}
-                </div>
+                <div class="text-sm text-gray-500">Due: {{ formatDate(task.due_date) }}</div>
                 <div class="progress-bar mt-2">
-                  <div
-                    class="progress-bar-fill"
-                    :style="{ width: (task.progress || 0) + '%' }"
-                  />
+                  <div class="progress-bar-fill" :style="{ width: (task.progress || 0) + '%' }" />
                 </div>
               </div>
               <span :class="['status-badge', getStatusClass(task.status)]">
@@ -284,7 +254,14 @@ import {
   IonButtons,
   IonIcon,
 } from "@ionic/vue"
-import { gitNetworkOutline, chevronForwardOutline, notificationsOutline, moonOutline, sunnyOutline, analyticsOutline } from "ionicons/icons"
+import {
+  gitNetworkOutline,
+  chevronForwardOutline,
+  notificationsOutline,
+  moonOutline,
+  sunnyOutline,
+  analyticsOutline,
+} from "ionicons/icons"
 import { createResource, call } from "frappe-ui"
 import { usePermissions } from "@/composables/usePermissions"
 
@@ -331,7 +308,12 @@ async function loadData(forceRefresh = false) {
   const now = Date.now()
 
   // Skip reload if data is fresh (unless forced)
-  if (!forceRefresh && lastLoadTime && (now - lastLoadTime) < CACHE_TTL && projects.value.length > 0) {
+  if (
+    !forceRefresh &&
+    lastLoadTime &&
+    now - lastLoadTime < CACHE_TTL &&
+    projects.value.length > 0
+  ) {
     return
   }
 
@@ -383,10 +365,15 @@ async function loadData(forceRefresh = false) {
         completedProjects: projects.value.filter((p) => p.status === "Completed").length,
         totalTasks: totalTasksCount,
         openTasks: tasks.value.filter((t) => t.status === "Open").length,
-        workingTasks: tasks.value.filter((t) => t.status === "Working" || t.status === "Pending Review").length,
+        workingTasks: tasks.value.filter(
+          (t) => t.status === "Working" || t.status === "Pending Review"
+        ).length,
         completedTasks: completedTasksCount,
-        overdueTasks: tasks.value.filter((t) => t.due_date && t.due_date < today && t.status !== "Completed").length,
-        completionRate: totalTasksCount > 0 ? Math.round((completedTasksCount / totalTasksCount) * 100) : 0,
+        overdueTasks: tasks.value.filter(
+          (t) => t.due_date && t.due_date < today && t.status !== "Completed"
+        ).length,
+        completionRate:
+          totalTasksCount > 0 ? Math.round((completedTasksCount / totalTasksCount) * 100) : 0,
       }
     }
 
@@ -440,8 +427,8 @@ async function loadNotificationCount() {
       doctype: "Notification Log",
       filters: {
         for_user: ["like", "%"],
-        read: 0
-      }
+        read: 0,
+      },
     })
     notificationCount.value = count || 0
   } catch (err) {

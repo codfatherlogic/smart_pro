@@ -103,7 +103,7 @@ async function getAuthUser(forceRefresh = false) {
   const now = Date.now()
 
   // Return cached value if valid and not forcing refresh
-  if (!forceRefresh && authCache.user !== null && (now - authCache.timestamp) < authCache.TTL) {
+  if (!forceRefresh && authCache.user !== null && now - authCache.timestamp < authCache.TTL) {
     return authCache.user
   }
 

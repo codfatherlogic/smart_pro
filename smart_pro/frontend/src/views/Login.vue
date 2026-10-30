@@ -1,9 +1,6 @@
 <template>
   <ion-page>
-    <ion-content
-      :fullscreen="true"
-      class="ion-padding login-content"
-    >
+    <ion-content :fullscreen="true" class="ion-padding login-content">
       <div class="flex flex-col items-center justify-center min-h-full">
         <!-- Logo -->
         <div class="mb-8 text-center">
@@ -12,12 +9,8 @@
           >
             <span class="text-3xl font-bold text-white">SP</span>
           </div>
-          <h1 class="text-2xl font-bold title-text">
-            Smart Pro
-          </h1>
-          <p class="subtitle-text">
-            Project Management
-          </p>
+          <h1 class="text-2xl font-bold title-text">Smart Pro</h1>
+          <p class="subtitle-text">Project Management</p>
         </div>
 
         <!-- Login Form -->
@@ -54,37 +47,24 @@
                 :disabled="loading || !email || !password"
                 class="login-button"
               >
-                <ion-spinner
-                  v-if="loading"
-                  name="crescent"
-                  class="mr-2"
-                />
+                <ion-spinner v-if="loading" name="crescent" class="mr-2" />
                 {{ loading ? "Signing in..." : "Sign In" }}
               </ion-button>
             </form>
 
-            <div
-              v-if="error"
-              class="mt-4 p-3 error-message rounded-lg text-sm"
-            >
+            <div v-if="error" class="mt-4 p-3 error-message rounded-lg text-sm">
               {{ error }}
             </div>
 
             <!-- Social Login Divider -->
-            <div
-              v-if="socialProviders.length > 0"
-              class="divider-container my-6"
-            >
+            <div v-if="socialProviders.length > 0" class="divider-container my-6">
               <div class="divider-line" />
               <span class="divider-text">or continue with</span>
               <div class="divider-line" />
             </div>
 
             <!-- Social Login Buttons -->
-            <div
-              v-if="socialProviders.length > 0"
-              class="social-login-container"
-            >
+            <div v-if="socialProviders.length > 0" class="social-login-container">
               <button
                 v-for="provider in socialProviders"
                 :key="provider.name"
@@ -100,31 +80,20 @@
             </div>
 
             <!-- Loading social providers -->
-            <div
-              v-if="loadingProviders"
-              class="text-center py-4"
-            >
+            <div v-if="loadingProviders" class="text-center py-4">
               <ion-spinner name="dots" class="social-spinner" />
             </div>
           </div>
 
           <div class="text-center mt-6 text-sm">
-            <a
-              href="/login#forgot"
-              class="forgot-link"
-            >Forgot Password?</a>
+            <a href="/login#forgot" class="forgot-link">Forgot Password?</a>
           </div>
 
           <!-- Theme Toggle -->
           <div class="text-center mt-4">
-            <ion-button
-              fill="clear"
-              size="small"
-              @click="toggleDarkMode"
-              class="theme-toggle-btn"
-            >
+            <ion-button fill="clear" size="small" @click="toggleDarkMode" class="theme-toggle-btn">
               <ion-icon :icon="isDarkMode ? sunnyOutline : moonOutline" slot="start" />
-              {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+              {{ isDarkMode ? "Light Mode" : "Dark Mode" }}
             </ion-button>
           </div>
         </div>
@@ -144,7 +113,7 @@ import {
   logoMicrosoft,
   globeOutline,
   moonOutline,
-  sunnyOutline
+  sunnyOutline,
 } from "ionicons/icons"
 import { call } from "frappe-ui"
 
@@ -164,7 +133,7 @@ const iconMap = {
   "logo-github": logoGithub,
   "logo-facebook": logoFacebook,
   "logo-microsoft": logoMicrosoft,
-  "globe-outline": globeOutline
+  "globe-outline": globeOutline,
 }
 
 function getProviderIcon(iconName) {
@@ -177,7 +146,7 @@ async function loadSocialProviders() {
     // Pass the redirect URL so OAuth returns to our app after login
     const redirectTo = window.location.origin + "/smart-pro/home"
     const result = await call("smart_pro.smart_pro.api.projects.get_social_login_providers", {
-      redirect_to: redirectTo
+      redirect_to: redirectTo,
     })
     if (result && result.success) {
       socialProviders.value = result.providers || []

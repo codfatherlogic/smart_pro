@@ -3,8 +3,9 @@ Offline Storage Management for Smart Pro PWA
 Handles caching and synchronization of data when offline
 """
 
-import frappe
 import json
+
+import frappe
 from frappe.utils import now_datetime
 
 
@@ -193,7 +194,7 @@ def sync_offline_changes(changes):
 		try:
 			changes = json.loads(changes)
 		except json.JSONDecodeError as e:
-			return {"status": "error", "message": f"Invalid JSON: {str(e)}"}
+			return {"status": "error", "message": f"Invalid JSON: {e!s}"}
 
 	return manager.sync_offline_changes(user, changes)
 

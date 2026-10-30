@@ -65,7 +65,7 @@ class EmployeeProjectAssignment(Document):
 				f"Date Request created for approval: {date_request.name}", indicator="blue", alert=True
 			)
 		except Exception as e:
-			frappe.log_error(f"Failed to create date request: {str(e)}", "Employee Project Assignment")
+			frappe.log_error(f"Failed to create date request: {e!s}", "Employee Project Assignment")
 			frappe.msgprint(
-				f"Note: Date request could not be auto-created. Please create manually.", indicator="orange"
+				"Note: Date request could not be auto-created. Please create manually.", indicator="orange"
 			)

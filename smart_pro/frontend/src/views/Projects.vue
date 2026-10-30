@@ -14,11 +14,7 @@
         </ion-buttons>
       </ion-toolbar>
       <ion-toolbar>
-        <ion-searchbar
-          v-model="searchQuery"
-          placeholder="Search projects..."
-          :debounce="300"
-        />
+        <ion-searchbar v-model="searchQuery" placeholder="Search projects..." :debounce="300" />
       </ion-toolbar>
       <ion-toolbar>
         <ion-segment v-model="statusFilter" scrollable>
@@ -42,23 +38,13 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <ion-refresher
-        slot="fixed"
-        @ion-refresh="handleRefresh"
-      >
+      <ion-refresher slot="fixed" @ion-refresh="handleRefresh">
         <ion-refresher-content />
       </ion-refresher>
 
       <!-- Loading State -->
-      <div
-        v-if="loading"
-        class="p-4"
-      >
-        <div
-          v-for="i in 5"
-          :key="i"
-          class="app-card mb-4 p-4"
-        >
+      <div v-if="loading" class="p-4">
+        <div v-for="i in 5" :key="i" class="app-card mb-4 p-4">
           <div class="skeleton h-5 w-3/4 mb-2" />
           <div class="skeleton h-4 w-1/2 mb-2" />
           <div class="skeleton h-3 w-full" />
@@ -66,27 +52,16 @@
       </div>
 
       <!-- Empty State -->
-      <div
-        v-else-if="filteredProjects.length === 0"
-        class="empty-state h-full"
-      >
-        <ion-icon
-          :icon="folderOutline"
-          class="empty-state-icon"
-        />
-        <div class="empty-state-title">
-          No projects found
-        </div>
+      <div v-else-if="filteredProjects.length === 0" class="empty-state h-full">
+        <ion-icon :icon="folderOutline" class="empty-state-icon" />
+        <div class="empty-state-title">No projects found</div>
         <div class="empty-state-description">
           {{ getEmptyMessage }}
         </div>
       </div>
 
       <!-- Projects List -->
-      <div
-        v-else
-        class="p-4"
-      >
+      <div v-else class="p-4">
         <div
           v-for="project in filteredProjects"
           :key="project.name"
@@ -104,15 +79,11 @@
           <div class="text-sm text-gray-500 mb-3">
             {{ formatDate(project.start_date) }} - {{ formatDate(project.end_date) }}
           </div>
-          <div
-            v-if="project.budget_amount"
-            class="text-sm text-gray-600"
-          >
+          <div v-if="project.budget_amount" class="text-sm text-gray-600">
             Budget: {{ formatCurrency(project.budget_amount) }}
           </div>
         </div>
       </div>
-
     </ion-content>
   </ion-page>
 </template>
@@ -171,13 +142,13 @@ const filteredProjects = computed(() => {
   // Apply status filter (except for completed which is already filtered)
   if (statusFilter.value !== "all" && statusFilter.value !== "completed") {
     const statusMap = {
-      "active": "Active",
-      "planning": "Planning",
+      active: "Active",
+      planning: "Planning",
       "on-hold": "On Hold",
-      "cancelled": "Cancelled"
+      cancelled: "Cancelled",
     }
     const targetStatus = statusMap[statusFilter.value]
-    result = result.filter(p => p.status === targetStatus)
+    result = result.filter((p) => p.status === targetStatus)
   }
 
   // Apply search filter
@@ -199,11 +170,11 @@ const getEmptyMessage = computed(() => {
   }
   if (statusFilter.value !== "all") {
     const filterLabels = {
-      "active": "active",
-      "planning": "planning",
-      "completed": "completed",
+      active: "active",
+      planning: "planning",
+      completed: "completed",
       "on-hold": "on hold",
-      "cancelled": "cancelled"
+      cancelled: "cancelled",
     }
     return `No ${filterLabels[statusFilter.value]} projects`
   }
@@ -218,7 +189,12 @@ async function loadData(forceRefresh = false) {
   const now = Date.now()
 
   // Skip reload if data is fresh (unless forced)
-  if (!forceRefresh && lastLoadTime && (now - lastLoadTime) < CACHE_TTL && projects.value.length > 0) {
+  if (
+    !forceRefresh &&
+    lastLoadTime &&
+    now - lastLoadTime < CACHE_TTL &&
+    projects.value.length > 0
+  ) {
     return
   }
 
@@ -230,7 +206,7 @@ async function loadData(forceRefresh = false) {
     // For full access users, get all projects; otherwise get user's projects
     if (hasFullAccess.value) {
       const result = await call("smart_pro.smart_pro.api.projects.get_all_projects")
-      projects.value = (result || []).filter(p => p.status !== "Completed")
+      projects.value = (result || []).filter((p) => p.status !== "Completed")
     } else {
       // Load active projects (excludes completed by default)
       await projectsResource.fetch()
@@ -253,12 +229,12 @@ async function loadCompletedProjects() {
     // For full access users, get all completed projects
     if (hasFullAccess.value) {
       const result = await call("smart_pro.smart_pro.api.projects.get_all_projects")
-      completedProjects.value = (result || []).filter(p => p.status === "Completed")
+      completedProjects.value = (result || []).filter((p) => p.status === "Completed")
     } else {
       await completedProjectsResource.fetch({ include_completed: "true" })
       const allProjects = completedProjectsResource.data || []
       // Filter to only show completed projects
-      completedProjects.value = allProjects.filter(p => p.status === "Completed")
+      completedProjects.value = allProjects.filter((p) => p.status === "Completed")
     }
     completedLoaded = true
   } catch (error) {

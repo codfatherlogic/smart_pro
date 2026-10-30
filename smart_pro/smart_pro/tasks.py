@@ -2,7 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.utils import today, add_days, getdate, formatdate
+from frappe.utils import add_days, formatdate, getdate, today
 
 
 def get_settings():
@@ -124,7 +124,7 @@ def send_project_end_date_reminders():
 			)
 
 		except Exception as e:
-			frappe.logger().error(f"Smart Pro: Error sending project reminder for {project.name}: {str(e)}")
+			frappe.logger().error(f"Smart Pro: Error sending project reminder for {project.name}: {e!s}")
 
 
 def send_task_due_date_reminders():
@@ -243,7 +243,7 @@ def send_task_due_date_reminders():
 			)
 
 		except Exception as e:
-			frappe.logger().error(f"Smart Pro: Error sending task reminder for {task.name}: {str(e)}")
+			frappe.logger().error(f"Smart Pro: Error sending task reminder for {task.name}: {e!s}")
 
 
 def send_weekly_project_report():
@@ -389,7 +389,7 @@ def send_weekly_project_report():
 			frappe.logger().info(f"Smart Pro: Sent weekly report to {manager_email}")
 
 		except Exception as e:
-			frappe.logger().error(f"Smart Pro: Error sending weekly report to {manager_email}: {str(e)}")
+			frappe.logger().error(f"Smart Pro: Error sending weekly report to {manager_email}: {e!s}")
 
 
 def daily():

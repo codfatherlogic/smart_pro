@@ -30,15 +30,8 @@
       </ion-refresher>
 
       <!-- Loading State -->
-      <div
-        v-if="loading"
-        class="p-4"
-      >
-        <div
-          v-for="i in 3"
-          :key="i"
-          class="app-card mb-4 p-4"
-        >
+      <div v-if="loading" class="p-4">
+        <div v-for="i in 3" :key="i" class="app-card mb-4 p-4">
           <div class="skeleton h-5 w-3/4 mb-2" />
           <div class="skeleton h-4 w-1/2 mb-2" />
           <div class="skeleton h-3 w-full" />
@@ -50,44 +43,23 @@
         v-else-if="approvalType === 'date_requests' && dateRequests.length === 0"
         class="empty-state h-full"
       >
-        <ion-icon
-          :icon="checkmarkDoneOutline"
-          class="empty-state-icon"
-        />
-        <div class="empty-state-title">
-          No pending date requests
-        </div>
-        <div class="empty-state-description">
-          All date requests have been approved or rejected
-        </div>
+        <ion-icon :icon="checkmarkDoneOutline" class="empty-state-icon" />
+        <div class="empty-state-title">No pending date requests</div>
+        <div class="empty-state-description">All date requests have been approved or rejected</div>
       </div>
 
       <div
         v-else-if="approvalType === 'timesheets' && timeSheets.length === 0"
         class="empty-state h-full"
       >
-        <ion-icon
-          :icon="timeOutline"
-          class="empty-state-icon"
-        />
-        <div class="empty-state-title">
-          No pending time sheets
-        </div>
-        <div class="empty-state-description">
-          All time sheets have been approved or rejected
-        </div>
+        <ion-icon :icon="timeOutline" class="empty-state-icon" />
+        <div class="empty-state-title">No pending time sheets</div>
+        <div class="empty-state-description">All time sheets have been approved or rejected</div>
       </div>
 
       <!-- Date Requests List -->
-      <div
-        v-else-if="approvalType === 'date_requests'"
-        class="p-4"
-      >
-        <div
-          v-for="request in dateRequests"
-          :key="request.name"
-          class="app-card mb-4 p-4"
-        >
+      <div v-else-if="approvalType === 'date_requests'" class="p-4">
+        <div v-for="request in dateRequests" :key="request.name" class="app-card mb-4 p-4">
           <div class="flex justify-between items-start mb-2">
             <div>
               <h3 class="font-semibold text-gray-800">
@@ -97,35 +69,21 @@
                 {{ request.request_type }}
               </div>
             </div>
-            <span class="status-badge pending">
-              Pending
-            </span>
+            <span class="status-badge pending"> Pending </span>
           </div>
 
           <div class="text-sm text-gray-600 mb-3">
             <div class="flex items-center mb-1">
-              <ion-icon
-                :icon="calendarOutline"
-                class="mr-2"
-              />
+              <ion-icon :icon="calendarOutline" class="mr-2" />
               {{ formatDate(request.from_date) }} - {{ formatDate(request.to_date) }}
             </div>
-            <div
-              v-if="request.project_title"
-              class="mt-1 text-blue-600"
-            >
+            <div v-if="request.project_title" class="mt-1 text-blue-600">
               <strong>Project:</strong> {{ request.project_title }}
             </div>
-            <div
-              v-if="request.reason"
-              class="mt-2 line-clamp-3"
-            >
+            <div v-if="request.reason" class="mt-2 line-clamp-3">
               <strong>Reason:</strong> {{ stripHtml(request.reason) }}
             </div>
-            <div
-              v-if="request.auto_create_tasks"
-              class="mt-2 text-xs text-green-600"
-            >
+            <div v-if="request.auto_create_tasks" class="mt-2 text-xs text-green-600">
               Tasks will be auto-created on approval
             </div>
           </div>
@@ -138,11 +96,7 @@
               :disabled="processingRequest === request.name"
               @click="approveRequest(request.name)"
             >
-              <ion-spinner
-                v-if="processingRequest === request.name"
-                name="crescent"
-                class="mr-2"
-              />
+              <ion-spinner v-if="processingRequest === request.name" name="crescent" class="mr-2" />
               Approve
             </ion-button>
             <ion-button
@@ -152,19 +106,10 @@
               :disabled="processingRequest === request.name"
               @click="rejectRequest(request.name)"
             >
-              <ion-spinner
-                v-if="processingRequest === request.name"
-                name="crescent"
-                class="mr-2"
-              />
+              <ion-spinner v-if="processingRequest === request.name" name="crescent" class="mr-2" />
               Reject
             </ion-button>
-            <ion-button
-              expand="block"
-              color="medium"
-              size="small"
-              @click="viewDetails(request)"
-            >
+            <ion-button expand="block" color="medium" size="small" @click="viewDetails(request)">
               Details
             </ion-button>
           </div>
@@ -172,22 +117,15 @@
       </div>
 
       <!-- Time Sheets List -->
-      <div
-        v-else
-        class="p-4"
-      >
-        <div
-          v-for="timesheet in timeSheets"
-          :key="timesheet.name"
-          class="app-card mb-4 p-4"
-        >
+      <div v-else class="p-4">
+        <div v-for="timesheet in timeSheets" :key="timesheet.name" class="app-card mb-4 p-4">
           <div class="flex justify-between items-start mb-2">
             <div>
               <h3 class="font-semibold text-gray-800">
-                {{ timesheet.employee || 'Employee' }}
+                {{ timesheet.employee || "Employee" }}
               </h3>
               <div class="text-sm text-gray-500">
-                {{ timesheet.task || 'General Work' }}
+                {{ timesheet.task || "General Work" }}
               </div>
             </div>
             <span :class="['status-badge', getTimesheetStatusClass(timesheet.status)]">
@@ -197,23 +135,14 @@
 
           <div class="text-sm text-gray-600 mb-3">
             <div class="flex items-center mb-1">
-              <ion-icon
-                :icon="calendarOutline"
-                class="mr-2"
-              />
+              <ion-icon :icon="calendarOutline" class="mr-2" />
               {{ formatDate(timesheet.date) }}
             </div>
             <div class="flex items-center">
-              <ion-icon
-                :icon="timeOutline"
-                class="mr-2"
-              />
+              <ion-icon :icon="timeOutline" class="mr-2" />
               {{ timesheet.hours_worked }} hours
             </div>
-            <div
-              v-if="timesheet.project"
-              class="mt-1"
-            >
+            <div v-if="timesheet.project" class="mt-1">
               <strong>Project:</strong> {{ timesheet.project }}
             </div>
           </div>
@@ -259,7 +188,10 @@
             </ion-button>
           </div>
           <!-- Read-only indicator for full access users viewing others' timesheets -->
-          <div v-if="timesheet.status === 'Submitted' && !canApproveTimesheet(timesheet)" class="text-xs text-gray-500 mt-2 italic">
+          <div
+            v-if="timesheet.status === 'Submitted' && !canApproveTimesheet(timesheet)"
+            class="text-xs text-gray-500 mt-2 italic"
+          >
             View only - not your project
           </div>
         </div>
@@ -289,16 +221,12 @@ import {
   toastController,
   onIonViewWillEnter,
 } from "@ionic/vue"
-import {
-  refreshOutline,
-  calendarOutline,
-  timeOutline,
-  checkmarkDoneOutline,
-} from "ionicons/icons"
+import { refreshOutline, calendarOutline, timeOutline, checkmarkDoneOutline } from "ionicons/icons"
 import { call } from "frappe-ui"
 import { usePermissions } from "@/composables/usePermissions"
 
-const { fetchPermissions, hasFullAccess, isProjectManager, canApproveTimesheetForProject } = usePermissions()
+const { fetchPermissions, hasFullAccess, isProjectManager, canApproveTimesheetForProject } =
+  usePermissions()
 
 const loading = ref(true)
 const approvalType = ref("date_requests")
@@ -319,7 +247,7 @@ async function loadDateRequests() {
     if (hasFullAccess.value) {
       const result = await call("smart_pro.smart_pro.api.projects.get_all_date_requests")
       // Filter for pending only in approvals view
-      dateRequests.value = (result || []).filter(r => r.status === "Pending Approval")
+      dateRequests.value = (result || []).filter((r) => r.status === "Pending Approval")
     } else {
       const result = await call("smart_pro.smart_pro.api.projects.get_pending_approvals")
       dateRequests.value = result?.date_requests || []
@@ -338,7 +266,7 @@ async function loadTimeSheets() {
     } else {
       const result = await call("smart_pro.smart_pro.api.projects.get_team_time_sheets")
       // Filter for pending time sheets (status = "Submitted")
-      timeSheets.value = (result || []).filter(ts => ts.status === "Submitted")
+      timeSheets.value = (result || []).filter((ts) => ts.status === "Submitted")
     }
   } catch (err) {
     console.error("Error loading time sheets:", err)
@@ -369,7 +297,7 @@ async function approveRequest(requestId) {
     await toast.present()
 
     // Remove from list
-    dateRequests.value = dateRequests.value.filter(req => req.name !== requestId)
+    dateRequests.value = dateRequests.value.filter((req) => req.name !== requestId)
   } catch (err) {
     console.error("Error approving request:", err)
     const toast = await toastController.create({
@@ -399,7 +327,7 @@ async function rejectRequest(requestId) {
     await toast.present()
 
     // Remove from list
-    dateRequests.value = dateRequests.value.filter(req => req.name !== requestId)
+    dateRequests.value = dateRequests.value.filter((req) => req.name !== requestId)
   } catch (err) {
     console.error("Error rejecting request:", err)
     const toast = await toastController.create({
@@ -429,7 +357,7 @@ async function approveTimesheet(timesheetId) {
     await toast.present()
 
     // Remove from list
-    timeSheets.value = timeSheets.value.filter(ts => ts.name !== timesheetId)
+    timeSheets.value = timeSheets.value.filter((ts) => ts.name !== timesheetId)
   } catch (err) {
     console.error("Error approving time sheet:", err)
     const toast = await toastController.create({
@@ -459,7 +387,7 @@ async function rejectTimesheet(timesheetId) {
     await toast.present()
 
     // Remove from list
-    timeSheets.value = timeSheets.value.filter(ts => ts.name !== timesheetId)
+    timeSheets.value = timeSheets.value.filter((ts) => ts.name !== timesheetId)
   } catch (err) {
     console.error("Error rejecting time sheet:", err)
     const toast = await toastController.create({
@@ -475,17 +403,29 @@ async function rejectTimesheet(timesheetId) {
 
 function viewDetails(request) {
   // For now, just show an alert
-  alert(`Request Details:\nEmployee: ${request.employee_name}\nType: ${request.request_type}\nDates: ${formatDate(request.from_date)} to ${formatDate(request.to_date)}\nReason: ${request.reason || 'None'}`)
+  alert(
+    `Request Details:\nEmployee: ${request.employee_name}\nType: ${
+      request.request_type
+    }\nDates: ${formatDate(request.from_date)} to ${formatDate(request.to_date)}\nReason: ${
+      request.reason || "None"
+    }`
+  )
 }
 
 function viewTimesheetDetails(timesheet) {
-  alert(`Time Sheet Details:\nEmployee: ${timesheet.employee}\nDate: ${formatDate(timesheet.date)}\nHours: ${timesheet.hours_worked}\nTask: ${timesheet.task || 'None'}\nProject: ${timesheet.project || 'None'}`)
+  alert(
+    `Time Sheet Details:\nEmployee: ${timesheet.employee}\nDate: ${formatDate(
+      timesheet.date
+    )}\nHours: ${timesheet.hours_worked}\nTask: ${timesheet.task || "None"}\nProject: ${
+      timesheet.project || "None"
+    }`
+  )
 }
 
 function formatDate(dateStr) {
   if (!dateStr) return "-"
   const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
 function stripHtml(html) {
@@ -591,7 +531,8 @@ onIonViewWillEnter(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
